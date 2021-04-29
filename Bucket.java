@@ -14,9 +14,5 @@ public class Bucket {
         this.n = n;
         ocupacao = 0;
         registros = new ArrayList<RegistroDoIndice<Integer>>(n);
-
-        for (int i = 0; i < n; i++) {
-            System.out.println(registros.get(i));
-        }
     }
 }
