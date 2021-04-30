@@ -30,12 +30,11 @@ public class Bucket<T> {
         return n;
     }
 
-    public boolean adicionarRegistro(RegistroDoBucket<T> registro) {
-        // capacidade total do bucket já ocupada
-        return true;
+    public int getOcupacao() {
+        return ocupacao;
     }
 
-    public boolean removerRegistro(T chave_do_registro) {
-        return true;
+    public void setOcupacao(int ocupacao) {
+        this.ocupacao = ocupacao;
     }
 }

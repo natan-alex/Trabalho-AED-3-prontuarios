@@ -43,4 +43,9 @@ public class RegistroDoBucket<T> {
     public void setIsLapide(boolean isLapide) {
         this.isLapide = isLapide;
     }
+
+    @Override
+    public String toString() {
+        return "RegistroDoBucket: (chave = " + chave + ", num_registro = " + num_registro + ", is_lapide = " + isLapide + ")";
+    }
 }
