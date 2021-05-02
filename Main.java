@@ -42,6 +42,8 @@ public class Main {
 
         switch(opcao) {
             case 1:
+                Diretorio d = new Diretorio(5, "diretorio.db");
+                d.setHeaders();
                 // criar arquivo
                 break;
             case 2:
