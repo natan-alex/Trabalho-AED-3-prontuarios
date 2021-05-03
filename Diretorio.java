@@ -23,7 +23,7 @@ public class Diretorio {
     public Diretorio(int profundidade, String arquivo) {
         this.profundidade = profundidade;
 
-        for (int i = 0; i < profundidade + 1; i++) {
+        for (int i = 0; i < Math.pow(2, profundidade); i++) {
             this.indices.add(i);
         }
 
@@ -59,13 +59,13 @@ public class Diretorio {
         }
 
         this.indices = newIndices;
-
         this.printDiretorio();
     }
 
     public void duplicar() {
         List<Integer> indices = this.duplicarIndices(this.indices);
         this.profundidade++;
+
         this.indices = indices;
     }
 
