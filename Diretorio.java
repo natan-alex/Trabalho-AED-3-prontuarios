@@ -7,29 +7,31 @@ import java.util.stream.Stream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
+import java.nio.ByteBuffer;
 
 public class Diretorio {
     private int profundidade;
     private String arquivo;
-    private int[] indices;
+    private List<Integer> indices = new ArrayList<Integer>();
 
     public Diretorio() {
         this.profundidade = 0;
-        this.indices = new int[]{0};;
+        this.indices.add(0);
         this.arquivo = "/tmp/diretorio.db";
     }
 
     public Diretorio(int profundidade, String arquivo) {
         this.profundidade = profundidade;
-        this.indices = IntStream.range(0, profundidade + 1).toArray();
+
+        for (int i = 0; i < profundidade + 1; i++) {
+            this.indices.add(i);
+        }
+
         this.arquivo = arquivo;
     }
 
     public void setCabecalho() {
         try {
-            InputStream inputStream = new FileInputStream(this.arquivo);
-            System.out.println(inputStream.read());
-
             OutputStream outputStream = new FileOutputStream(this.arquivo);
             outputStream.write(profundidade);
             outputStream.close();
@@ -42,37 +44,47 @@ public class Diretorio {
 
     public int getPaginaIndice(int entrada) {
         int posicao = (int) Math.round(entrada % Math.pow(2, profundidade));
-        return indices[posicao];
+        return indices.get(posicao);
     }
 
-    public void reorganizar(int numPaginaDuplicada, int numNovaPagina) {
-        // Posso iterar sobre a lista de indices ou devo carregar o arquivo?
-    }
+    public void reorganizar(int numPaginaDuplicada, int profundidadePagina) {
+        List<Integer> newIndices = new ArrayList<Integer>(indices);
 
-    public void duplicarEReorganizar(int numPaginaDuplicada, int numNovaPagina) {
-        int[] newIndices = Stream.concat(Arrays.stream(indices), Arrays.stream(indices))
-                           .toArray(int[]::new);
-
-        int indiceNumNovaPagina = numPaginaDuplicada + (int) Math.round(Math.pow(2, profundidade));
-        newIndices[indiceNumNovaPagina] = numNovaPagina;
-        profundidade++;
-
-        try {
-            RandomAccessFile random = new RandomAccessFile(this.arquivo, "rw");
-
-            random.write(this.intTo4Bytes(numNovaPagina), this.intTo4Bytes(indiceNumNovaPagina + 1));
-            random.close();
-        } catch (FileNotFoundException ex) {
-            ex.printStackTrace();
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        // TODO: Não tem alguma forma melhor de fazer essa busca?
+        for (int i = 0; i < this.indices.size(); i++) {
+            if (this.indices.get(i) == numPaginaDuplicada) {
+                int indicePagina = (int) Math.round(i % Math.pow(2, profundidadePagina));
+                newIndices.set(i, indicePagina);
+            }
         }
 
-        indices = newIndices;
+        this.indices = newIndices;
+
+        this.printDiretorio();
     }
 
-    private byte[] intTo4Bytes(int n) {
-        return ByteBuffer.allocate(4).putInt(n).array();
+    public void duplicar() {
+        List<Integer> indices = this.duplicarIndices(this.indices);
+        this.profundidade++;
+        this.indices = indices;
+    }
+
+    private List<Integer> duplicarIndices(List<Integer> indices) {
+        List<Integer> newIndices = new ArrayList<Integer>(indices);
+        for (int i : this.indices) {
+            newIndices.add(i);
+        }
+
+        return newIndices;
+    }
+
+    // TODO: Remover
+    private void printDiretorio() {
+        System.out.println("DIRETORIO");
+        for (int i : indices) {
+            System.out.println(i);
+        }
+        System.out.println("============");
     }
 }
 
