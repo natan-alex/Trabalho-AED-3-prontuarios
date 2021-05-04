@@ -1,6 +1,11 @@
 package trabalho_aed_prontuario;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.RandomAccessFile;
+
 import java.lang.Math;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -14,30 +19,56 @@ public class Diretorio {
     private String arquivo;
     private List<Integer> indices = new ArrayList<Integer>();
 
-    public Diretorio() {
-        this.profundidade = 0;
-        this.indices.add(0);
-        this.arquivo = "/tmp/diretorio.db";
+    private static DataOutputStream dos;
+    private static DataInputStream dis;
+    private static FileOutputStream fos;
+    private static FileInputStream fis;
+
+    public Diretorio(String arquivo) {
+        this.arquivo = arquivo;
     }
 
     public Diretorio(int profundidade, String arquivo) {
         this.profundidade = profundidade;
+        this.arquivo = arquivo;
 
-        for (int i = 0; i < Math.pow(2, profundidade); i++) {
+        for (int i = 0; i < Math.pow(2, this.profundidade); i++) {
             this.indices.add(i);
         }
-
-        this.arquivo = arquivo;
     }
 
-    public void setCabecalho() {
+    public void criarArquivo() {
         try {
-            OutputStream outputStream = new FileOutputStream(this.arquivo);
-            outputStream.write(profundidade);
-            outputStream.close();
-        } catch (FileNotFoundException ex) {
+            fos = new FileOutputStream(this.arquivo);
+            dos = new DataOutputStream(fos);
+            dos.writeInt(profundidade);
+
+            for (int i = 0; i < Math.pow(2, this.profundidade); i++) {
+                dos.writeInt(i);
+            }
+
+            dos.close();
+        } catch (Exception ex) {
             ex.printStackTrace();
-        } catch (IOException ex) {
+        }
+    }
+
+    public void carregarArquivo() {
+        try {
+            fis = new FileInputStream(this.arquivo);
+            dis = new DataInputStream(fis);
+
+            int dado = dis.readInt();
+            this.profundidade = dado;
+
+            this.indices.clear();
+            while(dis.available() > 0) {
+                 dado = dis.readInt();
+                 indices.add(dado);
+            }
+
+            dis.close();
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
@@ -50,7 +81,10 @@ public class Diretorio {
     public void reorganizar(int numPaginaDuplicada, int profundidadePagina) {
         List<Integer> newIndices = new ArrayList<Integer>(indices);
 
-        // TODO: Não tem alguma forma melhor de fazer essa busca?
+        // FIXME: Não tem alguma forma melhor de fazer essa busca?
+        // TODO: Reorgizar somente sabendo o endereço da página
+        //       duplicada, não utilizando o id do página
+        // TODO: Escrever em disco
         for (int i = 0; i < this.indices.size(); i++) {
             if (this.indices.get(i) == numPaginaDuplicada) {
                 int indicePagina = (int) Math.round(i % Math.pow(2, profundidadePagina));
@@ -63,31 +97,34 @@ public class Diretorio {
     }
 
     public void duplicar() {
-        List<Integer> indices = this.duplicarIndices(this.indices);
+        List<Integer> newIndices = new ArrayList<Integer>(indices);
         this.profundidade++;
 
-        this.indices = indices;
-    }
+        try {
+            RandomAccessFile raf = new RandomAccessFile(this.arquivo, "rw");
+            raf.seek(0);
+            raf.writeInt(this.profundidade);
+            raf.close();
 
-    private List<Integer> duplicarIndices(List<Integer> indices) {
-        List<Integer> newIndices = new ArrayList<Integer>(indices);
-        for (int i : this.indices) {
-            newIndices.add(i);
+            fos = new FileOutputStream(this.arquivo, true);
+            dos = new DataOutputStream(fos);
+            for (int i : this.indices) {
+                dos.writeInt(i);
+                newIndices.add(i);
+            }
+
+            this.indices = newIndices;
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
-
-        return newIndices;
     }
 
-    // TODO: Remover
     private void printDiretorio() {
         System.out.println("DIRETORIO");
+        System.out.println("Profundidade: " + this.profundidade);
         for (int i : indices) {
             System.out.println(i);
         }
         System.out.println("============");
     }
 }
-
-/*
-  O  diretório  é  um  arquivo  de  inteiros  de  4  bytes,  cujos  valores  apontam  para  o  número  de  uma página  do  arquivo  de  índices  (começando  por  0). O  valor  da  profundidade  global  (p)  deve  ser armazenado  no  início  do  arquivo.  Durante  o  processamento,  odiretório deve ficarsempre carregado  em  memóriaprimáriamas  será  atualizado  em  disco  sempre  que  houver  alguma mudança  em  sua  estrutura  e/ou  conteúdo.A  profundidade  global  inicial  deve  ser  parâmetro  para do programa.
-*/

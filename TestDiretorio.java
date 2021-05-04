@@ -4,19 +4,24 @@ import java.io.*;
 
 public class TestDiretorio {
     public static void main(String[] args) {
-        Diretorio d = new Diretorio(0, "diretorio.db");
-        d.setCabecalho();
+        Diretorio d;
 
+        d = new Diretorio(3, "diretorio.db");
+        d.criarArquivo();
         d.duplicar();
-        d.reorganizar(0, 1);
 
-        d.duplicar();
-        d.reorganizar(0, 2);
 
-        d.duplicar();
-        d.reorganizar(2, 3);
+        d = new Diretorio("diretorio.db");
+        d.carregarArquivo();
+        // d.reorganizar(0, 1);
 
-        d.reorganizar(1, 2);
+        // d.duplicar();
+        // d.reorganizar(0, 2);
+
+        // d.duplicar();
+        // d.reorganizar(2, 3);
+
+        // d.reorganizar(1, 2);
 
         /*
           DIRETORIO

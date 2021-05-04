@@ -18,6 +18,8 @@ public class Main {
     private static FileOutputStream fos;
     private static FileInputStream fis;
 
+    private static Diretorio diretorio;
+
     public static void main(String[] args) {
         Scanner in = new Scanner(System.in);
         int opcao;
@@ -40,11 +42,12 @@ public class Main {
 
         opcao = in.nextInt();
 
+
         switch(opcao) {
             case 1:
-                Diretorio d = new Diretorio(5, "diretorio.db");
-                d.setCabecalho();
-                // criar arquivo
+                System.out.println("Qual será a profundidade inicial do hash? ");
+                opcao = in.nextInt();
+                diretorio = new Diretorio(0, "diretorio.db");
                 break;
             case 2:
                 // inserir registro
@@ -68,12 +71,14 @@ public class Main {
                 // remover registro
                 break;
             case 5:
+                diretorio = new Diretorio(0, "diretorio.db");
+                diretorio.carregarArquivo();
                 // imprimir arquivos
                 break;
             case 6:
                 // simulacao
                 break;
-            default: 
+            default:
                 break;
         }
     }
