@@ -3,6 +3,7 @@ package trabalho_aed_prontuario.indice;
 import java.io.FileInputStream;
 import java.io.DataInputStream;
 import java.io.ObjectInputStream;
+import java.io.RandomAccessFile;
 import java.io.IOException;
 
 public class TesteIndice {
@@ -16,10 +17,22 @@ public class TesteIndice {
             // params: plocal
             // indice.criarNovoBucket(1);
 
-            FileInputStream fis = new FileInputStream("indice.db");
+            // FileInputStream fis = new FileInputStream("indice.db");
+            RandomAccessFile raf = new RandomAccessFile("indice.db", "r");
+            System.out.println(raf.readInt());
+            System.out.println(raf.readInt());
+            System.out.println(raf.readInt());
+            indice.setProfundidadeGlobal(10);
+            raf.seek(0);
+            System.out.println(raf.readInt());
+            System.out.println(raf.readInt());
+            System.out.println(raf.readInt());
+
+            RegistroDoBucket[] registros = indice.getBucket( indice.criarNovoBucket(0) );
+            for (RegistroDoBucket registro : registros) {
+                System.out.println("registro: " + registro);
+            }
             // DataInputStream dis = new DataInputStream(fis);
-            // ObjectInputStream ois = new ObjectInputStream(fis);
-            // System.out.println(ois.readInt());
 
             // indice.criarNovoBucket(1);
             
