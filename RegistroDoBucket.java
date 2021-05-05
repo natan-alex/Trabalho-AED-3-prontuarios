@@ -6,7 +6,7 @@ import java.io.DataOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-public class RegistroDoBucket implements Serializavel {
+public class RegistroDoBucket extends Serializavel {
     // Cada bucket contém o valor de profundidade local (p’) seguido por n entradas, as quais 
     // são constituídas por um CPF e o número do registro no arquivo-mestre onde o registro 
     // correspondente ao CPF se encontra (começando por 0).
@@ -14,12 +14,8 @@ public class RegistroDoBucket implements Serializavel {
     private int num_registro;
     private boolean is_lapide;
 
-    // construtor sem parâmetros que será utilizado
-    // para construir um objeto com o método fromByteArray
-    public RegistroDoBucket() {
-        this.chave = 0;
-        this.num_registro = 0;
-        this.is_lapide = true;
+    public RegistroDoBucket(byte[] data) {
+        super(data);
     }
 
     public RegistroDoBucket(int chave) {
@@ -69,6 +65,7 @@ public class RegistroDoBucket implements Serializavel {
         return "RegistroDoBucket: (chave = " + chave + ", num_registro = " + num_registro + ", is_lapide = " + is_lapide + ")";
     }
 
+    @Override
     public byte[] toByteArray() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(baos);
@@ -84,7 +81,8 @@ public class RegistroDoBucket implements Serializavel {
         return baos.toByteArray();
     }
 
-    public void fromByteArray(byte[] data) {
+    @Override
+    protected void fromByteArray(byte[] data) {
         try {
             ByteArrayInputStream bais = new ByteArrayInputStream(data);
             DataInputStream dis = new DataInputStream(bais);
