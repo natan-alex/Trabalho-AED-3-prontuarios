@@ -10,7 +10,7 @@ import java.io.IOException;
 
 import trabalho_aed_prontuario.indice.Serializavel;
 
-public class Prontuario implements Serializavel {
+public class Prontuario extends Serializavel {
     // nome, data de nascimento, sexo e uma área de m caracteres/bytes para anotações do médico
     private static final byte MAX_SIZE_NOME = (byte) 50;
     private String nome;
@@ -18,6 +18,10 @@ public class Prontuario implements Serializavel {
     private char sexo;
     private String anotacoes;
     private short tam_anotacoes;
+
+    public Prontuario(byte[] data) {
+        super(data);
+    }
 
     public Prontuario(String nome, LocalDate data, char sexo, short tam_anotacoes) {
         setNome(nome);
@@ -87,7 +91,7 @@ public class Prontuario implements Serializavel {
 
     // preenche os valores dos atributos com base nos bytes
     // vindos de um array de bytes
-    public void fromByteArray(byte[] data) {
+    protected void fromByteArray(byte[] data) {
         ByteArrayInputStream bais = new ByteArrayInputStream(data);
         DataInputStream dis = new DataInputStream(bais);
 
