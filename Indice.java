@@ -11,11 +11,7 @@ import java.io.IOException;
 import java.io.EOFException;
 
 public class Indice {
-    private FileInputStream fis;
-    private FileOutputStream fos;
     private RandomAccessFile raf;
-    private DataInputStream dis;
-    private DataOutputStream dos;
 
     private int profundidade_global;
     private int tam_bucket;
@@ -99,6 +95,10 @@ public class Indice {
         }
 
         return registros;
+    }
+
+    public long criarNovoBucket() {
+        return criarNovoBucket(1);
     }
 
     // cria um novo bucket com base no tamanho do bucket
