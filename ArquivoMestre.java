@@ -17,6 +17,11 @@ public class ArquivoMestre {
     public ArquivoMestre(short num_bytes_anotacoes) {
         try {
             raf = new RandomAccessFile("arquivo_mestre.db", "rws"); 
+            // se o arquivo tiver algo, ignorar o argumento num_bytes_anotacoes
+            // e obter o número de bytes para as anotações por meio do metadado
+            // referente a ele. Caso contrário, checar se o argumento é positivo
+            // e atribuir à variável num_bytes_anotacoes. Caso o argumento seja negativo o
+            // tamanho default é de 100 bytes
             if (raf.length() > 0) {
                 this.num_bytes_anotacoes = raf.readShort();
             } else {
