@@ -12,22 +12,30 @@ public class RegistroDoBucket implements Serializavel {
     // correspondente ao CPF se encontra (começando por 0).
     private int chave;
     private int num_registro;
-    private boolean isLapide;
+    private boolean is_lapide;
+
+    // construtor sem parâmetros que será utilizado
+    // para construir um objeto com o método fromByteArray
+    public RegistroDoBucket() {
+        this.chave = 0;
+        this.num_registro = 0;
+        this.is_lapide = true;
+    }
 
     public RegistroDoBucket(int chave) {
         this.chave = chave;
         num_registro = -1;
-        isLapide = false;
+        is_lapide = false;
     }
 
     public RegistroDoBucket(int chave, int num_registro) {
         this.chave = chave;
         this.num_registro = num_registro;
-        isLapide = false;
+        is_lapide = false;
     }
 
-    public RegistroDoBucket(boolean isLapide, int chave, int num_registro) {
-        this.isLapide = isLapide;
+    public RegistroDoBucket(boolean is_lapide, int chave, int num_registro) {
+        this.is_lapide = is_lapide;
         this.chave = chave;
         this.num_registro = num_registro;
     }
@@ -49,16 +57,16 @@ public class RegistroDoBucket implements Serializavel {
     }
 
     public boolean getIsLapide() {
-        return isLapide;
+        return is_lapide;
     }
 
-    public void setIsLapide(boolean isLapide) {
-        this.isLapide = isLapide;
+    public void setIsLapide(boolean is_lapide) {
+        this.is_lapide = is_lapide;
     }
 
     @Override
     public String toString() {
-        return "RegistroDoBucket: (chave = " + chave + ", num_registro = " + num_registro + ", is_lapide = " + isLapide + ")";
+        return "RegistroDoBucket: (chave = " + chave + ", num_registro = " + num_registro + ", is_lapide = " + is_lapide + ")";
     }
 
     public byte[] toByteArray() {
@@ -66,7 +74,7 @@ public class RegistroDoBucket implements Serializavel {
         DataOutputStream dos = new DataOutputStream(baos);
 
         try {
-            dos.writeBoolean(isLapide);
+            dos.writeBoolean(is_lapide);
             dos.writeInt(chave);
             dos.writeInt(num_registro);
         } catch (IOException e) {
@@ -80,7 +88,7 @@ public class RegistroDoBucket implements Serializavel {
         try {
             ByteArrayInputStream bais = new ByteArrayInputStream(data);
             DataInputStream dis = new DataInputStream(bais);
-            this.isLapide = dis.readBoolean();
+            this.is_lapide = dis.readBoolean();
             this.chave = dis.readInt();
             this.num_registro = dis.readInt();
         } catch (IOException e) {
