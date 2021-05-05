@@ -6,28 +6,32 @@ import java.io.DataOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-public class RegistroDoBucket implements Serializavel {
+public class RegistroDoBucket extends Serializavel {
     // Cada bucket contém o valor de profundidade local (p’) seguido por n entradas, as quais 
     // são constituídas por um CPF e o número do registro no arquivo-mestre onde o registro 
     // correspondente ao CPF se encontra (começando por 0).
     private int chave;
     private int num_registro;
-    private boolean isLapide;
+    private boolean is_lapide;
+
+    public RegistroDoBucket(byte[] data) {
+        super(data);
+    }
 
     public RegistroDoBucket(int chave) {
         this.chave = chave;
         num_registro = -1;
-        isLapide = false;
+        is_lapide = false;
     }
 
     public RegistroDoBucket(int chave, int num_registro) {
         this.chave = chave;
         this.num_registro = num_registro;
-        isLapide = false;
+        is_lapide = false;
     }
 
-    public RegistroDoBucket(boolean isLapide, int chave, int num_registro) {
-        this.isLapide = isLapide;
+    public RegistroDoBucket(boolean is_lapide, int chave, int num_registro) {
+        this.is_lapide = is_lapide;
         this.chave = chave;
         this.num_registro = num_registro;
     }
@@ -49,24 +53,25 @@ public class RegistroDoBucket implements Serializavel {
     }
 
     public boolean getIsLapide() {
-        return isLapide;
+        return is_lapide;
     }
 
-    public void setIsLapide(boolean isLapide) {
-        this.isLapide = isLapide;
+    public void setIsLapide(boolean is_lapide) {
+        this.is_lapide = is_lapide;
     }
 
     @Override
     public String toString() {
-        return "RegistroDoBucket: (chave = " + chave + ", num_registro = " + num_registro + ", is_lapide = " + isLapide + ")";
+        return "RegistroDoBucket: (chave = " + chave + ", num_registro = " + num_registro + ", is_lapide = " + is_lapide + ")";
     }
 
+    @Override
     public byte[] toByteArray() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(baos);
 
         try {
-            dos.writeBoolean(isLapide);
+            dos.writeBoolean(is_lapide);
             dos.writeInt(chave);
             dos.writeInt(num_registro);
         } catch (IOException e) {
@@ -76,11 +81,12 @@ public class RegistroDoBucket implements Serializavel {
         return baos.toByteArray();
     }
 
-    public void fromByteArray(byte[] data) {
+    @Override
+    protected void fromByteArray(byte[] data) {
         try {
             ByteArrayInputStream bais = new ByteArrayInputStream(data);
             DataInputStream dis = new DataInputStream(bais);
-            this.isLapide = dis.readBoolean();
+            this.is_lapide = dis.readBoolean();
             this.chave = dis.readInt();
             this.num_registro = dis.readInt();
         } catch (IOException e) {
