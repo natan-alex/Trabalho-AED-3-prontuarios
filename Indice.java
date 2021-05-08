@@ -97,12 +97,12 @@ public class Indice {
         return registros;
     }
 
-    public long criarNovoBucket() {
-        return criarNovoBucket(1);
+    public void criarNovoBucket() {
+        criarNovoBucket(1);
     }
 
     // cria um novo bucket com base no tamanho do bucket
-    public long criarNovoBucket(int profundidade_local) {
+    public void criarNovoBucket(int profundidade_local) {
         long endereco_inicio_bucket = 0;
 
         try {
@@ -130,7 +130,5 @@ public class Indice {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        return endereco_inicio_bucket;
     }
 }
