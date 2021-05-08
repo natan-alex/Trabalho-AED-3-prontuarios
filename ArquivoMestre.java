@@ -10,7 +10,9 @@ import java.io.RandomAccessFile;
 import java.io.IOException;
 import java.io.EOFException;
 
-public class ArquivoMestre {
+import trabalho_aed_prontuario.indice.Serializavel;
+
+public class ArquivoMestre<T extends Serializavel> {
     private short num_bytes_anotacoes;
     private RandomAccessFile raf;
 
