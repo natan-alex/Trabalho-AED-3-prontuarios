@@ -73,27 +73,41 @@ public class Diretorio {
         }
     }
 
+    // Retornar página?
     public int getPaginaIndice(int entrada) {
         int posicao = (int) Math.round(entrada % Math.pow(2, profundidade));
         return indices.get(posicao);
     }
 
-    public void reorganizar(int numPaginaDuplicada, int profundidadePagina) {
+    public void reorganizar(int enderecoDupPagina, int enderecoNovaPagina, int profundidadePagina) {
         List<Integer> newIndices = new ArrayList<Integer>(indices);
 
         // FIXME: Não tem alguma forma melhor de fazer essa busca?
         // TODO: Reorgizar somente sabendo o endereço da página
         //       duplicada, não utilizando o id do página
         // TODO: Escrever em disco
-        for (int i = 0; i < this.indices.size(); i++) {
-            if (this.indices.get(i) == numPaginaDuplicada) {
-                int indicePagina = (int) Math.round(i % Math.pow(2, profundidadePagina));
-                newIndices.set(i, indicePagina);
-            }
-        }
+        try {
+            RandomAccessFile raf = new RandomAccessFile(this.arquivo, "rw");
 
-        this.indices = newIndices;
-        this.printDiretorio();
+            for (int i = 0; i < this.indices.size(); i++) {
+                if (this.indices.get(i) == enderecoDupPagina) {
+                    int oldReference = (int) Math.round(i % Math.pow(2, profundidadePagina - 1));
+                    int newReference = (int) Math.round(i % Math.pow(2, profundidadePagina));
+
+                    if (oldReference != newReference) {
+                        raf.seek((i + 1)*4);
+                        raf.writeInt(enderecoNovaPagina);
+                        newIndices.set(i, enderecoNovaPagina);
+                    }
+                }
+            }
+
+            raf.close();
+            this.indices = newIndices;
+            this.printDiretorio();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     public void duplicar() {
@@ -106,6 +120,7 @@ public class Diretorio {
             raf.writeInt(this.profundidade);
             raf.close();
 
+            // Usar só RandomAccessFile
             fos = new FileOutputStream(this.arquivo, true);
             dos = new DataOutputStream(fos);
             for (int i : this.indices) {
@@ -114,6 +129,7 @@ public class Diretorio {
             }
 
             this.indices = newIndices;
+            // this.printDiretorio();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
