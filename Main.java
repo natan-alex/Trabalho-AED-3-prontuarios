@@ -3,15 +3,9 @@ package trabalho_aed_prontuario;
 import java.time.LocalDate;
 import java.util.Scanner;
 
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import trabalho_aed_prontuario.mestre.*;
+import trabalho_aed_prontuario.indice.*;
 
-import java.io.IOException;
-import java.io.EOFException;
-
-@SuppressWarnings("unchecked")
 public class Main {
     private static ObjectOutputStream oos;
     private static ObjectInputStream ois;
@@ -21,15 +15,9 @@ public class Main {
     private static Diretorio diretorio;
 
     public static void main(String[] args) {
+        ArquivoMestre arquivo_mestre = new ArquivoMestre();
         Scanner in = new Scanner(System.in);
         int opcao;
-
-        try {
-            fos = new FileOutputStream("arquivo_mestre.db");
-            oos = new ObjectOutputStream(fos);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         System.out.println("MENU");
         System.out.println("[1] - Criar arquivo");
@@ -51,18 +39,8 @@ public class Main {
                 break;
             case 2:
                 // inserir registro
-                Prontuario p = new Prontuario("fulano", LocalDate.now(), 'm', "teste");
-                try {
-                    oos.writeObject(p);
-                    fis = new FileInputStream("arquivo_mestre.db");
-                    ois = new ObjectInputStream(fis);
-                    Prontuario p2 = (Prontuario) ois.readObject();
-                    System.out.println("lido: " + p2);
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                // Prontuario p = new Prontuario("fulano", LocalDate.now(), 'm', "teste");
+                // arquivo_mestre.inserir_registro(p);
                 break;
             case 3:
                 // editar registro

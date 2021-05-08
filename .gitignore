@@ -1,3 +1,6 @@
 .*~
 .class
 /trabalho_aed_prontuario/
+.idea
+*.iml
+indice.db
