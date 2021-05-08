@@ -86,7 +86,7 @@ public class Indice {
     public RegistroDoBucket[] getBucket(long pos_inicio) {
         RegistroDoBucket[] registros = new RegistroDoBucket[tam_bucket];
         try {
-            raf.seek(pos_inicio + 4);
+            raf.seek(pos_inicio + 8);
             for (int i = 0; i < tam_bucket; i++) {
                 registros[i] = new RegistroDoBucket(raf.readBoolean(), raf.readInt(), raf.readInt());
             }
@@ -115,6 +115,7 @@ public class Indice {
             System.out.println("raf.length(): " + raf.length());
 
             raf.writeInt(profundidade_local);
+            raf.writeInt(0);
             for (int i = 0; i < tam_bucket; i++) {
                 System.out.println("prox_cpf: " + prox_cpf);
                 // escrever no arquivo os bytes que dizem

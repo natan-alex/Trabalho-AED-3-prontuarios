@@ -7,6 +7,16 @@ import trabalho_aed_prontuario.mestre.*;
 import trabalho_aed_prontuario.indice.*;
 
 public class Main {
+<<<<<<< HEAD
+=======
+    private static ObjectOutputStream oos;
+    private static ObjectInputStream ois;
+    private static FileOutputStream fos;
+    private static FileInputStream fis;
+
+    private static Diretorio diretorio;
+
+>>>>>>> 591550fc35b82237f24488e85f79c2a60a597c85
     public static void main(String[] args) {
         ArquivoMestre arquivo_mestre = new ArquivoMestre();
         Scanner in = new Scanner(System.in);
@@ -23,9 +33,12 @@ public class Main {
 
         opcao = in.nextInt();
 
+
         switch(opcao) {
             case 1:
-                // criar arquivo
+                System.out.println("Qual será a profundidade inicial do hash? ");
+                opcao = in.nextInt();
+                diretorio = new Diretorio(0, "diretorio.db");
                 break;
             case 2:
                 // inserir registro
@@ -39,12 +52,14 @@ public class Main {
                 // remover registro
                 break;
             case 5:
+                diretorio = new Diretorio(0, "diretorio.db");
+                diretorio.carregarArquivo();
                 // imprimir arquivos
                 break;
             case 6:
                 // simulacao
                 break;
-            default: 
+            default:
                 break;
         }
     }

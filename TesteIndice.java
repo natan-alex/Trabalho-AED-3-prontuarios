@@ -32,10 +32,6 @@ public class TesteIndice {
             for (RegistroDoBucket registro : registros) {
                 System.out.println("registro: " + registro);
             }
-            // DataInputStream dis = new DataInputStream(fis);
-
-            // indice.criarNovoBucket(1);
-            
         } catch (IOException e) {
             e.printStackTrace();
         }
