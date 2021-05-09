@@ -56,19 +56,29 @@ public class ArquivoMestre {
     // inserir um registro no fim do arquivo de dados
     public int inserir_registro(Prontuario registro) {
         try {
-            System.out.println("tam arquivo mestre: " + raf.length());
-            raf.seek( raf.length() ); // ir para o fim do arquivo 
+            // num_registros_no_arquivo corresponde também ao último
+            // id usado, já que o primeiro id começa em 1 e é auto
+            // increment, portanto pode ser usado para verificar
+            // se o id, que é o número de instancias feitas em 
+            // Prontuario, do registro passado como argumento 
+            // possibilita a inserção do registro
+            if (Prontuario.getInstancias() > num_registros_no_arquivo) {
+                System.out.println("tam arquivo mestre: " + raf.length());
+                raf.seek( raf.length() ); // ir para o fim do arquivo 
 
-            // inserir o tamanho em bytes do 
-            // registro e depois o registro
-            byte[] registro_em_bytes = registro.toByteArray();
-            raf.writeShort( registro_em_bytes.length );
-            raf.write(registro_em_bytes);
-            registro_em_bytes = null;
+                // inserir o tamanho em bytes do 
+                // registro e depois o registro
+                byte[] registro_em_bytes = registro.toByteArray();
+                raf.writeShort( registro_em_bytes.length );
+                raf.write(registro_em_bytes);
+                registro_em_bytes = null;
 
-            // atualizar o número de registros presentes no arquivo
-            raf.seek(0);
-            raf.writeInt(++num_registros_no_arquivo);
+                // atualizar o número de registros presentes no arquivo
+                raf.seek(0);
+                raf.writeInt(++num_registros_no_arquivo);
+            } else {
+                // registro ja existe no arquivo
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

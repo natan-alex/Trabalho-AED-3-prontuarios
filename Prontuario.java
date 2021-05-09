@@ -18,9 +18,11 @@ public class Prontuario extends Serializavel {
     private char sexo;
     private String anotacoes;
     private short tam_anotacoes;
+    private static int instancias;
 
     public Prontuario(byte[] data) {
         super(data);
+        instancias++;
     }
 
     public Prontuario(String nome, LocalDate data, char sexo, short tam_anotacoes) {
@@ -29,6 +31,7 @@ public class Prontuario extends Serializavel {
         this.sexo = sexo;
         this.tam_anotacoes = tam_anotacoes;
         setAnotacoes("");
+        instancias++;
     }
 
     public Prontuario(String nome, LocalDate data, char sexo, short tam_anotacoes, String anotacoes) {
@@ -37,6 +40,11 @@ public class Prontuario extends Serializavel {
         this.sexo = sexo;
         this.tam_anotacoes = tam_anotacoes;
         setAnotacoes(anotacoes);
+        instancias++;
+    }
+
+    protected static int getInstancias() {
+        return instancias;
     }
 
     public void setNome(String nome) {
