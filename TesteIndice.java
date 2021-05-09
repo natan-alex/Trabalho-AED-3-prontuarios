@@ -28,7 +28,8 @@ public class TesteIndice {
             System.out.println(raf.readInt());
             System.out.println(raf.readInt());
 
-            RegistroDoBucket[] registros = indice.getBucket( indice.criarNovoBucket(0) );
+            indice.criarNovoBucket();
+            RegistroDoBucket[] registros = indice.getBucket(13);
             for (RegistroDoBucket registro : registros) {
                 System.out.println("registro: " + registro);
             }
