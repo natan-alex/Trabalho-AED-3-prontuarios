@@ -61,14 +61,14 @@ public class Indice {
         try {
             raf.writeInt(profundidade_global);
             raf.writeInt(tam_bucket);
-            raf.writeInt(1);
+            raf.writeInt(1); // primeiro cpf a ser utilizado
             prox_cpf = 1;
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    // ler metadados(profundidade_global, prox_cpf,
+    // ler metadados(profundidade_global, prox_cpf, 
     // tam_bucket) inseridos ao criar o arquivo de indices
     // metadados serão lidos uma única vez em caso de o arquivo
     // já existir na criação da classe
@@ -86,7 +86,7 @@ public class Indice {
     public RegistroDoBucket[] getBucket(long pos_inicio) {
         RegistroDoBucket[] registros = new RegistroDoBucket[tam_bucket];
         try {
-            raf.seek(pos_inicio + 4);
+            raf.seek(pos_inicio + 8);
             for (int i = 0; i < tam_bucket; i++) {
                 registros[i] = new RegistroDoBucket(raf.readBoolean(), raf.readInt(), raf.readInt());
             }
@@ -97,12 +97,12 @@ public class Indice {
         return registros;
     }
 
-    public void criarNovoBucket() {
-        criarNovoBucket(1);
+    public long criarNovoBucket() {
+        return criarNovoBucket(1);
     }
 
     // cria um novo bucket com base no tamanho do bucket
-    public void criarNovoBucket(int profundidade_local) {
+    public long criarNovoBucket(int profundidade_local) {
         long endereco_inicio_bucket = 0;
 
         try {
@@ -115,6 +115,7 @@ public class Indice {
             System.out.println("raf.length(): " + raf.length());
 
             raf.writeInt(profundidade_local);
+            raf.writeInt(0); // ocupacao
             for (int i = 0; i < tam_bucket; i++) {
                 System.out.println("prox_cpf: " + prox_cpf);
                 // escrever no arquivo os bytes que dizem
@@ -130,5 +131,45 @@ public class Indice {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        return endereco_inicio_bucket;
+    }
+
+    public int inserir_registro(int cpf, int num_bucket, int num_registro) {
+        // profundidade + ocupacao + tam_bucket * 9
+        int pos_bucket = 12 + ( (num_bucket - 1) * (tam_bucket * 9) );
+        System.out.println("pos_bucket = " + pos_bucket);
+        int profundidade_do_bucket = -1;
+        int ocupacao = -1;
+        long pos_atual = 0;
+        try {
+            raf.seek(pos_bucket);
+            profundidade_do_bucket = raf.readInt();
+            System.out.println("profundidade_do_bucket: " + profundidade_do_bucket);
+            ocupacao = raf.readInt();
+            System.out.println("ocupacao: " + ocupacao);
+            pos_atual = raf.getFilePointer();
+
+            if (ocupacao == tam_bucket) {
+                if (profundidade_do_bucket == profundidade_global) {
+                    // duplicar diretorio!!
+                    return -1;
+                } else {
+                    // novo bucket
+                    criarNovoBucket(profundidade_do_bucket + 1);
+                    // rearranjar chaves
+                    return -2;
+                }
+            } else {
+                // ocupacao * tam_registro
+                raf.seek(pos_atual + ocupacao * 9);
+                raf.write( new RegistroDoBucket(false, cpf, num_registro).toByteArray() );
+                raf.seek(pos_atual - 4);
+                raf.writeInt(++ocupacao);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return 1;
     }
 }

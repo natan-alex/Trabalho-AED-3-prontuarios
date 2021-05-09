@@ -19,23 +19,30 @@ public class TesteIndice {
 
             // FileInputStream fis = new FileInputStream("indice.db");
             RandomAccessFile raf = new RandomAccessFile("indice.db", "r");
-            System.out.println(raf.readInt());
-            System.out.println(raf.readInt());
-            System.out.println(raf.readInt());
-            indice.setProfundidadeGlobal(10);
-            raf.seek(0);
-            System.out.println(raf.readInt());
-            System.out.println(raf.readInt());
-            System.out.println(raf.readInt());
+            // System.out.println(raf.readInt());
+            // System.out.println(raf.readInt());
+            // System.out.println(raf.readInt());
+            // indice.setProfundidadeGlobal(10);
+            // raf.seek(0);
+            // System.out.println(raf.readInt());
+            // System.out.println(raf.readInt());
+            // System.out.println(raf.readInt());
 
-            indice.criarNovoBucket();
-            RegistroDoBucket[] registros = indice.getBucket(13);
+            long aux = indice.criarNovoBucket();
+            System.out.println(aux);
+            // RegistroDoBucket[] registros = indice.getBucket(aux);
+            // for (RegistroDoBucket registro : registros) {
+            //     System.out.println("registro: " + registro);
+            // }
+
+            // teste inserir registro
+            System.out.println( indice.inserir_registro(99, 1, 1) );
+            System.out.println( indice.inserir_registro(101, 1, 2) );
+
+            RegistroDoBucket[] registros = indice.getBucket(12);
             for (RegistroDoBucket registro : registros) {
                 System.out.println("registro: " + registro);
             }
-            // DataInputStream dis = new DataInputStream(fis);
-
-            // indice.criarNovoBucket(1);
         } catch (IOException e) {
             e.printStackTrace();
         }
