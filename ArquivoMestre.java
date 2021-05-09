@@ -18,7 +18,7 @@ public class ArquivoMestre<T extends Serializavel> {
 
     public ArquivoMestre(short num_bytes_anotacoes) {
         try {
-            raf = new RandomAccessFile("arquivo_mestre.db", "rws"); 
+            raf = new RandomAccessFile("arquivo_mestre.db", "rws");
             // se o arquivo tiver algo, ignorar o argumento num_bytes_anotacoes
             // e obter o número de bytes para as anotações por meio do metadado
             // referente a ele. Caso contrário, checar se o argumento é positivo

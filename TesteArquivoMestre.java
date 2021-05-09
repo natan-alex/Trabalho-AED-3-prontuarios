@@ -1,6 +1,7 @@
 package trabalho_aed_prontuario.mestre;
 
-// import trabalho_aed_prontuario.*;
+import trabalho_aed_prontuario.indice.*;
+import trabalho_aed_prontuario.mestre.*;
 
 import java.time.LocalDate;
 

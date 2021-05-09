@@ -14,7 +14,7 @@ public class Prontuario extends Serializavel {
     // nome, data de nascimento, sexo e uma área de m caracteres/bytes para anotações do médico
     private static final byte MAX_SIZE_NOME = (byte) 50;
     private String nome;
-    private LocalDate data; 
+    private LocalDate data;
     private char sexo;
     private String anotacoes;
     private short tam_anotacoes;
@@ -44,7 +44,7 @@ public class Prontuario extends Serializavel {
         // completar com espaços, senão, limitar os caracteres até
         // a quantidade máxima, "cortando "a string
         if (nome.length() < MAX_SIZE_NOME) {
-            this.nome = String.format("%-"+MAX_SIZE_NOME+"s", nome); 
+            this.nome = String.format("%-"+MAX_SIZE_NOME+"s", nome);
         } else {
             this.nome = nome.substring(0, MAX_SIZE_NOME);
         }

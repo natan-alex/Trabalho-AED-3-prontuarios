@@ -1,16 +1,19 @@
 package trabalho_aed_prontuario.indice;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+
 import java.io.RandomAccessFile;
 
 import java.io.IOException;
 import java.io.EOFException;
 
 public class Indice {
+    // boolean para lápide + int para chave + int para o número do registro
+    private static final short TAM_REGISTRO_DO_BUCKET = 9;
+
     private RandomAccessFile raf;
 
     private int profundidade_global;
@@ -23,11 +26,10 @@ public class Indice {
     // os metadados no início do arquivo
     public Indice(int profundidade_global, int tam_bucket) {
         try {
-            if ( new File("indice.db").exists() ) {
-                raf = new RandomAccessFile("indice.db", "rws");
+            raf = new RandomAccessFile("indice.db", "rws");
+            if (raf.length() > 0) {
                 ler_metadados();
             } else {
-                raf = new RandomAccessFile("indice.db", "rws");
                 this.profundidade_global = profundidade_global;
                 this.tam_bucket = tam_bucket;
                 escrever_metadados();
@@ -61,7 +63,7 @@ public class Indice {
         try {
             raf.writeInt(profundidade_global);
             raf.writeInt(tam_bucket);
-            raf.writeInt(1);
+            raf.writeInt(1); // primeiro cpf a ser utilizado
             prox_cpf = 1;
         } catch (IOException e) {
             e.printStackTrace();
@@ -115,7 +117,7 @@ public class Indice {
             System.out.println("raf.length(): " + raf.length());
 
             raf.writeInt(profundidade_local);
-            raf.writeInt(0);
+            raf.writeInt(0); // ocupacao inicial do bucket é sempre 0
             for (int i = 0; i < tam_bucket; i++) {
                 System.out.println("prox_cpf: " + prox_cpf);
                 // escrever no arquivo os bytes que dizem
@@ -133,5 +135,53 @@ public class Indice {
         }
 
         return endereco_inicio_bucket;
+    }
+
+    public int inserir_registro(int cpf, int num_bucket, int num_registro) {
+        // caminhar até o ponto de início do bucket:
+        // tamanho_metadados(12) + (num_bucket - 1) * (tam_bucket * tamanho_do_registro_do_bucket)
+        int pos_bucket = 12 + (num_bucket - 1) * (tam_bucket * TAM_REGISTRO_DO_BUCKET);
+        System.out.println("pos_bucket = " + pos_bucket);
+        int profundidade_do_bucket = -1;
+        int ocupacao = -1;
+        long pos_apos_metadados_do_bucket = 0;
+        try {
+            raf.seek(pos_bucket);
+            // ler metadados do bucket
+            profundidade_do_bucket = raf.readInt();
+            System.out.println("profundidade_do_bucket: " + profundidade_do_bucket);
+            ocupacao = raf.readInt();
+            System.out.println("ocupacao: " + ocupacao);
+            pos_apos_metadados_do_bucket = raf.getFilePointer();
+
+            if (ocupacao == tam_bucket) {
+                if (profundidade_do_bucket == profundidade_global) {
+                    // duplicar diretorio!!
+                    System.out.println("duplicar dir!");
+                    return -1;
+                } else {
+                    System.out.println("criando novo bucket...");
+                    // novo bucket
+                    criarNovoBucket(profundidade_do_bucket + 1);
+                    // rearranjar chaves
+                    System.out.println("necessário rearranjar chaves!");
+                    return -2;
+                }
+            } else {
+                // ir até o ponto de inserção de um novo registro:
+                // "tamanho" do bucket com base no número de registros já existentes
+                // no bucket (ocupacao); analogia a uma lista encadeada
+                // ocupacao * tam_registro
+                raf.seek(pos_apos_metadados_do_bucket + ocupacao * TAM_REGISTRO_DO_BUCKET);
+                // escrever registro na posição encontrada
+                raf.write( new RegistroDoBucket(false, cpf, num_registro).toByteArray() );
+                // atualizar ocupacao
+                raf.seek(pos_apos_metadados_do_bucket - 4);
+                raf.writeInt(++ocupacao);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return 1;
     }
 }
