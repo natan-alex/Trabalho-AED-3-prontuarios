@@ -1,20 +1,14 @@
 package trabalho_aed_prontuario.mestre;
 
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-
 import java.io.RandomAccessFile;
 
 import java.io.IOException;
 import java.io.EOFException;
 
-import trabalho_aed_prontuario.indice.Serializavel;
-
-public class ArquivoMestre<T extends Serializavel> {
+public class ArquivoMestre {
     private short num_bytes_anotacoes;
     private RandomAccessFile raf;
+    private int num_registros_no_arquivo;
 
     public ArquivoMestre(short num_bytes_anotacoes) {
         try {
@@ -25,14 +19,60 @@ public class ArquivoMestre<T extends Serializavel> {
             // e atribuir à variável num_bytes_anotacoes. Caso o argumento seja negativo o
             // tamanho default é de 100 bytes
             if (raf.length() > 0) {
-                this.num_bytes_anotacoes = raf.readShort();
+                ler_metadados();
             } else {
                 this.num_bytes_anotacoes = (num_bytes_anotacoes > 0) ? num_bytes_anotacoes : 100;
-                raf.writeShort(num_bytes_anotacoes);
+                escrever_metadados();
+                num_registros_no_arquivo = 0;
             }
             System.out.println("num_bytes_anotacoes: " + this.num_bytes_anotacoes);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    // ler metadados em caso de o arquivo já existir
+    // metadados: número de registros presentes no arquivo e
+    // o número de bytes total para as anotações
+    private void ler_metadados() {
+        try {
+            this.num_registros_no_arquivo = raf.readInt();
+            this.num_bytes_anotacoes = raf.readShort();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // escrever metadados em caso de o arquivo NÃO existir
+    private void escrever_metadados() {
+        try {
+            raf.writeInt(0); // número de registros no arquivo inicialmente é 0
+            raf.writeShort(num_bytes_anotacoes);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // inserir um registro no fim do arquivo de dados
+    public int inserir_registro(Prontuario registro) {
+        try {
+            System.out.println("tam arquivo mestre: " + raf.length());
+            raf.seek( raf.length() ); // ir para o fim do arquivo 
+
+            // inserir o tamanho em bytes do 
+            // registro e depois o registro
+            byte[] registro_em_bytes = registro.toByteArray();
+            raf.writeShort( registro_em_bytes.length );
+            raf.write(registro_em_bytes);
+            registro_em_bytes = null;
+
+            // atualizar o número de registros presentes no arquivo
+            raf.seek(0);
+            raf.writeInt(++num_registros_no_arquivo);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return num_registros_no_arquivo;
     }
 }

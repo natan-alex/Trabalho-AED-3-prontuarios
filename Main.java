@@ -12,7 +12,7 @@ public class Main {
     private static Indice indice;
 
     public static void main(String[] args) {
-        ArquivoMestre<Prontuario> arquivo_mestre = new ArquivoMestre<Prontuario>((short) 100);
+        ArquivoMestre arquivo_mestre = new ArquivoMestre((short) 100);
 
         Scanner in = new Scanner(System.in);
         int opcao;
@@ -27,7 +27,6 @@ public class Main {
         System.out.print("Opção: ");
 
         opcao = in.nextInt();
-
 
         switch(opcao) {
             case 1:
