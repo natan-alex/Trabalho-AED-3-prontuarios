@@ -2,9 +2,11 @@ package trabalho_aed_prontuario;
 
 import java.time.LocalDate;
 import java.util.Scanner;
+import java.io.*;
 
 import trabalho_aed_prontuario.mestre.*;
 import trabalho_aed_prontuario.indice.*;
+import trabalho_aed_prontuario.diretorio.*;
 
 public class Main {
     private static ObjectOutputStream oos;
@@ -13,9 +15,11 @@ public class Main {
     private static FileInputStream fis;
 
     private static Diretorio diretorio;
+    private static Indice indice;
 
     public static void main(String[] args) {
-        ArquivoMestre arquivo_mestre = new ArquivoMestre();
+        ArquivoMestre<Prontuario> arquivo_mestre = new ArquivoMestre<Prontuario>((short) 100);
+
         Scanner in = new Scanner(System.in);
         int opcao;
 
@@ -35,12 +39,22 @@ public class Main {
             case 1:
                 System.out.println("Qual será a profundidade inicial do hash? ");
                 opcao = in.nextInt();
-                diretorio = new Diretorio(0, "diretorio.db");
+                diretorio = new Diretorio(opcao, "diretorio.db");
+                indice = new Indice(opcao, 4);
                 break;
             case 2:
                 // inserir registro
-                // Prontuario p = new Prontuario("fulano", LocalDate.now(), 'm', "teste");
-                // arquivo_mestre.inserir_registro(p);
+                int cpf = 0;
+                Prontuario p = new Prontuario("fulano", LocalDate.now(), 'm', (short) 10, "teste");
+                // int registro = arquivo_mestre.inserir_registro(p);
+
+                diretorio = new Diretorio("diretorio.db");
+                diretorio.carregarArquivo();
+
+                int numBucket = diretorio.getPaginaIndice(cpf);
+
+                indice = new Indice(0, 0); // TODO: Arrumar.
+                // indice.inserirRegistro(numBucket, cpf);
                 break;
             case 3:
                 // editar registro

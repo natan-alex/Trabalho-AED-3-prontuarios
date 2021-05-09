@@ -13,7 +13,7 @@ public class TesteIndice {
             // criado com o número de buckets inicial baseado no tamanho do diretório
             // ou na profundidade global
             // params: pglobal, tamanho do bucket
-            // indice.criarNovoBucket(); 
+            // indice.criarNovoBucket();
             // params: plocal
             // indice.criarNovoBucket(1);
 
@@ -36,7 +36,6 @@ public class TesteIndice {
             // DataInputStream dis = new DataInputStream(fis);
 
             // indice.criarNovoBucket(1);
-            
         } catch (IOException e) {
             e.printStackTrace();
         }

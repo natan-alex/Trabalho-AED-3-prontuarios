@@ -68,7 +68,7 @@ public class Indice {
         }
     }
 
-    // ler metadados(profundidade_global, prox_cpf, 
+    // ler metadados(profundidade_global, prox_cpf,
     // tam_bucket) inseridos ao criar o arquivo de indices
     // metadados serão lidos uma única vez em caso de o arquivo
     // já existir na criação da classe

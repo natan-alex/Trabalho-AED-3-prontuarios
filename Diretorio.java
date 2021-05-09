@@ -1,4 +1,4 @@
-package trabalho_aed_prontuario;
+package trabalho_aed_prontuario.diretorio;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -14,9 +14,12 @@ import java.util.List;
 import java.util.ArrayList;
 import java.nio.ByteBuffer;
 
+import trabalho_aed_prontuario.indice.Indice;
+
 public class Diretorio {
     private int profundidade;
     private String arquivo;
+
     private List<Integer> indices = new ArrayList<Integer>();
 
     private static DataOutputStream dos;
@@ -32,25 +35,25 @@ public class Diretorio {
         this.profundidade = profundidade;
         this.arquivo = arquivo;
 
-        for (int i = 0; i < Math.pow(2, this.profundidade); i++) {
-            this.indices.add(i);
-        }
-    }
+        // TODO: Mudar tam_bucket;
+        Indice indice = new Indice(profundidade, 4);
 
-    public void criarArquivo() {
         try {
             fos = new FileOutputStream(this.arquivo);
             dos = new DataOutputStream(fos);
             dos.writeInt(profundidade);
 
             for (int i = 0; i < Math.pow(2, this.profundidade); i++) {
+                indice.criarNovoBucket(profundidade);
                 dos.writeInt(i);
+                this.indices.add(i);
             }
 
             dos.close();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+
     }
 
     public void carregarArquivo() {
