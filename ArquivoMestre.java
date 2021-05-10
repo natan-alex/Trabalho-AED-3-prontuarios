@@ -6,8 +6,9 @@ import java.io.IOException;
 import java.io.EOFException;
 
 public class ArquivoMestre {
-    private short num_bytes_anotacoes;
     private RandomAccessFile raf;
+
+    private short num_bytes_anotacoes;
     private int num_registros_no_arquivo;
 
     public ArquivoMestre(short num_bytes_anotacoes) {
@@ -54,6 +55,7 @@ public class ArquivoMestre {
     }
 
     // inserir um registro no fim do arquivo de dados
+    // retorna o número de registros contidos no arquivo
     public int inserir_registro(Prontuario registro) {
         try {
             // num_registros_no_arquivo corresponde também ao último
@@ -71,7 +73,7 @@ public class ArquivoMestre {
                 // o tamanho em bytes do registro 
                 // e então o registro de fato
                 byte[] registro_em_bytes = registro.toByteArray();
-                raf.writeInt( registro.getId() ); // id
+                raf.writeInt( registro.getCpf() ); // id
                 raf.writeShort( registro_em_bytes.length ); // tamanho do registro
                 raf.write(registro_em_bytes); // registro
                 registro_em_bytes = null;

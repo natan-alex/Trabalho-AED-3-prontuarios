@@ -14,7 +14,7 @@ public class Prontuario extends Serializavel {
     // nome, data de nascimento, sexo e uma área de m caracteres/bytes para anotações do médico
     private static final byte MAX_SIZE_NOME = (byte) 50;
 
-    private int id;
+    private int cpf;
     private String nome;
     private LocalDate data;
     private char sexo;
@@ -28,35 +28,42 @@ public class Prontuario extends Serializavel {
         num_de_instancias++;
     }
 
-    public Prontuario(String nome, LocalDate data, char sexo, short tam_anotacoes) {
+    public Prontuario(int cpf, String nome, LocalDate data, char sexo, short tam_anotacoes) {
+        setCpf(cpf);
         setNome(nome);
-        this.data = data;
-        this.sexo = sexo;
-        this.tam_anotacoes = tam_anotacoes;
+        setData(data);
+        setSexo(sexo);
+        setTamAnotacoes(tam_anotacoes);
         setAnotacoes("");
         num_de_instancias++;
     }
 
-    public Prontuario(String nome, LocalDate data, char sexo, short tam_anotacoes, String anotacoes) {
+    public Prontuario(int cpf, String nome, LocalDate data, char sexo, short tam_anotacoes, String anotacoes) {
+        setCpf(cpf);
         setNome(nome);
-        this.data = data;
-        this.sexo = sexo;
-        this.tam_anotacoes = tam_anotacoes;
+        setData(data);
+        setSexo(sexo);
+        setTamAnotacoes(tam_anotacoes);
         setAnotacoes(anotacoes);
         num_de_instancias++;
+    }
+
+    private void setTamAnotacoes(short tam_anotacoes) {
+        if (tam_anotacoes > 0)
+            this.tam_anotacoes = tam_anotacoes;
     }
 
     public static int getNumeroDeInstancias() {
         return num_de_instancias;
     }
 
-    public void setId(int id) {
-        if (id > num_de_instancias)
-            this.id = id;
+    public void setCpf(int cpf) {
+        if (cpf > 0)
+            this.cpf = cpf;
     }
 
-    public int getId() {
-        return id;
+    public int getCpf() {
+        return cpf;
     }
 
     public String getNome() {
@@ -66,7 +73,7 @@ public class Prontuario extends Serializavel {
     public void setNome(String nome) {
         // se o argumento tiver tamanho menor que o tamanho máximo
         // completar com espaços, senão, limitar os caracteres até
-        // a quantidade máxima, "cortando "a string
+        // a quantcpfade máxima, "cortando "a string
         if (nome.length() < MAX_SIZE_NOME) {
             this.nome = String.format("%-"+MAX_SIZE_NOME+"s", nome);
         } else {
@@ -119,7 +126,7 @@ public class Prontuario extends Serializavel {
         DataOutputStream dos = new DataOutputStream(baos);
 
         try {
-            dos.writeInt(id);
+            dos.writeInt(cpf);
             dos.writeUTF(nome);
             dos.writeShort( (short) data.getYear() );
             dos.writeByte( (byte) data.getMonthValue() );
@@ -142,7 +149,7 @@ public class Prontuario extends Serializavel {
         DataInputStream dis = new DataInputStream(bais);
 
         try {
-            this.id = dis.readInt();
+            this.cpf = dis.readInt();
             this.nome = dis.readUTF();
             this.data = LocalDate.of( dis.readShort(), dis.readByte(), dis.readByte() );
             this.sexo = dis.readChar();

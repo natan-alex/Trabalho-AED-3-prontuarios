@@ -38,7 +38,7 @@ public class Main {
             case 2:
                 // inserir registro
                 int cpf = 0;
-                Prontuario p = new Prontuario("fulano", LocalDate.now(), 'm', (short) 10, "teste");
+                Prontuario p = new Prontuario(1, "fulano", LocalDate.now(), 'm', (short) 10, "teste");
                 // int registro = arquivo_mestre.inserir_registro(p);
 
                 diretorio = new Diretorio("diretorio.db");

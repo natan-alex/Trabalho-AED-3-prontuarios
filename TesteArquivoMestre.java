@@ -13,8 +13,8 @@ public class TesteArquivoMestre {
         try {
             RandomAccessFile raf = new RandomAccessFile("arquivo_mestre.db", "rw");
             ArquivoMestre arq = new ArquivoMestre((short) 100);
-            Prontuario p = new Prontuario("fulano", LocalDate.now(), 'm', (short) 50);
-            Prontuario p2 = new Prontuario("ciclano", LocalDate.now(), 'm', (short) 70);
+            Prontuario p = new Prontuario(1, "fulano", LocalDate.now(), 'm', (short) 50);
+            Prontuario p2 = new Prontuario(2, "ciclano", LocalDate.now(), 'm', (short) 70);
 
             System.out.println(arq.inserir_registro(p));
             System.out.println(arq.inserir_registro(p2));
