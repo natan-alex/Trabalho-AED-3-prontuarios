@@ -1,10 +1,5 @@
 package trabalho_aed_prontuario.indice;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-
 import java.io.RandomAccessFile;
 
 import java.io.IOException;
@@ -73,7 +68,7 @@ public class Indice {
     // ler metadados(profundidade_global, prox_cpf, 
     // tam_bucket) inseridos ao criar o arquivo de indices
     // metadados serão lidos uma única vez em caso de o arquivo
-    // já existir na criação da classe
+    // já existir ao instanciar a classe
     private void ler_metadados() {
         try {
             profundidade_global = raf.readInt();
@@ -103,7 +98,7 @@ public class Indice {
         return criarNovoBucket(1);
     }
 
-    // cria um novo bucket com base no tamanho do bucket
+    // cria um novo bucket com base no tamanho do bucket (var tam_bucket)
     public long criarNovoBucket(int profundidade_local) {
         long endereco_inicio_bucket = 0;
 
@@ -137,21 +132,29 @@ public class Indice {
         return endereco_inicio_bucket;
     }
 
+    // inserir um registro em um bucket
+    // params: cpf, número do bucket onde inserir o registro e
+    // o número do registro no arquivo de dados, no arquivo mestre
     public int inserir_registro(int cpf, int num_bucket, int num_registro) {
         // caminhar até o ponto de início do bucket:
+        // após os metadados, necessário percorrer todos os buckets até o bucket de interesse.
+        // bucket tem tam_bucket registros de tamanho TAM_REGISTRO_DO_BUCKET, portanto:
         // tamanho_metadados(12) + (num_bucket - 1) * (tam_bucket * tamanho_do_registro_do_bucket)
         int pos_bucket = 12 + (num_bucket - 1) * (tam_bucket * TAM_REGISTRO_DO_BUCKET);
         System.out.println("pos_bucket = " + pos_bucket);
         int profundidade_do_bucket = -1;
         int ocupacao = -1;
         long pos_apos_metadados_do_bucket = 0;
+
         try {
             raf.seek(pos_bucket);
+
             // ler metadados do bucket
             profundidade_do_bucket = raf.readInt();
             System.out.println("profundidade_do_bucket: " + profundidade_do_bucket);
             ocupacao = raf.readInt();
             System.out.println("ocupacao: " + ocupacao);
+
             pos_apos_metadados_do_bucket = raf.getFilePointer();
 
             if (ocupacao == tam_bucket) {
@@ -173,8 +176,10 @@ public class Indice {
                 // no bucket (ocupacao); analogia a uma lista encadeada
                 // ocupacao * tam_registro
                 raf.seek(pos_apos_metadados_do_bucket + ocupacao * TAM_REGISTRO_DO_BUCKET);
+
                 // escrever registro na posição encontrada
                 raf.write( new RegistroDoBucket(false, cpf, num_registro).toByteArray() );
+
                 // atualizar ocupacao
                 raf.seek(pos_apos_metadados_do_bucket - 4);
                 raf.writeInt(++ocupacao);
