@@ -63,7 +63,7 @@ public class ArquivoMestre {
             // Prontuario, do registro passado como argumento 
             // possibilita a inserção do registro
             
-            if (Prontuario.getInstancias() > num_registros_no_arquivo) {
+            if (Prontuario.getNumeroDeInstancias() > num_registros_no_arquivo) {
                 System.out.println("tam arquivo mestre: " + raf.length());
                 raf.seek( raf.length() ); // ir para o fim do arquivo 
 

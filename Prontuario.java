@@ -126,6 +126,7 @@ public class Prontuario extends Serializavel {
             dos.writeByte( (byte) data.getDayOfMonth() );
             dos.writeChar(sexo);
             dos.writeUTF(anotacoes);
+            dos.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
