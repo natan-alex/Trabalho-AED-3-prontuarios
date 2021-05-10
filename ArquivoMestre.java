@@ -58,32 +58,25 @@ public class ArquivoMestre {
     // retorna o número de registros contidos no arquivo
     public int inserir_registro(Prontuario registro) {
         try {
-            // num_registros_no_arquivo corresponde também ao último
-            // id usado, já que o primeiro id começa em 1 e é auto
-            // increment, portanto pode ser usado para verificar
-            // se o id, que é o número de instancias feitas em 
-            // Prontuario, do registro passado como argumento 
-            // possibilita a inserção do registro
-            
-            if (Prontuario.getNumeroDeInstancias() > num_registros_no_arquivo) {
-                System.out.println("tam arquivo mestre: " + raf.length());
-                raf.seek( raf.length() ); // ir para o fim do arquivo 
+            // if (!registroJaExiste()) {
+            System.out.println("tam arquivo mestre: " + raf.length());
+            raf.seek( raf.length() ); // ir para o fim do arquivo 
 
-                // inserir o id do registro,
-                // o tamanho em bytes do registro 
-                // e então o registro de fato
-                byte[] registro_em_bytes = registro.toByteArray();
-                raf.writeInt( registro.getCpf() ); // id
-                raf.writeShort( registro_em_bytes.length ); // tamanho do registro
-                raf.write(registro_em_bytes); // registro
-                registro_em_bytes = null;
+            // inserir o id do registro,
+            // o tamanho em bytes do registro 
+            // e então o registro de fato
+            byte[] registro_em_bytes = registro.toByteArray();
+            raf.writeInt( registro.getCpf() ); // id
+            raf.writeShort( registro_em_bytes.length ); // tamanho do registro
+            raf.write(registro_em_bytes); // registro
+            registro_em_bytes = null;
 
-                // atualizar o número de registros presentes no arquivo
-                raf.seek(0);
-                raf.writeInt(++num_registros_no_arquivo);
-            } else {
-                // registro ja existe no arquivo
-            }
+            // atualizar o número de registros presentes no arquivo
+            raf.seek(0);
+            raf.writeInt(++num_registros_no_arquivo);
+            // } else {
+            // registro ja existe no arquivo
+            // }
         } catch (IOException e) {
             e.printStackTrace();
         }

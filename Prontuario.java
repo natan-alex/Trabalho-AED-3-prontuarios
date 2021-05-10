@@ -95,8 +95,10 @@ public class Prontuario extends Serializavel {
         return sexo;
     }
 
-    public void setSexo(char sexo) {
-        this.sexo = sexo;
+    public void setSexo(char _sexo) {
+        _sexo = Character.toLowerCase(_sexo);
+        if (_sexo == 'm' || _sexo == 'f') // ++
+            this.sexo = _sexo;
     }
 
     public String getAnotacoes() {
