@@ -13,11 +13,14 @@ import trabalho_aed_prontuario.indice.Serializavel;
 public class Prontuario extends Serializavel {
     // nome, data de nascimento, sexo e uma área de m caracteres/bytes para anotações do médico
     private static final byte MAX_SIZE_NOME = (byte) 50;
+
+    private int id;
     private String nome;
     private LocalDate data;
     private char sexo;
     private String anotacoes;
     private short tam_anotacoes;
+
     private static int instancias;
 
     public Prontuario(byte[] data) {
@@ -76,18 +79,17 @@ public class Prontuario extends Serializavel {
     }
 
     // retorna um array de bytes com os valores dos atributos
-    public byte[] toByteArray() {
+    @Override
+    protected byte[] toByteArray() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(baos);
 
         try {
+            dos.writeInt(id);
             dos.writeUTF(nome);
-            // dos.writeShort( (short) data.getYear() );
-            // dos.writeByte( (byte) data.getMonthValue() );
-            // dos.writeByte( (byte) data.getDayOfMonth() );
-            dos.writeShort( data.getYear() );
-            dos.writeByte( data.getMonthValue() );
-            dos.writeByte( data.getDayOfMonth() );
+            dos.writeShort( (short) data.getYear() );
+            dos.writeByte( (byte) data.getMonthValue() );
+            dos.writeByte( (byte) data.getDayOfMonth() );
             dos.writeChar(sexo);
             dos.writeUTF(anotacoes);
         } catch (IOException e) {
@@ -99,11 +101,13 @@ public class Prontuario extends Serializavel {
 
     // preenche os valores dos atributos com base nos bytes
     // vindos de um array de bytes
+    @Override
     protected void fromByteArray(byte[] data) {
         ByteArrayInputStream bais = new ByteArrayInputStream(data);
         DataInputStream dis = new DataInputStream(bais);
 
         try {
+            this.id = dis.readInt();
             this.nome = dis.readUTF();
             this.data = LocalDate.of( dis.readShort(), dis.readByte(), dis.readByte() );
             this.sexo = dis.readChar();
