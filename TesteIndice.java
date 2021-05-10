@@ -9,7 +9,7 @@ import java.io.IOException;
 public class TesteIndice {
     public static void main(String[] args) {
         try {
-            Indice indice = new Indice(1, 10); // esperado: arquivo de indices tenha sido
+            Indice indice = new Indice(2, 10); // esperado: arquivo de indices tenha sido
             // criado com o número de buckets inicial baseado no tamanho do diretório
             // ou na profundidade global
             // params: pglobal, tamanho do bucket
@@ -47,9 +47,8 @@ public class TesteIndice {
             System.out.println( indice.inserir_registro(115, 1, 9) );
             System.out.println( indice.inserir_registro(117, 1, 10) );
             System.out.println( indice.inserir_registro(119, 1, 11) );
-            System.out.println( indice.inserir_registro(121, 1, 12) );
 
-            RegistroDoBucket[] registros = indice.getBucket(12);
+            RegistroDoBucket[] registros = indice.getBucket(aux);
             for (RegistroDoBucket registro : registros) {
                 System.out.println("registro: " + registro);
             }

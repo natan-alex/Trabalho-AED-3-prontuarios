@@ -18,6 +18,12 @@ public class RegistroDoBucket extends Serializavel {
         super(data);
     }
 
+    public RegistroDoBucket() {
+        chave = -1;
+        num_registro = -1;
+        is_lapide = false;
+    }
+
     public RegistroDoBucket(int chave) {
         this.chave = chave;
         num_registro = -1;

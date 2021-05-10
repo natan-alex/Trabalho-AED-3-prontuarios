@@ -8,6 +8,7 @@ import java.io.EOFException;
 public class Indice {
     // boolean para lápide + int para chave + int para o número do registro
     private static final short SIZEOF_REGISTRO_DO_BUCKET = 9;
+    private static final byte SIZEOF_METADADOS_INDICE = 8;
 
     private RandomAccessFile raf;
 
@@ -76,10 +77,15 @@ public class Indice {
 
     // para debug
     public RegistroDoBucket[] getBucket(long pos_inicio) {
-        RegistroDoBucket[] registros = new RegistroDoBucket[tam_bucket];
+        RegistroDoBucket[] registros = null;
+
         try {
-            raf.seek(pos_inicio + 8);
-            for (int i = 0; i < tam_bucket; i++) {
+            raf.seek(pos_inicio);
+            int profundidade_do_bucket = raf.readInt();
+            int ocupacao = raf.readInt();
+            registros = new RegistroDoBucket[ocupacao];
+
+            for (int i = 0; i < ocupacao; i++) {
                 registros[i] = new RegistroDoBucket(raf.readBoolean(), raf.readInt(), raf.readInt());
             }
         } catch (IOException e) {
@@ -94,6 +100,7 @@ public class Indice {
     }
 
     // cria um novo bucket com base no tamanho do bucket (var tam_bucket)
+    // retorna a posição de início do bucket
     public long criarNovoBucket(int profundidade_local) {
         long endereco_inicio_bucket = 0;
 
@@ -108,12 +115,13 @@ public class Indice {
 
             raf.writeInt(profundidade_local);
             raf.writeInt(0); // ocupacao inicial do bucket é sempre 0
+
             for (int i = 0; i < tam_bucket; i++) {
                 // escrever no arquivo os bytes que dizem
                 // respeito a um registro do índice recém criado(não
                 // possui chave e o num_registro é -1) e que 
                 // contém o prox_cpf como id
-                raf.write( new RegistroDoBucket(-1).toByteArray() );
+                raf.write( new RegistroDoBucket().toByteArray() );
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -130,7 +138,7 @@ public class Indice {
         // após os metadados, necessário percorrer todos os buckets até o bucket de interesse.
         // bucket tem tam_bucket registros de tamanho SIZEOF_REGISTRO_DO_BUCKET, portanto:
         // tamanho_metadados(12) + (num_bucket - 1) * (tam_bucket * tamanho_do_registro_do_bucket)
-        int pos_bucket = 12 + (num_bucket - 1) * (tam_bucket * SIZEOF_REGISTRO_DO_BUCKET);
+        int pos_bucket = SIZEOF_METADADOS_INDICE + (num_bucket - 1) * (tam_bucket * SIZEOF_REGISTRO_DO_BUCKET);
         System.out.println("pos_bucket = " + pos_bucket);
         int profundidade_do_bucket = -1;
         int ocupacao = -1;
