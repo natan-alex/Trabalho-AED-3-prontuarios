@@ -4,3 +4,4 @@
 .idea
 *.iml
 indice.db
+/out/

@@ -21,11 +21,11 @@ public class Prontuario extends Serializavel {
     private String anotacoes;
     private short tam_anotacoes;
 
-    private static int instancias;
+    private static int num_de_instancias = 0;
 
     public Prontuario(byte[] data) {
         super(data);
-        instancias++;
+        num_de_instancias++;
     }
 
     public Prontuario(String nome, LocalDate data, char sexo, short tam_anotacoes) {
@@ -34,7 +34,7 @@ public class Prontuario extends Serializavel {
         this.sexo = sexo;
         this.tam_anotacoes = tam_anotacoes;
         setAnotacoes("");
-        instancias++;
+        num_de_instancias++;
     }
 
     public Prontuario(String nome, LocalDate data, char sexo, short tam_anotacoes, String anotacoes) {
@@ -43,11 +43,24 @@ public class Prontuario extends Serializavel {
         this.sexo = sexo;
         this.tam_anotacoes = tam_anotacoes;
         setAnotacoes(anotacoes);
-        instancias++;
+        num_de_instancias++;
     }
 
-    protected static int getInstancias() {
-        return instancias;
+    public static int getNumeroDeInstancias() {
+        return num_de_instancias;
+    }
+
+    public void setId(int id) {
+        if (id > num_de_instancias)
+            this.id = id;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getNome() {
+        return nome;
     }
 
     public void setNome(String nome) {
@@ -60,6 +73,27 @@ public class Prontuario extends Serializavel {
             this.nome = nome.substring(0, MAX_SIZE_NOME);
         }
         System.out.println("nome: " + this.nome + " tam: " + this.nome.length());
+    }
+
+
+    public LocalDate getData() {
+        return data;
+    }
+
+    public void setData(LocalDate data) {
+        this.data = data;
+    }
+
+    public char getSexo() {
+        return sexo;
+    }
+
+    public void setSexo(char sexo) {
+        this.sexo = sexo;
+    }
+
+    public String getAnotacoes() {
+        return anotacoes;
     }
 
     public void setAnotacoes(String anotacoes) {
