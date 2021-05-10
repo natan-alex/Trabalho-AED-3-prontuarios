@@ -7,13 +7,12 @@ import java.io.EOFException;
 
 public class Indice {
     // boolean para lápide + int para chave + int para o número do registro
-    private static final short TAM_REGISTRO_DO_BUCKET = 9;
+    private static final short SIZEOF_REGISTRO_DO_BUCKET = 9;
 
     private RandomAccessFile raf;
 
     private int profundidade_global;
     private int tam_bucket;
-    private int prox_cpf;
 
     // caso o arquivo exista os metadados são lidos
     // e os parâmetros passados ao construtor são ignorados
@@ -41,7 +40,6 @@ public class Indice {
     public void setProfundidadeGlobal(int profundidade_global) {
         if (profundidade_global > 0) {
             this.profundidade_global = profundidade_global;
-
             try {
                 raf.seek(0);
                 raf.writeInt(profundidade_global);
@@ -58,8 +56,6 @@ public class Indice {
         try {
             raf.writeInt(profundidade_global);
             raf.writeInt(tam_bucket);
-            raf.writeInt(1); // primeiro cpf a ser utilizado
-            prox_cpf = 1;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -73,7 +69,6 @@ public class Indice {
         try {
             profundidade_global = raf.readInt();
             tam_bucket = raf.readInt();
-            prox_cpf = raf.readInt();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -114,17 +109,12 @@ public class Indice {
             raf.writeInt(profundidade_local);
             raf.writeInt(0); // ocupacao inicial do bucket é sempre 0
             for (int i = 0; i < tam_bucket; i++) {
-                System.out.println("prox_cpf: " + prox_cpf);
                 // escrever no arquivo os bytes que dizem
                 // respeito a um registro do índice recém criado(não
                 // possui chave e o num_registro é -1) e que 
                 // contém o prox_cpf como id
-                raf.write( new RegistroDoBucket(prox_cpf++).toByteArray() );
+                raf.write( new RegistroDoBucket(-1).toByteArray() );
             }
-
-            // escrever no arquivo o prox_cpf
-            raf.seek(8);
-            raf.writeInt(prox_cpf);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -138,9 +128,9 @@ public class Indice {
     public int inserir_registro(int cpf, int num_bucket, int num_registro) {
         // caminhar até o ponto de início do bucket:
         // após os metadados, necessário percorrer todos os buckets até o bucket de interesse.
-        // bucket tem tam_bucket registros de tamanho TAM_REGISTRO_DO_BUCKET, portanto:
+        // bucket tem tam_bucket registros de tamanho SIZEOF_REGISTRO_DO_BUCKET, portanto:
         // tamanho_metadados(12) + (num_bucket - 1) * (tam_bucket * tamanho_do_registro_do_bucket)
-        int pos_bucket = 12 + (num_bucket - 1) * (tam_bucket * TAM_REGISTRO_DO_BUCKET);
+        int pos_bucket = 12 + (num_bucket - 1) * (tam_bucket * SIZEOF_REGISTRO_DO_BUCKET);
         System.out.println("pos_bucket = " + pos_bucket);
         int profundidade_do_bucket = -1;
         int ocupacao = -1;
@@ -175,7 +165,7 @@ public class Indice {
                 // "tamanho" do bucket com base no número de registros já existentes
                 // no bucket (ocupacao); analogia a uma lista encadeada
                 // ocupacao * tam_registro
-                raf.seek(pos_apos_metadados_do_bucket + ocupacao * TAM_REGISTRO_DO_BUCKET);
+                raf.seek(pos_apos_metadados_do_bucket + ocupacao * SIZEOF_REGISTRO_DO_BUCKET);
 
                 // escrever registro na posição encontrada
                 raf.write( new RegistroDoBucket(false, cpf, num_registro).toByteArray() );
