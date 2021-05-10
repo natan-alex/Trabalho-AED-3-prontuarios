@@ -66,7 +66,7 @@ public class RegistroDoBucket extends Serializavel {
     }
 
     @Override
-    public byte[] toByteArray() {
+    protected byte[] toByteArray() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(baos);
 
@@ -74,6 +74,7 @@ public class RegistroDoBucket extends Serializavel {
             dos.writeBoolean(is_lapide);
             dos.writeInt(chave);
             dos.writeInt(num_registro);
+            dos.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
