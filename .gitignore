@@ -4,3 +4,5 @@
 .idea
 *.iml
 indice.db
+out/
+diretorio.db
