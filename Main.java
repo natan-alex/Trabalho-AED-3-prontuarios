@@ -32,7 +32,9 @@ public class Main {
             case 1:
                 System.out.println("Qual será a profundidade inicial do hash? ");
                 opcao = in.nextInt();
-                diretorio = new Diretorio(opcao, "diretorio.db");
+
+                // Injetar indice?
+                diretorio = new Diretorio(opcao);
                 indice = new Indice(opcao, 4);
                 break;
             case 2:
@@ -40,12 +42,9 @@ public class Main {
                 int cpf = 0;
                 Prontuario p = new Prontuario("fulano", LocalDate.now(), 'm', (short) 10, "teste");
                 // int registro = arquivo_mestre.inserir_registro(p);
-
-                diretorio = new Diretorio("diretorio.db");
-                diretorio.carregarArquivo();
+                diretorio = new Diretorio(0);
 
                 int numBucket = diretorio.getPaginaIndice(cpf);
-
                 indice = new Indice(0, 0); // TODO: Arrumar.
                 // indice.inserirRegistro(numBucket, cpf);
                 break;
@@ -56,8 +55,7 @@ public class Main {
                 // remover registro
                 break;
             case 5:
-                diretorio = new Diretorio(0, "diretorio.db");
-                diretorio.carregarArquivo();
+                diretorio = new Diretorio(0);
                 // imprimir arquivos
                 break;
             case 6:

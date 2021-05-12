@@ -8,19 +8,15 @@ public class TestDiretorio {
     public static void main(String[] args) {
         Diretorio d;
 
-        d = new Diretorio(0, "diretorio.db");
+        d = new Diretorio(0);
+        d.duplicar();
+        d.reorganizar(0, 1, 1);
 
-        // d.duplicar();
+        d.duplicar();
+        d.reorganizar(0, 4, 2);
 
-        // d = new Diretorio("diretorio.db");
-        // d.carregarArquivo();
-        // d.reorganizar(0, 1, 1);
-
-        // d.duplicar();
-        // d.reorganizar(0, 4, 2);
-
-        // d.duplicar();
-        // d.reorganizar(0, 100, 3);
+        d.duplicar();
+        d.reorganizar(0, 100, 3);
 
         // d.duplicar();
         // d.reorganizar(2, 3);
@@ -34,7 +30,7 @@ public class TestDiretorio {
           DIRETORIO
           0
           1
-          2
+          4
           1
           ============
           DIRETORIO

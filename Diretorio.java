@@ -1,118 +1,121 @@
 package trabalho_aed_prontuario.diretorio;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.RandomAccessFile;
-
-import java.lang.Math;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-import java.util.Arrays;
-import java.util.List;
-import java.util.ArrayList;
-import java.nio.ByteBuffer;
-
 import trabalho_aed_prontuario.indice.Indice;
 
-public class Diretorio {
-    private int profundidade;
-    private String arquivo;
+import java.io.RandomAccessFile;
+import java.io.EOFException;
+import java.io.IOException;
 
+import java.lang.Math;
+import java.util.List;
+import java.util.ArrayList;
+
+public class Diretorio {
+    private static String arquivo = "diretorio.db";
+
+    private RandomAccessFile raf;
+
+    private int profundidade;
+    private Indice indice;
     private List<Integer> indices = new ArrayList<Integer>();
 
-    private static DataOutputStream dos;
-    private static DataInputStream dis;
-    private static FileOutputStream fos;
-    private static FileInputStream fis;
-
-    public Diretorio(String arquivo) {
-        this.arquivo = arquivo;
-    }
-
-    public Diretorio(int profundidade, String arquivo) {
+    // caso o arquivo exista os indices e metadados são lidos
+    // e os parâmetros passados ao construtor são ignorados
+    // caso o arquivo NÃO exista é necessário criar os indices
+    // e metadados no início do arquivo
+    public Diretorio(int profundidade) {
         this.profundidade = profundidade;
         this.arquivo = arquivo;
 
-        // TODO: Mudar tam_bucket;
-        Indice indice = new Indice(profundidade, 4);
-
+        indice = new Indice(profundidade, 4);
         try {
-            fos = new FileOutputStream(this.arquivo);
-            dos = new DataOutputStream(fos);
-            dos.writeInt(profundidade);
+            raf = new RandomAccessFile(this.arquivo, "rws");
+            if (raf.length() > 0) {
+                lerInicial();
+            } else {
+                escreverInicial();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
+    // escrever no inicio do arquivo a profundidade global e
+    // os enderecos do indices
+    // escrever em memoria os enderecos do indice
+    private void escreverInicial() {
+        try {
+            raf.writeInt(profundidade);
             for (int i = 0; i < Math.pow(2, this.profundidade); i++) {
                 indice.criarNovoBucket(profundidade);
-                dos.writeInt(i);
+                raf.writeInt(i);
                 this.indices.add(i);
             }
-
-            dos.close();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-
     }
 
-    public void carregarArquivo() {
+    // ler desde o inicio do arquivo a profundidade global e
+    // os enderecos do indices e também os escrever em memoria
+    private void lerInicial() {
         try {
-            fis = new FileInputStream(this.arquivo);
-            dis = new DataInputStream(fis);
+            raf.seek(0);
 
-            int dado = dis.readInt();
+            int dado = raf.readInt();
             this.profundidade = dado;
 
             this.indices.clear();
-            while(dis.available() > 0) {
-                 dado = dis.readInt();
-                 indices.add(dado);
+            while(true) {
+                dado = raf.readInt();
+                indices.add(dado);
             }
-
-            dis.close();
-        } catch (Exception ex) {
+        } catch (EOFException ex) {
+            // While true ali em cima levanta um erro
+            // quando chega no fim do arquivo, mas como isso
+            // é esperado simplesmente ignoramos o erro
+        } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
 
-    // Retornar página?
+    // aplica a funcao hash na entrada (cpf) e busca o
+    // o endereco do bucket no diretorio
     public int getPaginaIndice(int entrada) {
         int posicao = (int) Math.round(entrada % Math.pow(2, profundidade));
         return indices.get(posicao);
     }
 
-    public void reorganizar(int enderecoDupPagina, int enderecoNovaPagina, int profundidadePagina) {
+    // reorganiza os ponteiros com base no bucket que
+    // foi duplicado, o endereco do novo e a profundidade
+    // do bucket utiliza a profundidade para reorganizar
+    // os ponteiros entre os enderecos dos dois buckets
+    public void reorganizar(int adrDupBucket, int adrNovoBucket, int profBucket) {
         List<Integer> newIndices = new ArrayList<Integer>(indices);
 
-        // FIXME: Não tem alguma forma melhor de fazer essa busca?
-        // TODO: Reorgizar somente sabendo o endereço da página
-        //       duplicada, não utilizando o id do página
-        // TODO: Escrever em disco
         try {
-            RandomAccessFile raf = new RandomAccessFile(this.arquivo, "rw");
-
             for (int i = 0; i < this.indices.size(); i++) {
-                if (this.indices.get(i) == enderecoDupPagina) {
-                    int oldReference = (int) Math.round(i % Math.pow(2, profundidadePagina - 1));
-                    int newReference = (int) Math.round(i % Math.pow(2, profundidadePagina));
+                if (this.indices.get(i) == adrDupBucket) {
+                    int oldReference = (int) Math.round(i % Math.pow(2, profBucket - 1));
+                    int newReference = (int) Math.round(i % Math.pow(2, profBucket));
 
                     if (oldReference != newReference) {
                         raf.seek((i + 1)*4);
-                        raf.writeInt(enderecoNovaPagina);
-                        newIndices.set(i, enderecoNovaPagina);
+                        raf.writeInt(adrNovoBucket);
+                        newIndices.set(i, adrNovoBucket);
                     }
                 }
             }
 
-            raf.close();
             this.indices = newIndices;
-            this.printDiretorio();
+            printDiretorio();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
+    // duplica o diretorio sem reorganizar os ponteiros e
+    // escreve em disco e em memoria os novos enderecos dos indices
     public void duplicar() {
         List<Integer> newIndices = new ArrayList<Integer>(indices);
         this.profundidade++;
@@ -121,18 +124,16 @@ public class Diretorio {
             RandomAccessFile raf = new RandomAccessFile(this.arquivo, "rw");
             raf.seek(0);
             raf.writeInt(this.profundidade);
-            raf.close();
 
-            // Usar só RandomAccessFile
-            fos = new FileOutputStream(this.arquivo, true);
-            dos = new DataOutputStream(fos);
+            int tamArquivo = 4 + this.indices.size()*4;
+            raf.seek(tamArquivo);
+
             for (int i : this.indices) {
-                dos.writeInt(i);
+                raf.writeInt(i);
                 newIndices.add(i);
             }
 
             this.indices = newIndices;
-            // this.printDiretorio();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
