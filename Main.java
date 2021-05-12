@@ -34,7 +34,7 @@ public class Main {
                 opcao = in.nextInt();
 
                 // Injetar indice?
-                diretorio = new Diretorio(opcao);
+                diretorio = new Diretorio(opcao, 4);
                 indice = new Indice(opcao, 4);
                 break;
             case 2:
@@ -42,7 +42,7 @@ public class Main {
                 int cpf = 0;
                 Prontuario p = new Prontuario("fulano", LocalDate.now(), 'm', (short) 10, "teste");
                 // int registro = arquivo_mestre.inserir_registro(p);
-                diretorio = new Diretorio(0);
+                diretorio = new Diretorio(0, 4);
 
                 int numBucket = diretorio.getPaginaIndice(cpf);
                 indice = new Indice(0, 0); // TODO: Arrumar.
@@ -55,7 +55,7 @@ public class Main {
                 // remover registro
                 break;
             case 5:
-                diretorio = new Diretorio(0);
+                diretorio = new Diretorio(0, 4);
                 // imprimir arquivos
                 break;
             case 6:

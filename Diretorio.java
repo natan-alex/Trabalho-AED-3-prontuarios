@@ -23,11 +23,11 @@ public class Diretorio {
     // e os parâmetros passados ao construtor são ignorados
     // caso o arquivo NÃO exista é necessário criar os indices
     // e metadados no início do arquivo
-    public Diretorio(int profundidade) {
+    public Diretorio(int profundidade, int tamBuckets) {
         this.profundidade = profundidade;
         this.arquivo = arquivo;
 
-        indice = new Indice(profundidade, 4);
+        indice = new Indice(profundidade, tamBuckets);
         try {
             raf = new RandomAccessFile(this.arquivo, "rws");
             if (raf.length() > 0) {
@@ -40,13 +40,17 @@ public class Diretorio {
         }
     }
 
+    public int getProfundidade() {
+        return profundidade;
+    }
+
     // escrever no inicio do arquivo a profundidade global e
     // os enderecos do indices
     // escrever em memoria os enderecos do indice
     private void escreverInicial() {
         try {
             raf.writeInt(profundidade);
-            for (int i = 0; i < Math.pow(2, this.profundidade); i++) {
+            for (int i = 1; i <= Math.pow(2, this.profundidade); i++) {
                 indice.criarNovoBucket(profundidade);
                 raf.writeInt(i);
                 this.indices.add(i);

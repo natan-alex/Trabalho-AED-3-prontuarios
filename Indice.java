@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.EOFException;
 
 public class Indice {
+    public static int qtd_buckets = 0; // TODO: revisar
+
     // boolean para lápide + int para chave + int para o número do registro
     private static final short SIZEOF_REGISTRO_DO_BUCKET = 9;
     private static final byte SIZEOF_METADADOS_INDICE = 8;
@@ -103,6 +105,7 @@ public class Indice {
     // retorna a posição de início do bucket
     public long criarNovoBucket(int profundidade_local) {
         long endereco_inicio_bucket = 0;
+        qtd_buckets++;
 
         try {
             // bucket é sempre adicionado ao fim do arquivo
@@ -149,24 +152,28 @@ public class Indice {
 
             // ler metadados do bucket
             profundidade_do_bucket = raf.readInt();
-            System.out.println("profundidade_do_bucket: " + profundidade_do_bucket);
+            // System.out.println("profundidade_do_bucket: " + profundidade_do_bucket);
             ocupacao = raf.readInt();
             System.out.println("ocupacao: " + ocupacao);
-
             pos_apos_metadados_do_bucket = raf.getFilePointer();
 
             if (ocupacao == tam_bucket) {
+                System.out.println("profundidade_do_bucket: " + profundidade_do_bucket);
+                System.out.println("profundidade_global: " + profundidade_global);
+
                 if (profundidade_do_bucket == profundidade_global) {
-                    // duplicar diretorio!!
                     System.out.println("duplicar dir!");
                     return -1;
                 } else {
                     System.out.println("criando novo bucket...");
-                    // novo bucket
-                    criarNovoBucket(profundidade_do_bucket + 1);
-                    // rearranjar chaves
                     System.out.println("necessário rearranjar chaves!");
-                    return -2;
+
+                    criarNovoBucket(profundidade_do_bucket + 1);
+
+                    raf.seek(pos_apos_metadados_do_bucket - 8);
+                    raf.writeInt(profundidade_do_bucket + 1);
+
+                    return profundidade_do_bucket + 1;
                 }
             } else {
                 // ir até o ponto de inserção de um novo registro:
@@ -185,6 +192,6 @@ public class Indice {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return 1;
+        return 0;
     }
 }
