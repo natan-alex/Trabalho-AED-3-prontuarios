@@ -105,7 +105,6 @@ public class Indice {
     // retorna a posição de início do bucket
     public long criarNovoBucket(int profundidade_local) {
         long endereco_inicio_bucket = 0;
-        qtd_buckets++;
 
         try {
             // bucket é sempre adicionado ao fim do arquivo
@@ -114,7 +113,7 @@ public class Indice {
             // do bucket
             endereco_inicio_bucket = raf.length();
             raf.seek(endereco_inicio_bucket);
-            System.out.println("raf.length(): " + raf.length());
+            System.out.println("raf.length() logo antes de criar um novo bucket: " + raf.length());
 
             raf.writeInt(profundidade_local);
             raf.writeInt(0); // ocupacao inicial do bucket é sempre 0
@@ -124,14 +123,14 @@ public class Indice {
                 // respeito a um registro do índice recém criado(não
                 // possui chave e o num_registro é -1) e que
                 // contém o prox_cpf como id
-                byte[] aa = new RegistroDoBucket().toByteArray();
+                // byte[] aa = new RegistroDoBucket().toByteArray();
                 // DEVERIA SER 17
-                System.out.println("byte[] length: " + aa.length);
+                // System.out.println("byte[] length: " + aa.length);
 
+                System.out.println("tam array de bytes do registro: " + (new RegistroDoBucket().toByteArray().length));
                 raf.write(new RegistroDoBucket().toByteArray());
+                qtd_buckets++;
             }
-
-            System.out.println("raf.length2(): " + raf.length());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -147,9 +146,7 @@ public class Indice {
         // após os metadados, necessário percorrer todos os buckets até o bucket de interesse.
         // bucket tem tam_bucket registros de tamanho SIZEOF_REGISTRO_DO_BUCKET, portanto:
         // tamanho_metadados(8) + (num_bucket - 1) * (tam_bucket * tamanho_do_registro_do_bucket)
-        int pos_bucket = SIZEOF_METADADOS_INDICE + (num_bucket - 1) * (tam_bucket * SIZEOF_REGISTRO_DO_BUCKET);
-
-        // 8 + 1*(90)
+        long pos_bucket = SIZEOF_METADADOS_INDICE + (num_bucket - 1) * (tam_bucket * SIZEOF_REGISTRO_DO_BUCKET);
 
         System.out.println("pos_bucket = " + pos_bucket);
         int profundidade_do_bucket = -1;
@@ -179,12 +176,12 @@ public class Indice {
                     System.out.println("criando novo bucket...");
                     System.out.println("necessário rearranjar chaves!");
 
-                    criarNovoBucket(profundidade_do_bucket + 1);
+                    criarNovoBucket(++profundidade_do_bucket);
 
-                    // raf.seek(pos_apos_metadados_do_bucket - 8);
-                    // raf.writeInt(profundidade_do_bucket + 1);
+                    raf.seek(pos_apos_metadados_do_bucket - SIZEOF_METADADOS_INDICE);
+                    raf.writeInt(++profundidade_do_bucket);
 
-                    return profundidade_do_bucket + 1;
+                    return profundidade_do_bucket;
                 }
             } else {
                 // ir até o ponto de inserção de um novo registro:
