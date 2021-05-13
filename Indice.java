@@ -11,6 +11,7 @@ public class Indice {
     // boolean para lápide + int para chave + int para o número do registro
     private static final short SIZEOF_REGISTRO_DO_BUCKET = 9;
     private static final byte SIZEOF_METADADOS_INDICE = 8;
+    private static final byte SIZEOF_METADADOS_BUCKET = 8;
 
     private RandomAccessFile raf;
 
@@ -59,6 +60,7 @@ public class Indice {
         try {
             raf.writeInt(profundidade_global);
             raf.writeInt(tam_bucket);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -85,6 +87,7 @@ public class Indice {
             raf.seek(pos_inicio);
             int profundidade_do_bucket = raf.readInt();
             int ocupacao = raf.readInt();
+
             registros = new RegistroDoBucket[ocupacao];
 
             for (int i = 0; i < ocupacao; i++) {
@@ -114,7 +117,6 @@ public class Indice {
             // do bucket
             endereco_inicio_bucket = raf.length();
             raf.seek(endereco_inicio_bucket);
-            System.out.println("raf.length(): " + raf.length());
 
             raf.writeInt(profundidade_local);
             raf.writeInt(0); // ocupacao inicial do bucket é sempre 0
@@ -124,14 +126,8 @@ public class Indice {
                 // respeito a um registro do índice recém criado(não
                 // possui chave e o num_registro é -1) e que
                 // contém o prox_cpf como id
-                byte[] aa = new RegistroDoBucket().toByteArray();
-                // DEVERIA SER 17
-                System.out.println("byte[] length: " + aa.length);
-
                 raf.write(new RegistroDoBucket().toByteArray());
             }
-
-            System.out.println("raf.length2(): " + raf.length());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -147,11 +143,8 @@ public class Indice {
         // após os metadados, necessário percorrer todos os buckets até o bucket de interesse.
         // bucket tem tam_bucket registros de tamanho SIZEOF_REGISTRO_DO_BUCKET, portanto:
         // tamanho_metadados(8) + (num_bucket - 1) * (tam_bucket * tamanho_do_registro_do_bucket)
-        int pos_bucket = SIZEOF_METADADOS_INDICE + (num_bucket - 1) * (tam_bucket * SIZEOF_REGISTRO_DO_BUCKET);
+        int pos_bucket = SIZEOF_METADADOS_INDICE + (num_bucket - 1) * (tam_bucket * SIZEOF_REGISTRO_DO_BUCKET + SIZEOF_METADADOS_BUCKET);
 
-        // 8 + 1*(90)
-
-        System.out.println("pos_bucket = " + pos_bucket);
         int profundidade_do_bucket = -1;
         int ocupacao = -1;
         long pos_apos_metadados_do_bucket = 0;
@@ -161,17 +154,10 @@ public class Indice {
 
             // ler metadados do bucket
             profundidade_do_bucket = raf.readInt();
-            System.out.println("profundidade_do_bucket: " + profundidade_do_bucket);
-
             ocupacao = raf.readInt();
-            System.out.println("ocupacao: " + ocupacao);
-
             pos_apos_metadados_do_bucket = raf.getFilePointer();
 
             if (ocupacao == tam_bucket) {
-                System.out.println("profundidade_do_bucket: " + profundidade_do_bucket);
-                System.out.println("profundidade_global: " + profundidade_global);
-
                 if (profundidade_do_bucket == profundidade_global) {
                     System.out.println("duplicar dir!");
                     return -1;
@@ -181,8 +167,8 @@ public class Indice {
 
                     criarNovoBucket(profundidade_do_bucket + 1);
 
-                    // raf.seek(pos_apos_metadados_do_bucket - 8);
-                    // raf.writeInt(profundidade_do_bucket + 1);
+                    raf.seek(pos_apos_metadados_do_bucket - SIZEOF_METADADOS_BUCKET);
+                    raf.writeInt(profundidade_do_bucket + 1);
 
                     return profundidade_do_bucket + 1;
                 }
@@ -191,7 +177,6 @@ public class Indice {
                 // "tamanho" do bucket com base no número de registros já existentes
                 // no bucket (ocupacao); analogia a uma lista encadeada
                 // ocupacao * tam_registro
-                // System.out.println("====================== TAM BUCKET: " + (1 + (pos_apos_metadados_do_bucket + ocupacao * SIZEOF_REGISTRO_DO_BUCKET)));
                 raf.seek(pos_apos_metadados_do_bucket + ocupacao * SIZEOF_REGISTRO_DO_BUCKET);
 
                 // escrever registro na posição encontrada

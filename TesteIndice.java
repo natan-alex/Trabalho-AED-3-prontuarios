@@ -12,8 +12,8 @@ public class TesteIndice {
     public static void main(String[] args) {
         try {
             int tamBuckets = 1;
-            Diretorio diretorio = new Diretorio(1, tamBuckets); // esperado: arquivo de indices tenha sido
             Indice indice = new Indice(1, tamBuckets); // esperado: arquivo de indices tenha sido
+            Diretorio diretorio = new Diretorio(1, tamBuckets, indice); // esperado: arquivo de indices tenha sido
             // criado com o número de buckets inicial baseado no tamanho do diretório
             // ou na profundidade global
             // params: pglobal, tamanho do bucket
@@ -40,7 +40,7 @@ public class TesteIndice {
             // }
 
             // teste inserir registro
-            // System.out.println( indice.inserir_registro(99, 1, 1) );
+            System.out.println( indice.inserir_registro(1, 1, 1) );
             // System.out.println( indice.inserir_registro(101, 1, 2) );
             // System.out.println( indice.inserir_registro(103, 1, 3) );
             // System.out.println( indice.inserir_registro(105, 1, 4) );
@@ -51,7 +51,7 @@ public class TesteIndice {
             // System.out.println( indice.inserir_registro(115, 1, 9) );
             // System.out.println( indice.inserir_registro(117, 1, 10) );
 
-            System.out.println( indice.inserir_registro(99, 2, 1) );
+            System.out.println( indice.inserir_registro(2, 2, 2) );
             // System.out.println( indice.inserir_registro(101, 2, 2) );
             // System.out.println( indice.inserir_registro(103, 2, 3) );
             // System.out.println( indice.inserir_registro(105, 2, 4) );
@@ -62,36 +62,33 @@ public class TesteIndice {
             // System.out.println( indice.inserir_registro(115, 2, 9) );
             // System.out.println( indice.inserir_registro(117, 2, 10) );
 
+            int cpf = 1;
+            int bucket = diretorio.getPaginaIndice(cpf);
 
-            RegistroDoBucket[] registros1 = indice.getBucket(17);
+            if (indice.inserir_registro(119, bucket, 11) == -1) {
+                diretorio.duplicar();
+
+                indice.setProfundidadeGlobal(diretorio.getProfundidade());
+                int profundidadeBucket = indice.inserir_registro(119, bucket, 11);
+
+                diretorio.reorganizar(bucket, indice.qtd_buckets, profundidadeBucket);
+                indice.inserir_registro(3, indice.qtd_buckets, 3);
+            }
+
+            RegistroDoBucket[] registros1 = indice.getBucket(8);
             for (RegistroDoBucket registro : registros1) {
                 System.out.println("registro: " + registro);
             }
 
-            // int cpf = 1;
-            // int bucket = diretorio.getPaginaIndice(cpf);
+            RegistroDoBucket[] registros2 = indice.getBucket(25);
+            for (RegistroDoBucket registro : registros2) {
+                System.out.println("registro: " + registro);
+            }
 
-            // System.out.println("==================================");
-            // System.out.println("num bucket " + bucket);
-
-            // if (indice.inserir_registro(119, bucket, 11) == -1) {
-            //     diretorio.duplicar();
-
-            //     System.out.println("DUPLICAR");
-
-            //     // indice.setProfundidadeGlobal(diretorio.getProfundidade());
-            //     // int profundidadeBucket = indice.inserir_registro(119, bucket, 11);
-
-            //     // diretorio.reorganizar(bucket, indice.qtd_buckets, profundidadeBucket);
-            //     // int profundidadeBucket = indice.inserir_registro(119, bucket, 11);
-            // }
-
-            // System.out.println( indice.inserir_registro(121, 1, 12) );
-
-            // RegistroDoBucket[] registros2 = indice.getBucket(98);
-            // for (RegistroDoBucket registro : registros2) {
-            //     System.out.println("registro: " + registro);
-            // }
+            RegistroDoBucket[] registros3 = indice.getBucket(42);
+            for (RegistroDoBucket registro : registros3) {
+                System.out.println("registro: " + registro);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

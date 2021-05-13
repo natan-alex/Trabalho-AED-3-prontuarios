@@ -23,11 +23,11 @@ public class Diretorio {
     // e os parâmetros passados ao construtor são ignorados
     // caso o arquivo NÃO exista é necessário criar os indices
     // e metadados no início do arquivo
-    public Diretorio(int profundidade, int tamBuckets) {
+    public Diretorio(int profundidade, int tamBuckets, Indice indice) {
         this.profundidade = profundidade;
         this.arquivo = arquivo;
+        this.indice = indice;
 
-        indice = new Indice(profundidade, tamBuckets);
         try {
             raf = new RandomAccessFile(this.arquivo, "rws");
             if (raf.length() > 0) {
