@@ -8,15 +8,15 @@ public class TestDiretorio {
     public static void main(String[] args) {
         Diretorio d;
 
-        d = new Diretorio(0, 2);
-        d.duplicar();
-        d.reorganizar(0, 1, 1);
+        // d = new Diretorio(0, 2);
+        // d.duplicar();
+        // d.reorganizar(0, 1, 1);
 
-        d.duplicar();
-        d.reorganizar(0, 4, 2);
+        // d.duplicar();
+        // d.reorganizar(0, 4, 2);
 
-        d.duplicar();
-        d.reorganizar(0, 100, 3);
+        // d.duplicar();
+        // d.reorganizar(0, 100, 3);
 
         // d.duplicar();
         // d.reorganizar(2, 3);
