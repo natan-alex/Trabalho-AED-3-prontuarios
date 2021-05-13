@@ -11,7 +11,7 @@ import java.io.IOException;
 public class TesteIndice {
     public static void main(String[] args) {
         try {
-            int tamBuckets = 10;
+            int tamBuckets = 1;
             Diretorio diretorio = new Diretorio(1, tamBuckets); // esperado: arquivo de indices tenha sido
             Indice indice = new Indice(1, tamBuckets); // esperado: arquivo de indices tenha sido
             // criado com o número de buckets inicial baseado no tamanho do diretório
@@ -40,45 +40,58 @@ public class TesteIndice {
             // }
 
             // teste inserir registro
-            System.out.println( indice.inserir_registro(99, 1, 1) );
-            System.out.println( indice.inserir_registro(101, 1, 2) );
-            System.out.println( indice.inserir_registro(103, 1, 3) );
-            System.out.println( indice.inserir_registro(105, 1, 4) );
-            System.out.println( indice.inserir_registro(107, 1, 5) );
-            System.out.println( indice.inserir_registro(109, 1, 6) );
-            System.out.println( indice.inserir_registro(111, 1, 7) );
-            System.out.println( indice.inserir_registro(113, 1, 8) );
-            System.out.println( indice.inserir_registro(115, 1, 9) );
-            System.out.println( indice.inserir_registro(117, 1, 10) );
+            // System.out.println( indice.inserir_registro(99, 1, 1) );
+            // System.out.println( indice.inserir_registro(101, 1, 2) );
+            // System.out.println( indice.inserir_registro(103, 1, 3) );
+            // System.out.println( indice.inserir_registro(105, 1, 4) );
+            // System.out.println( indice.inserir_registro(107, 1, 5) );
+            // System.out.println( indice.inserir_registro(109, 1, 6) );
+            // System.out.println( indice.inserir_registro(111, 1, 7) );
+            // System.out.println( indice.inserir_registro(113, 1, 8) );
+            // System.out.println( indice.inserir_registro(115, 1, 9) );
+            // System.out.println( indice.inserir_registro(117, 1, 10) );
 
-            RegistroDoBucket[] registros1 = indice.getBucket(12);
+            System.out.println( indice.inserir_registro(99, 2, 1) );
+            // System.out.println( indice.inserir_registro(101, 2, 2) );
+            // System.out.println( indice.inserir_registro(103, 2, 3) );
+            // System.out.println( indice.inserir_registro(105, 2, 4) );
+            // System.out.println( indice.inserir_registro(107, 2, 5) );
+            // System.out.println( indice.inserir_registro(109, 2, 6) );
+            // System.out.println( indice.inserir_registro(111, 2, 7) );
+            // System.out.println( indice.inserir_registro(113, 2, 8) );
+            // System.out.println( indice.inserir_registro(115, 2, 9) );
+            // System.out.println( indice.inserir_registro(117, 2, 10) );
+
+
+            RegistroDoBucket[] registros1 = indice.getBucket(17);
             for (RegistroDoBucket registro : registros1) {
                 System.out.println("registro: " + registro);
             }
 
-            int cpf = 0;
-            int bucket = diretorio.getPaginaIndice(cpf);
+            // int cpf = 1;
+            // int bucket = diretorio.getPaginaIndice(cpf);
 
-            System.out.println("==================================");
-            System.out.println("num bucket" + bucket);
+            // System.out.println("==================================");
+            // System.out.println("num bucket " + bucket);
 
-            if (indice.inserir_registro(119, bucket, 11) == -1) {
-                diretorio.duplicar();
+            // if (indice.inserir_registro(119, bucket, 11) == -1) {
+            //     diretorio.duplicar();
 
-                indice.setProfundidadeGlobal(diretorio.getProfundidade());
-                int profundidadeBucket = indice.inserir_registro(119, bucket, 11);
+            //     System.out.println("DUPLICAR");
 
-                diretorio.reorganizar(bucket, indice.qtd_buckets, profundidadeBucket);
-                System.out.println("Reorganizar");
-                // int profundidadeBucket = indice.inserir_registro(119, bucket, 11);
-            }
+            //     // indice.setProfundidadeGlobal(diretorio.getProfundidade());
+            //     // int profundidadeBucket = indice.inserir_registro(119, bucket, 11);
+
+            //     // diretorio.reorganizar(bucket, indice.qtd_buckets, profundidadeBucket);
+            //     // int profundidadeBucket = indice.inserir_registro(119, bucket, 11);
+            // }
 
             // System.out.println( indice.inserir_registro(121, 1, 12) );
 
-            RegistroDoBucket[] registros2 = indice.getBucket(12);
-            for (RegistroDoBucket registro : registros2) {
-                System.out.println("registro: " + registro);
-            }
+            // RegistroDoBucket[] registros2 = indice.getBucket(98);
+            // for (RegistroDoBucket registro : registros2) {
+            //     System.out.println("registro: " + registro);
+            // }
         } catch (IOException e) {
             e.printStackTrace();
         }
