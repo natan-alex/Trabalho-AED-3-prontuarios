@@ -22,19 +22,25 @@ public class TesteArquivoMestre {
             int num_registros_no_arquivo = raf.readInt();
             short num_bytes_anotacoes = raf.readShort();
 
-            Prontuario[] prontuarios = new Prontuario[num_registros_no_arquivo];
-            int id_registro = 0;
-            short tam_registro = 0;
-            byte[] registro_bytes = null;
+            System.out.println(p.toByteArray().length);
+            System.out.println(p2.toByteArray().length);
 
-            for (int i = 0; i < prontuarios.length; i++) {
-                id_registro = raf.readInt();
-                tam_registro = raf.readShort();
-                registro_bytes = new byte[tam_registro];
-                raf.read(registro_bytes);
-                prontuarios[i] = new Prontuario(registro_bytes);
-                System.out.println("Prontuario " + id_registro + ": " + prontuarios[i]);
-            }
+            System.out.println( p.getAnotacoes() + " tam: " + p.getAnotacoes().length());
+            System.out.println( p2.getAnotacoes() + " tam: " + p2.getAnotacoes().length());
+
+            // Prontuario[] prontuarios = new Prontuario[num_registros_no_arquivo];
+            // int id_registro = 0;
+            // short tam_registro = 0;
+            // byte[] registro_bytes = null;
+
+            // for (int i = 0; i < prontuarios.length; i++) {
+            //     id_registro = raf.readInt();
+            //     tam_registro = raf.readShort();
+            //     registro_bytes = new byte[tam_registro];
+            //     raf.read(registro_bytes);
+            //     prontuarios[i] = new Prontuario(registro_bytes);
+            //     System.out.println("Prontuario " + id_registro + ": " + prontuarios[i]);
+            // }
         } catch (IOException e) {
             e.printStackTrace();
         }

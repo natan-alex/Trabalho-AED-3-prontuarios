@@ -32,7 +32,7 @@ public class ArquivoMestre {
         }
     }
 
-    // ler metadados em caso de o arquivo já existir
+    // ler metadados em caso de o arquivo já existir;
     // metadados: número de registros presentes no arquivo e
     // o número de bytes total para as anotações
     private void ler_metadados() {
@@ -54,7 +54,7 @@ public class ArquivoMestre {
         }
     }
 
-    // inserir um registro no fim do arquivo de dados
+    // inserir um registro no fim do arquivo de dados;
     // retorna o número de registros contidos no arquivo
     public int inserir_registro(Prontuario registro) {
         try {
@@ -62,12 +62,10 @@ public class ArquivoMestre {
             System.out.println("tam arquivo mestre: " + raf.length());
             raf.seek( raf.length() ); // ir para o fim do arquivo 
 
-            // inserir o id do registro,
-            // o tamanho em bytes do registro 
+            // inserir o id do registro
             // e então o registro de fato
             byte[] registro_em_bytes = registro.toByteArray();
             raf.writeInt( registro.getCpf() ); // id
-            raf.writeShort( registro_em_bytes.length ); // tamanho do registro
             raf.write(registro_em_bytes); // registro
             registro_em_bytes = null;
 

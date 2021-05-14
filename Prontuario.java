@@ -136,6 +136,8 @@ public class Prontuario extends Serializavel {
             dos.writeChar(sexo);
             dos.writeUTF(anotacoes);
             dos.flush();
+            dos.close();
+            dos = null;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -147,10 +149,10 @@ public class Prontuario extends Serializavel {
     // vindos de um array de bytes
     @Override
     protected void fromByteArray(byte[] data) {
-        ByteArrayInputStream bais = new ByteArrayInputStream(data);
-        DataInputStream dis = new DataInputStream(bais);
 
-        try {
+        try (ByteArrayInputStream bais = new ByteArrayInputStream(data);
+                DataInputStream dis = new DataInputStream(bais)
+            ) {
             this.cpf = dis.readInt();
             this.nome = dis.readUTF();
             this.data = LocalDate.of( dis.readShort(), dis.readByte(), dis.readByte() );
