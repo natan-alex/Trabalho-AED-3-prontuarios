@@ -1,6 +1,7 @@
 package trabalho_aed_prontuario.indice;
 
 import java.io.RandomAccessFile;
+import trabalho_aed_prontuario.diretorio.Diretorio;
 
 import java.io.IOException;
 import java.io.EOFException;
@@ -42,7 +43,7 @@ public class Indice {
     // positivos são válidos. Ao alterar a profundide,
     // necessário alterá-la também no arquivo de índices
     public void setProfundidadeGlobal(int profundidade_global) {
-        if (profundidade_global > 0) 
+        if (profundidade_global > 0)
             this.profundidade_global = profundidade_global;
         try {
             raf.seek(0);
@@ -55,7 +56,7 @@ public class Indice {
     // a classe é responsável por alterar a variável qtd_buckets
     // portanto o setter é privado
     private void setQtdBuckets(int qtd_buckets) {
-        if (qtd_buckets > 0) 
+        if (qtd_buckets > 0)
             this.qtd_buckets = qtd_buckets;
         try {
             raf.seek(SIZEOF_METADADOS_INDICE - 4);
@@ -82,7 +83,7 @@ public class Indice {
         }
     }
 
-    // ler metadados(profundidade_global, tam_bucket, 
+    // ler metadados(profundidade_global, tam_bucket,
     // qtd_buckets) inseridos ao criar o arquivo de indices;
     // metadados serão lidos uma única vez em caso de o arquivo
     // já existir ao instanciar a classe
@@ -96,7 +97,6 @@ public class Indice {
         }
     }
 
-    // para debug
     public RegistroDoBucket[] getBucket(long pos_inicio) {
         RegistroDoBucket[] registros = null;
 
@@ -139,7 +139,7 @@ public class Indice {
             raf.writeInt(0); // ocupacao inicial do bucket é sempre 0
 
             for (int i = 0; i < tam_bucket; i++) {
-                // escrever um registro do bucket com os 
+                // escrever um registro do bucket com os
                 // parâmetros default(lápide==false,
                 // chave==-1, num_registro==-1);
                 raf.write(new RegistroDoBucket().toByteArray());
@@ -161,9 +161,8 @@ public class Indice {
         // caminhar até o ponto de início do bucket:
         // após os metadados, necessário percorrer todos os buckets até o bucket de interesse.
         // bucket tem tam_bucket registros de tamanho SIZEOF_REGISTRO_DO_BUCKET, portanto:
-        // tamanho_dos_metadados_do_indice(SIZEOF_METADADOS_INDICE) + (num_bucket - 1) * (tam_bucket * tamanho_do_registro_do_bucket)
-        long pos_bucket = SIZEOF_METADADOS_INDICE + (num_bucket - 1) * (tam_bucket * SIZEOF_REGISTRO_DO_BUCKET + SIZEOF_METADADOS_BUCKET);
-        System.out.println("pos_bucket = " + pos_bucket);
+        // tamanho_dos_metadados_do_indice(SIZEOF_METADADOS_INDICE) + (num_bucket - 1) * (tam_bucket * tamanho_do_registro_do_bucket + tamanho_metadados_bucket)
+        long pos_bucket = pos_bucket(num_bucket);
 
         int profundidade_do_bucket = -1;
         int ocupacao = -1;
@@ -194,14 +193,13 @@ public class Indice {
 
                     criarNovoBucket(++profundidade_do_bucket);
 
-                    // atualizar a profundidade do bucket
                     raf.seek(pos_apos_metadados_do_bucket - SIZEOF_METADADOS_BUCKET);
                     raf.writeInt(profundidade_do_bucket);
 
                     return profundidade_do_bucket;
                 }
             } else {
-                // ir até o fim do último registro armazenado 
+                // ir até o fim do último registro armazenado
                 // no bucket, que é o ponto de inserção do novo registro
                 raf.seek(pos_apos_metadados_do_bucket + ocupacao * SIZEOF_REGISTRO_DO_BUCKET);
 
@@ -216,5 +214,43 @@ public class Indice {
             e.printStackTrace();
         }
         return 0;
+    }
+
+    public void dividir_bucket(int num_bucket, Diretorio diretorio) {
+        try {
+            long pos = pos_bucket(num_bucket);
+            raf.seek(pos);
+
+            int profundidade_do_bucket = raf.readInt();
+            int ocupacao = raf.readInt();
+            int _ocupacao = ocupacao;
+
+            int cpf, num_registro, novo_num_bucket;
+            boolean _lapide;
+
+            for (int i = 0; i < ocupacao; i++) {
+                _lapide = raf.readBoolean();
+                cpf = raf.readInt();
+                num_registro = raf.readInt();
+
+                novo_num_bucket = diretorio.getPaginaIndice(cpf);
+
+                raf.seek(raf.getFilePointer());
+                raf.writeBoolean(true);
+
+                raf.seek(pos + 4);
+                raf.writeInt(--_ocupacao);
+
+                inserir_registro(cpf, novo_num_bucket, num_registro);
+
+                raf.seek(pos + SIZEOF_METADADOS_BUCKET + (i+1)*(SIZEOF_REGISTRO_DO_BUCKET));
+            }
+        } catch (Exception err) {
+            err.printStackTrace();
+        }
+    }
+
+    private long pos_bucket(int num) {
+        return SIZEOF_METADADOS_INDICE + (num - 1) * (tam_bucket * SIZEOF_REGISTRO_DO_BUCKET + SIZEOF_METADADOS_BUCKET);
     }
 }
