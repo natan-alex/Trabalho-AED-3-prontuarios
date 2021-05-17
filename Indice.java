@@ -228,20 +228,11 @@ public class Indice {
             int ocupacao = raf.readInt();
 
             int _ocupacao = ocupacao;
-
-            int cpf, num_registro, novo_num_bucket;
-            boolean _lapide;
+            int novo_num_bucket;
 
             RegistroDoBucket[] registros = getBucket(pos);
 
             for (int i = 0; i < ocupacao; i++) {
-                raf.seek(pos + SIZEOF_METADADOS_BUCKET + i*SIZEOF_REGISTRO_DO_BUCKET);
-
-                _lapide = raf.readBoolean();
-                cpf = raf.readInt();
-                num_registro = raf.readInt();
-
-                // Remove
                 raf.seek(pos + SIZEOF_METADADOS_BUCKET + (i*SIZEOF_REGISTRO_DO_BUCKET));
                 raf.writeBoolean(true);
 
