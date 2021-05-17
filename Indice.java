@@ -134,7 +134,6 @@ public class Indice {
             // do bucket
             endereco_inicio_bucket = raf.length();
             raf.seek(endereco_inicio_bucket);
-            System.out.println("raf.length() logo antes de criar um novo bucket: " + raf.length());
 
             raf.writeInt(profundidade_local);
             raf.writeInt(0); // ocupacao inicial do bucket é sempre 0
@@ -169,15 +168,12 @@ public class Indice {
         int ocupacao = -1;
         long pos_apos_metadados_do_bucket = 0;
 
-
         try {
             raf.seek(pos_bucket);
 
             // ler metadados do bucket
             profundidade_do_bucket = raf.readInt();
-            System.out.println("profundidade do bucket que começa na posição " + pos_bucket + ": " + profundidade_do_bucket);
             ocupacao = raf.readInt();
-            System.out.println("ocupacao do bucket que começa na posição " + pos_bucket + ": " + ocupacao);
             // armazenar posição após os metadados do bucket:
             // indica onde começa o armazenamento dos registros
             // no bucket
@@ -187,13 +183,8 @@ public class Indice {
             // se o bucket estiver cheio
             if (ocupacao == tam_bucket) {
                 if (profundidade_do_bucket == profundidade_global) {
-                    System.out.println("duplicar dir que começa na posição " + pos_bucket + "!");
                     return -1;
                 } else {
-                    System.out.println("novo bucket para = " + cpf);
-                    System.out.println("criando novo bucket...");
-                    System.out.println("necessário rearranjar chaves!");
-
                     criarNovoBucket(++profundidade_do_bucket);
 
                     raf.seek(pos_bucket);
@@ -219,8 +210,13 @@ public class Indice {
         return 0;
     }
 
+    // divide o bucket num_bucket e redistribui os registros.
+    // primeiro altera a lápide de todos os registros para true e depois
+    // muda a ocupacao para 0, depois reinsere os registros entre o
+    // num_bucket e o outro bucket
     public void dividir_bucket(int num_bucket, Diretorio diretorio) {
         try {
+            // move o cursor do arquivo para o começo do bucket
             long pos = pos_bucket(num_bucket);
             raf.seek(pos);
 
@@ -232,13 +228,15 @@ public class Indice {
 
             RegistroDoBucket[] registros = getBucket(pos);
 
+            // para cada registro do bucket, o deletar alterando a lapide para true
             for (int i = 0; i < ocupacao; i++) {
                 raf.seek(pos + SIZEOF_METADADOS_BUCKET + (i*SIZEOF_REGISTRO_DO_BUCKET));
                 raf.writeBoolean(true);
-
-                raf.seek(pos + 4);
-                raf.writeInt(--_ocupacao);
             }
+
+            // alterar a ocupacao para 0 pois todos os registros foram deletados
+            raf.seek(pos + 4); // pos + tam(profundidade_do_bucket)
+            raf.writeInt(0);
 
             for (RegistroDoBucket registro : registros) {
                 novo_num_bucket = diretorio.getPaginaIndice(registro.getChave());
@@ -253,5 +251,3 @@ public class Indice {
         return SIZEOF_METADADOS_INDICE + (num - 1) * (tam_bucket * SIZEOF_REGISTRO_DO_BUCKET + SIZEOF_METADADOS_BUCKET);
     }
 }
-
-
