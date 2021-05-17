@@ -149,14 +149,14 @@ public class Indice {
         // após os metadados, necessário percorrer todos os buckets até o bucket de interesse.
         // bucket tem tam_bucket registros de tamanho SIZEOF_REGISTRO_DO_BUCKET, portanto:
         // tamanho_dos_metadados_do_indice(SIZEOF_METADADOS_INDICE) + (num_bucket - 1) * (tam_bucket * tamanho_do_registro_do_bucket + tamanho_metadados_bucket)
-        long pos_bucket = pos_bucket(num_bucket);
+        long calcular_pos_bucket = calcular_pos_bucket(num_bucket);
 
         int profundidade_do_bucket = -1;
         int ocupacao = -1;
         long pos_apos_metadados_do_bucket = 0;
 
         try {
-            raf.seek(pos_bucket);
+            raf.seek(calcular_pos_bucket);
 
             // ler metadados do bucket
             profundidade_do_bucket = raf.readInt();
@@ -174,7 +174,7 @@ public class Indice {
                 } else {
                     criarNovoBucket(++profundidade_do_bucket);
 
-                    raf.seek(pos_bucket);
+                    raf.seek(calcular_pos_bucket);
                     raf.writeInt(profundidade_do_bucket);
 
                     return profundidade_do_bucket;
@@ -204,7 +204,7 @@ public class Indice {
     public void dividir_bucket(int num_bucket, Diretorio diretorio) {
         try {
             // move o cursor do arquivo para o começo do bucket
-            long pos = pos_bucket(num_bucket);
+            long pos = calcular_pos_bucket(num_bucket);
             raf.seek(pos);
 
             int profundidade_do_bucket = raf.readInt();
@@ -234,7 +234,7 @@ public class Indice {
         }
     }
 
-    private long pos_bucket(int num) {
+    private long calcular_pos_bucket(int num) {
         return SIZEOF_METADADOS_INDICE + (num - 1) * (tam_bucket * SIZEOF_REGISTRO_DO_BUCKET + SIZEOF_METADADOS_BUCKET);
     }
 }
