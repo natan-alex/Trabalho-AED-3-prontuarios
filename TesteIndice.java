@@ -34,32 +34,32 @@ public class TesteIndice {
             cpf = 20;
             inserir(cpf, indice, diretorio);
 
-            // cpf = 8;
-            // inserir(cpf, indice, diretorio);
+            cpf = 8;
+            inserir(cpf, indice, diretorio);
 
-            // cpf = 6;
-            // inserir(cpf, indice, diretorio);
+            cpf = 6;
+            inserir(cpf, indice, diretorio);
 
             cpf = 1;
             inserir(cpf, indice, diretorio);
 
-            // cpf = 12;
-            // inserir(cpf, indice, diretorio);
+            cpf = 12;
+            inserir(cpf, indice, diretorio);
 
-            // cpf = 22;
-            // inserir(cpf, indice, diretorio);
+            cpf = 22;
+            inserir(cpf, indice, diretorio);
 
-            // cpf = 7;
-            // inserir(cpf, indice, diretorio);
+            cpf = 7;
+            inserir(cpf, indice, diretorio);
 
-            // cpf = 16;
-            // inserir(cpf, indice, diretorio);
+            cpf = 16;
+            inserir(cpf, indice, diretorio);
 
-            // cpf = 13;
-            // inserir(cpf, indice, diretorio);
+            cpf = 13;
+            inserir(cpf, indice, diretorio);
 
-            // cpf = 19;
-            // inserir(cpf, indice, diretorio);
+            cpf = 19;
+            inserir(cpf, indice, diretorio);
 
             RegistroDoBucket[] registros1 = indice.getBucket(12);
             System.out.println("Lendo do bucket 1:");
@@ -73,23 +73,23 @@ public class TesteIndice {
                 System.out.println("registro: " + registro);
             }
 
-            // RegistroDoBucket[] registros3 = indice.getBucket(100);
-            // System.out.println("Lendo do bucket 3:");
-            // for (RegistroDoBucket registro : registros3) {
-            //     System.out.println("registro: " + registro);
-            // }
+            RegistroDoBucket[] registros3 = indice.getBucket(100);
+            System.out.println("Lendo do bucket 3:");
+            for (RegistroDoBucket registro : registros3) {
+                System.out.println("registro: " + registro);
+            }
 
-            // RegistroDoBucket[] registros4 = indice.getBucket(144);
-            // System.out.println("Lendo do bucket 4:");
-            // for (RegistroDoBucket registro : registros4) {
-            //     System.out.println("registro: " + registro);
-            // }
+            RegistroDoBucket[] registros4 = indice.getBucket(144);
+            System.out.println("Lendo do bucket 4:");
+            for (RegistroDoBucket registro : registros4) {
+                System.out.println("registro: " + registro);
+            }
 
-            // RegistroDoBucket[] registros5 = indice.getBucket(188);
-            // System.out.println("Lendo do bucket 5:");
-            // for (RegistroDoBucket registro : registros5) {
-            //     System.out.println("registro: " + registro);
-            // }
+            RegistroDoBucket[] registros5 = indice.getBucket(188);
+            System.out.println("Lendo do bucket 5:");
+            for (RegistroDoBucket registro : registros5) {
+                System.out.println("registro: " + registro);
+            }
     }
 
     private static void inserir(int cpf, Indice indice, Diretorio diretorio) {
@@ -98,12 +98,23 @@ public class TesteIndice {
         N++;
 
         bucket = diretorio.getPaginaIndice(cpf);
-        if (indice.inserir_registro(cpf, bucket, N) == -1) {
+        int insercao;
+        insercao = indice.inserir_registro(cpf, bucket, N);
+
+        if (insercao == -1) {
             diretorio.duplicar();
             indice.setProfundidadeGlobal(diretorio.getProfundidade());
 
             int profundidadeBucket = indice.inserir_registro(cpf, bucket, N);
             diretorio.reorganizar(bucket, indice.getQtdBuckets(), profundidadeBucket);
+
+            indice.dividir_bucket(bucket, diretorio);
+
+            bucket = diretorio.getPaginaIndice(cpf);
+            indice.inserir_registro(cpf, bucket, N);
+
+        } else if (insercao != 0) { // somente dividir
+            diretorio.reorganizar(bucket, indice.getQtdBuckets(), insercao);
 
             indice.dividir_bucket(bucket, diretorio);
 
