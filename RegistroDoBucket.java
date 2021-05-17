@@ -81,6 +81,8 @@ public class RegistroDoBucket extends Serializavel {
             dos.writeInt(chave);
             dos.writeInt(num_registro);
             dos.flush();
+            dos.close();
+            dos = null;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -90,9 +92,9 @@ public class RegistroDoBucket extends Serializavel {
 
     @Override
     protected void fromByteArray(byte[] data) {
-        try {
-            ByteArrayInputStream bais = new ByteArrayInputStream(data);
-            DataInputStream dis = new DataInputStream(bais);
+        try (ByteArrayInputStream bais = new ByteArrayInputStream(data);
+                DataInputStream dis = new DataInputStream(bais)
+            ) {
             this.is_lapide = dis.readBoolean();
             this.chave = dis.readInt();
             this.num_registro = dis.readInt();
