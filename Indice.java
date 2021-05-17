@@ -8,7 +8,7 @@ import java.io.EOFException;
 
 public class Indice {
     // boolean para lápide + int para chave + int para o número do registro
-    private static final short SIZEOF_REGISTRO_DO_BUCKET = 9;
+    private static final byte SIZEOF_REGISTRO_DO_BUCKET = 9;
     private static final byte SIZEOF_METADADOS_INDICE = 12;
     private static final byte SIZEOF_METADADOS_BUCKET = 8;
 
@@ -97,19 +97,17 @@ public class Indice {
         }
     }
 
-    public RegistroDoBucket[] getBucket(long pos_inicio) {
-        RegistroDoBucket[] registros = null;
+    // debug
+    public Bucket getBucket(long pos_inicio) {
+        Bucket registros = null;
 
         try {
             raf.seek(pos_inicio);
-            int profundidade_do_bucket = raf.readInt();
+
+            int profundidade_local = raf.readInt();
             int ocupacao = raf.readInt();
-
-            registros = new RegistroDoBucket[ocupacao];
-
-            for (int i = 0; i < ocupacao; i++) {
-                registros[i] = new RegistroDoBucket(raf.readBoolean(), raf.readInt(), raf.readInt());
-            }
+            byte[] registros = new byte[ocupacao * SIZEOF_REGISTRO_DO_BUCKET];
+            registros = new Bucket(tam_bucket, profundidade_local, ocupacao, registros);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -117,13 +115,10 @@ public class Indice {
         return registros;
     }
 
-    public long criarNovoBucket() {
-        return criarNovoBucket(1);
-    }
-
-    // cria um novo bucket com base no tamanho do bucket (var tam_bucket)
+    // insere um novo bucket com valores default no arquivo
+    // de índice;
     // retorna a posição de início do bucket
-    public long criarNovoBucket(int profundidade_local) {
+    public long inserir_novo_bucket_no_arquivo(int profundidade_local) {
         long endereco_inicio_bucket = 0;
 
         try {
@@ -135,15 +130,7 @@ public class Indice {
             raf.seek(endereco_inicio_bucket);
             System.out.println("raf.length() logo antes de criar um novo bucket: " + raf.length());
 
-            raf.writeInt(profundidade_local);
-            raf.writeInt(0); // ocupacao inicial do bucket é sempre 0
-
-            for (int i = 0; i < tam_bucket; i++) {
-                // escrever um registro do bucket com os
-                // parâmetros default(lápide==false,
-                // chave==-1, num_registro==-1);
-                raf.write(new RegistroDoBucket().toByteArray());
-            }
+            raf.write( new Bucket(profundidade_local, tam_bucket).serializar_bucket() );
 
             // atualizar a quantidade de buckets no arquivo
             setQtdBuckets(++qtd_buckets);
