@@ -15,8 +15,8 @@ public class TestDiretorio {
         // d.duplicar();
         // d.reorganizar(0, 4, 2);
 
-        // d.duplicar();
-        // d.reorganizar(0, 100, 3);
+        d.duplicar();
+        d.reorganizar(0, 100, 3);
 
         // d.duplicar();
         // d.reorganizar(2, 3);
