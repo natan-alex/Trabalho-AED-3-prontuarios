@@ -2,6 +2,7 @@ package trabalho_aed_prontuario.indice;
 
 import java.io.RandomAccessFile;
 import trabalho_aed_prontuario.diretorio.Diretorio;
+import java.lang.reflect.Executable;
 
 import java.io.IOException;
 import java.io.EOFException;
@@ -168,6 +169,7 @@ public class Indice {
         int ocupacao = -1;
         long pos_apos_metadados_do_bucket = 0;
 
+
         try {
             raf.seek(pos_bucket);
 
@@ -188,12 +190,13 @@ public class Indice {
                     System.out.println("duplicar dir que começa na posição " + pos_bucket + "!");
                     return -1;
                 } else {
+                    System.out.println("novo bucket para = " + cpf);
                     System.out.println("criando novo bucket...");
                     System.out.println("necessário rearranjar chaves!");
 
                     criarNovoBucket(++profundidade_do_bucket);
 
-                    raf.seek(pos_apos_metadados_do_bucket - SIZEOF_METADADOS_BUCKET);
+                    raf.seek(pos_bucket);
                     raf.writeInt(profundidade_do_bucket);
 
                     return profundidade_do_bucket;
@@ -201,7 +204,7 @@ public class Indice {
             } else {
                 // ir até o fim do último registro armazenado
                 // no bucket, que é o ponto de inserção do novo registro
-                raf.seek(pos_apos_metadados_do_bucket + ocupacao * SIZEOF_REGISTRO_DO_BUCKET);
+                raf.seek(pos_apos_metadados_do_bucket + (ocupacao * SIZEOF_REGISTRO_DO_BUCKET));
 
                 // escrever registro na posição encontrada
                 raf.write( new RegistroDoBucket(false, cpf, num_registro).toByteArray() );
@@ -210,7 +213,7 @@ public class Indice {
                 raf.seek(pos_apos_metadados_do_bucket - 4);
                 raf.writeInt(++ocupacao);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return 0;
@@ -223,27 +226,32 @@ public class Indice {
 
             int profundidade_do_bucket = raf.readInt();
             int ocupacao = raf.readInt();
+
             int _ocupacao = ocupacao;
 
             int cpf, num_registro, novo_num_bucket;
             boolean _lapide;
 
+            RegistroDoBucket[] registros = getBucket(pos);
+
             for (int i = 0; i < ocupacao; i++) {
+                raf.seek(pos + SIZEOF_METADADOS_BUCKET + i*SIZEOF_REGISTRO_DO_BUCKET);
+
                 _lapide = raf.readBoolean();
                 cpf = raf.readInt();
                 num_registro = raf.readInt();
 
-                novo_num_bucket = diretorio.getPaginaIndice(cpf);
-
-                raf.seek(raf.getFilePointer());
+                // Remove
+                raf.seek(pos + SIZEOF_METADADOS_BUCKET + (i*SIZEOF_REGISTRO_DO_BUCKET));
                 raf.writeBoolean(true);
 
                 raf.seek(pos + 4);
                 raf.writeInt(--_ocupacao);
+            }
 
-                inserir_registro(cpf, novo_num_bucket, num_registro);
-
-                raf.seek(pos + SIZEOF_METADADOS_BUCKET + (i+1)*(SIZEOF_REGISTRO_DO_BUCKET));
+            for (RegistroDoBucket registro : registros) {
+                novo_num_bucket = diretorio.getPaginaIndice(registro.getChave());
+                inserir_registro(registro.getChave(), novo_num_bucket, registro.getNumRegistro());
             }
         } catch (Exception err) {
             err.printStackTrace();
@@ -254,3 +262,5 @@ public class Indice {
         return SIZEOF_METADADOS_INDICE + (num - 1) * (tam_bucket * SIZEOF_REGISTRO_DO_BUCKET + SIZEOF_METADADOS_BUCKET);
     }
 }
+
+
