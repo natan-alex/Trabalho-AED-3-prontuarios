@@ -130,10 +130,41 @@ public class Indice {
         return null;
     }
 
+    // obter a profundidade local de um bucket
+    // a partir de seu número
+    public int getProfundidadeDoBucket(int num_bucket) {
+        long pos_inicio_bucket = calcularPosBucket(num_bucket);
+        int profundidade_local = -1;
+
+        try {
+            // ir até o início do bucket para obter metadados
+            raf.seek(pos_inicio_bucket);
+            // ler metadados do bucket
+            profundidade_local = raf.readInt();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return profundidade_local;
+    }
+
+    protected void setProfundidadeDoBucket(int profundidade, int num_bucket) {
+        long pos_inicio_bucket = calcularPosBucket(num_bucket);
+
+        try {
+            // ir até o início do bucket para obter metadados
+            raf.seek(pos_inicio_bucket);
+            // escrever nova profundidade
+            raf.writeInt(profundidade);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     // insere um novo bucket com valores default no arquivo
     // de índice;
-    // retorna a posição de início do bucket
-    public long inserirNovoBucketNoArquivo(int profundidade_local) {
+    // retorna o número do novo bucket
+    public int inserirNovoBucketNoArquivo(int profundidade_local) {
         long pos_inicio_bucket = -1;
 
         try {
@@ -153,59 +184,55 @@ public class Indice {
             e.printStackTrace();
         }
 
-        return pos_inicio_bucket;
+        // qtd_buckets corresponde, também, ao número do bucket
+        // que foi criado
+        return qtd_buckets;
     }
 
     // retorna o status de uma nova inserção que 
     // aconteça no bucket cujo número é passado como
     // argumento;
-    // retorna -1 em caso de necessidade de duplicar o bucket,
-    // 0 em caso de tudo ok e
-    // > 0, que corresponde à profundidade com que o novo bucket deve 
-    // ser criado, caso seja necessário criar novo bucket 
-    // e rearranjar as chaves do novo bucket e do bucket atual
-    public int getStatusDeUmaNovaInsercao(int num_bucket) {
+    public StatusDeInsercao getStatusDeUmaNovaInsercao(int num_bucket) {
         long pos_inicio_bucket = calcularPosBucket(num_bucket);
+        // System.out.println("pos_inicio_bucket do bucket de num " + num_bucket + " em getStatusDeUmaNovaInsercao: " + pos_inicio_bucket);
         int profundidade_local = -1;
         int ocupacao_do_bucket = 0;
+        StatusDeInsercao status = StatusDeInsercao.IOEXCEPTION_LANCADA;
 
         try {
             // ir até o início do bucket para obter metadados
             raf.seek(pos_inicio_bucket);
             // ler metadados do bucket
             profundidade_local = raf.readInt();
+            // System.out.println("profundidade_local em getStatusDeUmaNovaInsercao: " + profundidade_local);
             ocupacao_do_bucket = raf.readInt();
+            // System.out.println("ocupacao_do_bucket em getStatusDeUmaNovaInsercao: " + ocupacao_do_bucket);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         // status obtido a partir do método obterStatusDeUmaNovaInsercao
         // da classe Bucket
-        return Bucket.obterStatusDeUmaNovaInsercao(ocupacao_do_bucket, profundidade_local, profundidade_global, tam_bucket);
+        status = Bucket.obterStatusDeUmaNovaInsercao(ocupacao_do_bucket, profundidade_local, profundidade_global, tam_bucket);
+        // System.out.println("status em getStatusDeUmaNovaInsercao: " + status);
+        return status;
     }
 
     // inserir um registro em um bucket;
     // params: cpf, número do bucket onde inserir o registro e
     // o número do registro no arquivo de dados.
-    // retorna -3 em caso de IOException lançada,
-    // -2 caso o registro passado como argumento seja inválido,
-    // -1 em caso de necessidade de duplicar o bucket,
-    // 0 em caso de tudo ok e
-    // > 0, que corresponde à profundidade com que o novo bucket deve 
-    // ser criado, caso seja necessário criar novo bucket 
-    // e rearranjar as chaves do novo bucket e do bucket atual
-    public int inserirRegistro(int cpf, int num_registro, int num_bucket) {
+    public StatusDeInsercao inserirRegistro(int cpf, int num_registro, int num_bucket) {
         // se dados do registro forem inválidos, o
         // registro é inválido
         if (cpf <= 0 || num_registro <= 0) 
-            return -2;
+            return StatusDeInsercao.REGISTRO_INVALIDO;
 
         // calcular posição de inicio do bucket no arquivo
         long pos_bucket = calcularPosBucket(num_bucket);
 
         // status inicial considerando que haja alguma
         // IOException 
-        int status = -3;
+        StatusDeInsercao status = StatusDeInsercao.IOEXCEPTION_LANCADA;
 
         try {
             // caminhar até o ponto de início do bucket
@@ -214,6 +241,7 @@ public class Indice {
             // ler metadados do bucket
             int profundidade_local = raf.readInt();
             int ocupacao_do_bucket = raf.readInt();
+            System.out.println("profundidade_local " + profundidade_local);
             System.out.println("ocupacao_do_bucket " + ocupacao_do_bucket);
 
             // checar o status de uma próxima inserção no bucket 
@@ -221,7 +249,7 @@ public class Indice {
             status = getStatusDeUmaNovaInsercao(num_bucket);
             System.out.println("status: " + status);
 
-            if (status == 0) {
+            if (status == StatusDeInsercao.TUDO_OK) {
                 // ir até o fim do bucket no arquivo, que
                 // é a posição de inserção do novo registro
                 long posicao_de_insercao = pos_bucket + SIZEOF_METADADOS_BUCKET + ( ocupacao_do_bucket * SIZEOF_REGISTRO_DO_BUCKET );
@@ -232,10 +260,6 @@ public class Indice {
                 // atualizar ocupacao no arquivo
                 raf.seek(pos_bucket + 4);
                 raf.writeInt(++ocupacao_do_bucket);
-            } else if (status > 0) {
-                // se status > 0, o status corresponde a profundidade local
-                // com que o novo bucket deverá ser criado no arquivo
-                inserirNovoBucketNoArquivo(status);
             }
         } catch (IOException e) {
             e.printStackTrace();
