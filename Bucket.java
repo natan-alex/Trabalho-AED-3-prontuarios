@@ -7,11 +7,12 @@ import java.io.DataInputStream;
 import java.io.IOException;
 
 public class Bucket {
+    // tamanho, em bytes, de um registro do bucket
     private static final byte SIZEOF_REGISTRO_BUCKET = 9;
 
     private int profundidade_local;
     private int ocupacao;
-    private int tam_bucket;
+    private int tam_bucket; // tamanho máximo do bucket
     private RegistroDoBucket[] registros;
 
     public Bucket(int tam_bucket) {
@@ -21,9 +22,13 @@ public class Bucket {
     public Bucket(int profundidade_local, int tam_bucket) {
         if (profundidade_local > 0)
             this.profundidade_local = profundidade_local;
+        else 
+            this.profundidade_local = 1;
 
         if (tam_bucket > 0)
             this.tam_bucket = tam_bucket;
+        else 
+            this.tam_bucket = 10;
 
         this.ocupacao = 0; // ocupação inicial é 0
         registros = new RegistroDoBucket[tam_bucket];
@@ -116,6 +121,9 @@ public class Bucket {
         return registros;
     }
 
+    // retorna o status de uma nova inserção que 
+    // aconteça no bucket com as informações passadas
+    // como argumento;
     // retorna -1 em caso de necessidade de duplicar o bucket,
     // 0 em caso de tudo ok e
     // > 0 (profundidade com que o novo bucket deve 
