@@ -40,6 +40,8 @@ public class Bucket {
         }
     }
 
+    // construir novo bucket a partir dos bytes que o
+    // representam
     public Bucket(int tam_bucket, byte[] bucket_em_bytes) {
         if (tam_bucket > 0)
             this.tam_bucket = tam_bucket;
@@ -124,28 +126,23 @@ public class Bucket {
     // retorna o status de uma nova inserção que 
     // aconteça no bucket com as informações passadas
     // como argumento;
-    // retorna -1 em caso de necessidade de duplicar o bucket,
-    // 0 em caso de tudo ok e
-    // > 0 (profundidade com que o novo bucket deve 
-    // ser criado) caso seja necessário criar novo bucket 
-    // e rearranjar as chaves do novo bucket e do bucket atual
-    public static int obterStatusDeUmaNovaInsercao(int ocupacao, int p_local, int p_global, int tam_bucket) {
+    public static StatusDeInsercao obterStatusDeUmaNovaInsercao(int ocupacao, int p_local, int p_global, int tam_bucket) {
         if (ocupacao == tam_bucket) {
             if (p_local == p_global) {
                 // necessário duplicar o bucket
                 System.out.println("necessário duplicar dir");
-                return -1;
+                return StatusDeInsercao.DUPLICAR_DIRETORIO;
             } else {
                 // necessário criar novo bucket e rearranjar 
                 // os registros do bucket em questão
                 System.out.println("necessário criar novo bucket!");
                 System.out.println("necessário rearranjar chaves!");
 
-                return ++p_local;
+                return StatusDeInsercao.REARRANJAR_CHAVES;
             }
         } else {
             // tudo ok, inserção pode ser feita
-            return 0;
+            return StatusDeInsercao.TUDO_OK;
         }
     }
 
