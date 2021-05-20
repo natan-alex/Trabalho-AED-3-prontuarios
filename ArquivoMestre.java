@@ -68,7 +68,7 @@ public class ArquivoMestre {
         try {
             // if (!registroJaExiste()) {
             System.out.println("tam arquivo mestre: " + raf.length());
-            raf.seek( raf.length() ); // ir para o fim do arquivo 
+            raf.seek( raf.length() ); // ir para o fim do arquivo
 
             // escrever o id antes do registro
             raf.writeInt(prox_id);
@@ -82,9 +82,11 @@ public class ArquivoMestre {
             raf.seek(0);
             raf.writeInt(++num_registros_no_arquivo);
             // atualizar prox id
-            raf.seek(6); // pular o número de registros(int) e o número 
+            raf.seek(6); // pular o número de registros(int) e o número
             // de bytes para as anotações(short)
             raf.writeInt(++prox_id);
+
+            return prox_id;
             // } else {
             // registro ja existe no arquivo
             // }

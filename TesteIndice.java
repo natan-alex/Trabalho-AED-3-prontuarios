@@ -1,9 +1,14 @@
 package trabalho_aed_prontuario.indice;
 
 import trabalho_aed_prontuario.diretorio.Diretorio;
+import trabalho_aed_prontuario.mestre.ArquivoMestre;
+import trabalho_aed_prontuario.mestre.Prontuario;
+import java.time.LocalDate;
 
 import java.io.RandomAccessFile;
 import java.io.IOException;
+import java.util.List;
+import java.util.Arrays;
 
 public class TesteIndice {
     private static int N = 0;
@@ -11,55 +16,25 @@ public class TesteIndice {
     public static void main(String[] args) {
             int tamBuckets = 4;
             int profundidade = 1;
+            byte bytesAnotacaoes = 10;
+            int num_registro, cpf;
+
+            Prontuario prontuario;
+            ArquivoMestre mestre = new ArquivoMestre(bytesAnotacaoes);
             Indice indice = new Indice(profundidade, tamBuckets); // esperado: arquivo de indices tenha sido
             Diretorio diretorio = new Diretorio(profundidade, tamBuckets, indice); // esperado: arquivo de indices tenha sido
 
+            List<Integer> cpfs = Arrays.asList(new Integer[]{10, 3, 18, 20, 8, 6, 1, 12, 22, 7, 16, 13, 19});
             // criado com o número de buckets inicial baseado no tamanho do diretório
             // ou na profundidade global
             // params: pglobal, tamanho do bucket
-            int cpf;
 
-            cpf = 10;
-            inserir(cpf, indice, diretorio);
-
-            cpf = 3;
-            inserir(cpf, indice, diretorio);
-
-            cpf = 14;
-            inserir(cpf, indice, diretorio);
-
-            cpf = 18;
-            inserir(cpf, indice, diretorio);
-
-            cpf = 20;
-            inserir(cpf, indice, diretorio);
-
-            cpf = 8;
-            inserir(cpf, indice, diretorio);
-
-            cpf = 6;
-            inserir(cpf, indice, diretorio);
-
-            cpf = 1;
-            inserir(cpf, indice, diretorio);
-
-            cpf = 12;
-            inserir(cpf, indice, diretorio);
-
-            cpf = 22;
-            inserir(cpf, indice, diretorio);
-
-            cpf = 7;
-            inserir(cpf, indice, diretorio);
-
-            cpf = 16;
-            inserir(cpf, indice, diretorio);
-
-            cpf = 13;
-            inserir(cpf, indice, diretorio);
-
-            cpf = 19;
-            inserir(cpf, indice, diretorio);
+            for (int i = 0; i < cpfs.size(); i++) {
+                cpf = 10;
+                prontuario = new Prontuario(cpfs.get(i), "Paciente" + i, LocalDate.now(), 'M', bytesAnotacaoes);
+                num_registro = mestre.inserir_registro(prontuario);
+                inserir(cpfs.get(i), num_registro, indice, diretorio);
+            }
 
             RegistroDoBucket[] registros1 = indice.getBucket(12);
             System.out.println("Lendo do bucket 1:");
@@ -92,26 +67,24 @@ public class TesteIndice {
             }
     }
 
-    private static void inserir(int cpf, Indice indice, Diretorio diretorio) {
+    private static void inserir(int cpf, int num_registro, Indice indice, Diretorio diretorio) {
         int bucket;
-
-        N++;
 
         bucket = diretorio.getPaginaIndice(cpf);
         int insercao;
-        insercao = indice.inserir_registro(cpf, bucket, N);
+        insercao = indice.inserir_registro(cpf, bucket, num_registro);
 
         if (insercao == -1) {
             diretorio.duplicar();
             indice.setProfundidadeGlobal(diretorio.getProfundidade());
 
-            int profundidadeBucket = indice.inserir_registro(cpf, bucket, N);
+            int profundidadeBucket = indice.inserir_registro(cpf, bucket, num_registro);
             diretorio.reorganizar(bucket, indice.getQtdBuckets(), profundidadeBucket);
 
             indice.dividir_bucket(bucket, diretorio);
 
             bucket = diretorio.getPaginaIndice(cpf);
-            indice.inserir_registro(cpf, bucket, N);
+            indice.inserir_registro(cpf, bucket, num_registro);
 
         } else if (insercao != 0) { // somente dividir
             diretorio.reorganizar(bucket, indice.getQtdBuckets(), insercao);
@@ -119,7 +92,7 @@ public class TesteIndice {
             indice.dividir_bucket(bucket, diretorio);
 
             bucket = diretorio.getPaginaIndice(cpf);
-            indice.inserir_registro(cpf, bucket, N);
+            indice.inserir_registro(cpf, bucket, num_registro);
         }
     }
 }

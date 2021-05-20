@@ -73,7 +73,7 @@ public class Prontuario extends Serializavel {
             // seja menor que MAX_SIZE_NOME
             this.nome = String.format("%-"+MAX_SIZE_NOME+"s", nome).replace(' ', AUX_CHAR);
         } else if (nome_length > MAX_SIZE_NOME) {
-            // cortar a string até o tamanho desejado 
+            // cortar a string até o tamanho desejado
             // caso seja maior que o permitido
             this.nome = nome.substring(0, MAX_SIZE_NOME);
         } else {
