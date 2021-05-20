@@ -96,30 +96,41 @@ public class TesteIndice {
 
         bucket = diretorio.getPaginaIndice(cpf);
         System.out.println("\n\nBucket do hash: " + bucket);
-        int insercao;
-        insercao = indice.inserirRegistro(cpf, N, bucket);
-        System.out.println("insercao em indice: " + insercao);
+        StatusDeInsercao status;
+        status = indice.getStatusDeUmaNovaInsercao(bucket);
+        System.out.println("status em teste_indice: " + status);
 
-        if (insercao == -1) {
+        if (status == StatusDeInsercao.DUPLICAR_DIRETORIO) {
             diretorio.duplicar();
+            // alterar a profundidade global do indice
             indice.setProfundidadeGlobal(diretorio.getProfundidade());
-
-            int profundidadeBucket = indice.inserirRegistro(cpf, N, bucket);
-            System.out.println("profundidadeBucket: " + profundidadeBucket);
-            System.out.println("getQtdBuckets(): " + indice.getQtdBuckets());
-            diretorio.reorganizar(bucket, indice.getQtdBuckets(), profundidadeBucket);
-
+            // obter o novo número do bucket a partir
+            // da criação de um novo bucket no arquivo de indice
+            int num_novo_bucket = indice.inserirNovoBucketNoArquivo( diretorio.getProfundidade() );
+            // referenciar novo bucket no diretório
+            diretorio.reorganizar(bucket, num_novo_bucket, diretorio.getProfundidade());
+            // reorganizar chaves do bucket
             indice.dividirBucket(bucket, diretorio);
-
+            // inserir novo registro
             bucket = diretorio.getPaginaIndice(cpf);
             indice.inserirRegistro(cpf, N, bucket);
 
-        } else if (insercao != 0) { // somente dividir
-            diretorio.reorganizar(bucket, indice.getQtdBuckets(), insercao);
-
+        } else if (status == StatusDeInsercao.REARRANJAR_CHAVES) { // somente dividir
+            // obter a nova profundidade do bucket baseada
+            // na atual
+            int profundidadeBucket = indice.getProfundidadeDoBucket(bucket) + 1;
+            // criar novo bucket com tal profundidade
+            int num_novo_bucket = indice.inserirNovoBucketNoArquivo(profundidadeBucket);
+            // alterar a profundidade atual do bucket
+            indice.setProfundidadeDoBucket(profundidadeBucket + 1, bucket);
+            // referenciar novo bucket no diretório
+            diretorio.reorganizar(bucket, indice.getQtdBuckets(), profundidadeBucket);
+            // reorganizar chaves do bucket
             indice.dividirBucket(bucket, diretorio);
-
+            // inserir novo registro
             bucket = diretorio.getPaginaIndice(cpf);
+            indice.inserirRegistro(cpf, N, bucket);
+        } else if (status == StatusDeInsercao.TUDO_OK) {
             indice.inserirRegistro(cpf, N, bucket);
         }
     }
