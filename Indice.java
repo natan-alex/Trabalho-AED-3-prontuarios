@@ -8,16 +8,19 @@ import java.io.IOException;
 import java.io.EOFException;
 
 public class Indice {
+    // tamanho, em bytes, de um único registro do bucket
     // boolean para lápide + int para chave + int para o número do registro
     private static final byte SIZEOF_REGISTRO_DO_BUCKET = 9;
+    // tamanho, em bytes, dos metadados no arquivo de indice
     private static final byte SIZEOF_METADADOS_INDICE = 12;
+    // tamanho, em bytes, dos metadados de um bucket
     private static final byte SIZEOF_METADADOS_BUCKET = 8;
 
     private RandomAccessFile raf;
 
     private int profundidade_global;
     private int tam_bucket;
-    private int qtd_buckets;
+    private int qtd_buckets; // quantidade de buckets presente no arquivo
 
     // caso o arquivo exista os metadados são lidos
     // e os parâmetros passados ao construtor são ignorados
@@ -26,6 +29,8 @@ public class Indice {
     public Indice(int profundidade_global, int tam_bucket) {
         try {
             raf = new RandomAccessFile("indice.db", "rws");
+            // se possuir dados, significa que o arquivo já
+            // contém a estrutura básica
             if (raf.length() > 0) {
                 ler_metadados();
             } else {
@@ -46,6 +51,7 @@ public class Indice {
     public void setProfundidadeGlobal(int profundidade_global) {
         if (profundidade_global > 0)
             this.profundidade_global = profundidade_global;
+
         try {
             raf.seek(0);
             raf.writeInt(profundidade_global);
@@ -59,6 +65,7 @@ public class Indice {
     private void setQtdBuckets(int qtd_buckets) {
         if (qtd_buckets > 0)
             this.qtd_buckets = qtd_buckets;
+
         try {
             raf.seek(SIZEOF_METADADOS_INDICE - 4);
             raf.writeInt(qtd_buckets);
@@ -127,7 +134,7 @@ public class Indice {
     // de índice;
     // retorna a posição de início do bucket
     public long inserirNovoBucketNoArquivo(int profundidade_local) {
-        long pos_inicio_bucket = 0;
+        long pos_inicio_bucket = -1;
 
         try {
             // bucket é sempre adicionado ao fim do arquivo
@@ -137,10 +144,7 @@ public class Indice {
             pos_inicio_bucket = raf.length();
             raf.seek(pos_inicio_bucket);
 
-            // bucket = new Bucket(profundidade_local, tam_bucket);
-            // num_bucket_em_memoria = qtd_buckets + 1; // número do bucket
-            // // corresponde ao número de buckets existentes no arquivo + 1,
-            // // exemplo: se tiver 2 buckets, o próximo bucket tem número 3
+            // escrever no arquivo os dados do novo bucket
             raf.write( new Bucket(profundidade_local, tam_bucket).serializarBucket() );
 
             // atualizar a quantidade de buckets no arquivo
@@ -152,11 +156,39 @@ public class Indice {
         return pos_inicio_bucket;
     }
 
-    // inserir um registro em um bucket
+    // retorna o status de uma nova inserção que 
+    // aconteça no bucket cujo número é passado como
+    // argumento;
+    // retorna -1 em caso de necessidade de duplicar o bucket,
+    // 0 em caso de tudo ok e
+    // > 0, que corresponde à profundidade com que o novo bucket deve 
+    // ser criado, caso seja necessário criar novo bucket 
+    // e rearranjar as chaves do novo bucket e do bucket atual
+    public int getStatusDeUmaNovaInsercao(int num_bucket) {
+        long pos_inicio_bucket = calcularPosBucket(num_bucket);
+        int profundidade_local = -1;
+        int ocupacao_do_bucket = 0;
+
+        try {
+            // ir até o início do bucket para obter metadados
+            raf.seek(pos_inicio_bucket);
+            // ler metadados do bucket
+            profundidade_local = raf.readInt();
+            ocupacao_do_bucket = raf.readInt();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // status obtido a partir do método obterStatusDeUmaNovaInsercao
+        // da classe Bucket
+        return Bucket.obterStatusDeUmaNovaInsercao(ocupacao_do_bucket, profundidade_local, profundidade_global, tam_bucket);
+    }
+
+    // inserir um registro em um bucket;
     // params: cpf, número do bucket onde inserir o registro e
     // o número do registro no arquivo de dados.
-    // retorna -3 caso haja erro nas operações de IO,
-    // -2 caso o registro seja inválido,
+    // retorna -3 em caso de IOException lançada,
+    // -2 caso o registro passado como argumento seja inválido,
     // -1 em caso de necessidade de duplicar o bucket,
     // 0 em caso de tudo ok e
     // > 0, que corresponde à profundidade com que o novo bucket deve 
@@ -184,9 +216,9 @@ public class Indice {
             int ocupacao_do_bucket = raf.readInt();
             System.out.println("ocupacao_do_bucket " + ocupacao_do_bucket);
 
-            // checar o status de uma próxima inserção no bucket com os
-            // argumentos passados ao método
-            status = Bucket.obterStatusDeUmaNovaInsercao(ocupacao_do_bucket, profundidade_local, profundidade_global, tam_bucket);
+            // checar o status de uma próxima inserção no bucket 
+            // de número passado como argumento
+            status = getStatusDeUmaNovaInsercao(num_bucket);
             System.out.println("status: " + status);
 
             if (status == 0) {
