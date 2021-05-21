@@ -51,7 +51,7 @@ public class Diretorio {
         try {
             raf.writeInt(profundidade);
             for (int i = 1; i <= Math.pow(2, this.profundidade); i++) {
-                indice.criarNovoBucket(profundidade);
+                indice.inserirNovoBucketNoArquivo(profundidade);
                 raf.writeInt(i);
                 this.indices.add(i);
             }

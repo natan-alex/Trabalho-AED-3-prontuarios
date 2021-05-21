@@ -6,56 +6,132 @@ import java.io.RandomAccessFile;
 import java.io.IOException;
 
 public class TesteIndice {
+    private static int N = 0;
+
     public static void main(String[] args) {
-        try {
-            int tamBuckets = 2;
-            Indice indice = new Indice(1, tamBuckets); // esperado: arquivo de indices tenha sido
-            Diretorio diretorio = new Diretorio(1, tamBuckets, indice); // esperado: arquivo de indices tenha sido
-            // criado com o número de buckets inicial baseado no tamanho do diretório
-            // ou na profundidade global
-            // params: pglobal, tamanho do bucket
+            int tamBuckets = 4;
+            int profundidade = 1;
+            Indice indice = new Indice(profundidade, tamBuckets); 
+            Diretorio diretorio = new Diretorio(profundidade, tamBuckets, indice); 
 
-            RandomAccessFile raf = new RandomAccessFile("indice.db", "r");
+            int cpf;
 
-            System.out.println( indice.inserir_registro(1, 1, 1) );
-            System.out.println( indice.inserir_registro(2, 1, 2) );
+            cpf = 10;
+            inserir(cpf, indice, diretorio);
 
-            System.out.println( indice.inserir_registro(3, 2, 3) );
-            System.out.println( indice.inserir_registro(4, 2, 4) );
-            int cpf = 1;
-            int bucket = diretorio.getPaginaIndice(cpf);
-            System.out.println("hash com cpf=" + cpf + ": " + bucket);
+            cpf = 3;
+            inserir(cpf, indice, diretorio);
 
-            if (indice.inserir_registro(5, bucket, 5) == -1) {
-                diretorio.duplicar();
+            cpf = 14;
+            inserir(cpf, indice, diretorio);
 
-                indice.setProfundidadeGlobal(diretorio.getProfundidade());
-                int profundidadeBucket = indice.inserir_registro(5, bucket, 5);
-                System.out.println("profundidadeBucket: " + profundidadeBucket);
-                //
-                diretorio.reorganizar(bucket, indice.getQtdBuckets(), profundidadeBucket);
-                indice.inserir_registro(6, indice.getQtdBuckets(), 6);
-            }
+            cpf = 18;
+            inserir(cpf, indice, diretorio);
 
-            RegistroDoBucket[] registros1 = indice.getBucket(12);
+            cpf = 20;
+            inserir(cpf, indice, diretorio);
+
+            cpf = 8;
+            inserir(cpf, indice, diretorio);
+
+            cpf = 6;
+            inserir(cpf, indice, diretorio);
+
+            cpf = 1;
+            inserir(cpf, indice, diretorio);
+
+            cpf = 12;
+            inserir(cpf, indice, diretorio);
+
+            cpf = 22;
+            inserir(cpf, indice, diretorio);
+
+            cpf = 7;
+            inserir(cpf, indice, diretorio);
+
+            cpf = 16;
+            inserir(cpf, indice, diretorio);
+
+            cpf = 13;
+            inserir(cpf, indice, diretorio);
+
+            cpf = 19;
+            inserir(cpf, indice, diretorio);
+
+            Bucket bucket1 = indice.getBucketDoArquivoDeIndice(12);
             System.out.println("Lendo do bucket 1:");
-            for (RegistroDoBucket registro : registros1) {
+            for (RegistroDoBucket registro : bucket1.getRegistrosDoBucket()) {
                 System.out.println("registro: " + registro);
             }
 
-            RegistroDoBucket[] registros2 = indice.getBucket(38);
+            Bucket bucket2 = indice.getBucketDoArquivoDeIndice(56);
             System.out.println("Lendo do bucket 2:");
-            for (RegistroDoBucket registro : registros2) {
+            for (RegistroDoBucket registro : bucket2.getRegistrosDoBucket()) {
                 System.out.println("registro: " + registro);
             }
 
-            RegistroDoBucket[] registros3 = indice.getBucket(64);
+            Bucket bucket3 = indice.getBucketDoArquivoDeIndice(100);
             System.out.println("Lendo do bucket 3:");
-            for (RegistroDoBucket registro : registros3) {
+            for (RegistroDoBucket registro : bucket3.getRegistrosDoBucket()) {
                 System.out.println("registro: " + registro);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+
+            Bucket bucket4 = indice.getBucketDoArquivoDeIndice(144);
+            System.out.println("Lendo do bucket 4:");
+            for (RegistroDoBucket registro : bucket4.getRegistrosDoBucket()) {
+                System.out.println("registro: " + registro);
+            }
+
+            Bucket bucket5 = indice.getBucketDoArquivoDeIndice(188);
+            System.out.println("Lendo do bucket 5:");
+            for (RegistroDoBucket registro : bucket5.getRegistrosDoBucket()) {
+                System.out.println("registro: " + registro);
+            }
+    }
+
+    private static void inserir(int cpf, Indice indice, Diretorio diretorio) {
+        int bucket;
+
+        N++;
+
+        bucket = diretorio.getPaginaIndice(cpf);
+        System.out.println("\n\nBucket do hash: " + bucket);
+        StatusDeInsercao status;
+        status = indice.getStatusDeUmaNovaInsercao(bucket);
+        System.out.println("status em teste_indice: " + status);
+
+        if (status == StatusDeInsercao.DUPLICAR_DIRETORIO) {
+            diretorio.duplicar();
+            // alterar a profundidade global do indice
+            indice.setProfundidadeGlobal(diretorio.getProfundidade());
+            // obter o novo número do bucket a partir
+            // da criação de um novo bucket no arquivo de indice
+            int num_novo_bucket = indice.inserirNovoBucketNoArquivo( diretorio.getProfundidade() );
+            // referenciar novo bucket no diretório
+            diretorio.reorganizar(bucket, num_novo_bucket, diretorio.getProfundidade());
+            // reorganizar chaves do bucket
+            indice.dividirBucket(bucket, diretorio);
+            // inserir novo registro
+            bucket = diretorio.getPaginaIndice(cpf);
+            indice.inserirRegistro(cpf, N, bucket);
+
+        } else if (status == StatusDeInsercao.REARRANJAR_CHAVES) { // somente dividir
+            // obter a nova profundidade do bucket baseada
+            // na atual
+            int profundidadeBucket = indice.getProfundidadeDoBucket(bucket) + 1;
+            // criar novo bucket com tal profundidade
+            int num_novo_bucket = indice.inserirNovoBucketNoArquivo(profundidadeBucket);
+            // alterar a profundidade atual do bucket
+            indice.setProfundidadeDoBucket(profundidadeBucket + 1, bucket);
+            // referenciar novo bucket no diretório
+            diretorio.reorganizar(bucket, indice.getQtdBuckets(), profundidadeBucket);
+            // reorganizar chaves do bucket
+            indice.dividirBucket(bucket, diretorio);
+            // inserir novo registro
+            bucket = diretorio.getPaginaIndice(cpf);
+            indice.inserirRegistro(cpf, N, bucket);
+        } else if (status == StatusDeInsercao.TUDO_OK) {
+            indice.inserirRegistro(cpf, N, bucket);
         }
     }
 }
