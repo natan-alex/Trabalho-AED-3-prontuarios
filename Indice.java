@@ -1,11 +1,9 @@
 package trabalho_aed_prontuario.indice;
 
+import java.io.EOFException;
 import java.io.RandomAccessFile;
-import trabalho_aed_prontuario.diretorio.Diretorio;
-import java.lang.reflect.Executable;
 
 import java.io.IOException;
-import java.io.EOFException;
 
 public class Indice {
     // tamanho, em bytes, de um único registro do bucket
@@ -17,6 +15,7 @@ public class Indice {
     private static final byte SIZEOF_METADADOS_BUCKET = 8;
 
     private RandomAccessFile raf;
+    private Diretorio diretorio;
 
     private int profundidade_global;
     private int tam_bucket;
@@ -38,6 +37,12 @@ public class Indice {
                 this.tam_bucket = tam_bucket;
                 this.qtd_buckets = 0;
                 escrever_metadados();
+            }
+            // instanciar diretorio
+            diretorio = new Diretorio(profundidade_global, tam_bucket);
+            // criar 2^p_global buckets iniciais
+            for (int i = 0; i < Math.pow(2, this.profundidade_global); i++) {
+                inserirNovoBucketNoArquivo(profundidade_global);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -130,41 +135,10 @@ public class Indice {
         return null;
     }
 
-    // obter a profundidade local de um bucket
-    // a partir de seu número
-    public int getProfundidadeDoBucket(int num_bucket) {
-        long pos_inicio_bucket = calcularPosBucket(num_bucket);
-        int profundidade_local = -1;
-
-        try {
-            // ir até o início do bucket para obter metadados
-            raf.seek(pos_inicio_bucket);
-            // ler metadados do bucket
-            profundidade_local = raf.readInt();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return profundidade_local;
-    }
-
-    protected void setProfundidadeDoBucket(int profundidade, int num_bucket) {
-        long pos_inicio_bucket = calcularPosBucket(num_bucket);
-
-        try {
-            // ir até o início do bucket para obter metadados
-            raf.seek(pos_inicio_bucket);
-            // escrever nova profundidade
-            raf.writeInt(profundidade);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     // insere um novo bucket com valores default no arquivo
     // de índice;
     // retorna o número do novo bucket
-    public int inserirNovoBucketNoArquivo(int profundidade_local) {
+    private int inserirNovoBucketNoArquivo(int profundidade_local) {
         long pos_inicio_bucket = -1;
 
         try {
@@ -174,9 +148,12 @@ public class Indice {
             // do bucket
             pos_inicio_bucket = raf.length();
             raf.seek(pos_inicio_bucket);
+            System.out.println("pos_inicio_bucket em inserirNovoBucket: " + pos_inicio_bucket);
 
             // escrever no arquivo os dados do novo bucket
             raf.write( new Bucket(profundidade_local, tam_bucket).serializarBucket() );
+
+            System.out.println("length apos inserir bucket vazio: " + raf.length());
 
             // atualizar a quantidade de buckets no arquivo
             setQtdBuckets(++qtd_buckets);
@@ -189,46 +166,34 @@ public class Indice {
         return qtd_buckets;
     }
 
-    // retorna o status de uma nova inserção que 
-    // aconteça no bucket cujo número é passado como
-    // argumento;
-    public StatusDeInsercao getStatusDeUmaNovaInsercao(int num_bucket) {
-        long pos_inicio_bucket = calcularPosBucket(num_bucket);
-        // System.out.println("pos_inicio_bucket do bucket de num " + num_bucket + " em getStatusDeUmaNovaInsercao: " + pos_inicio_bucket);
-        int profundidade_local = -1;
-        int ocupacao_do_bucket = 0;
-        StatusDeInsercao status = StatusDeInsercao.IOEXCEPTION_LANCADA;
-
-        try {
-            // ir até o início do bucket para obter metadados
-            raf.seek(pos_inicio_bucket);
-            // ler metadados do bucket
-            profundidade_local = raf.readInt();
-            // System.out.println("profundidade_local em getStatusDeUmaNovaInsercao: " + profundidade_local);
-            ocupacao_do_bucket = raf.readInt();
-            // System.out.println("ocupacao_do_bucket em getStatusDeUmaNovaInsercao: " + ocupacao_do_bucket);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // status obtido a partir do método obterStatusDeUmaNovaInsercao
-        // da classe Bucket
-        status = Bucket.obterStatusDeUmaNovaInsercao(ocupacao_do_bucket, profundidade_local, profundidade_global, tam_bucket);
-        // System.out.println("status em getStatusDeUmaNovaInsercao: " + status);
-        return status;
+    // calcular a posição de início do bucket com
+    // dado o número do bucket
+    private long calcularPosBucket(int num_bucket) {
+        // seek para
+        // tamanho_dos_metadados_do_indice(SIZEOF_METADADOS_INDICE) +
+        // (num_bucket - 1) * [tam_bucket *
+        // tamanho_do_registro_do_bucket(SIZEOF_REGISTRO_DO_BUCKET) +
+        // tamanho_metadados_bucket(SIZEOF_METADADOS_BUCKET) ]
+        return SIZEOF_METADADOS_INDICE + (num_bucket - 1) * (tam_bucket * SIZEOF_REGISTRO_DO_BUCKET + SIZEOF_METADADOS_BUCKET);
     }
 
     // inserir um registro em um bucket;
     // params: cpf, número do bucket onde inserir o registro e
     // o número do registro no arquivo de dados.
-    public StatusDeInsercao inserirRegistro(int cpf, int num_registro, int num_bucket) {
+    public StatusDeInsercao inserirRegistro(int cpf, int num_registro) {
         // se dados do registro forem inválidos, o
         // registro é inválido
         if (cpf <= 0 || num_registro <= 0) 
             return StatusDeInsercao.REGISTRO_INVALIDO;
 
+        // calcular número do bucket onde inserir o
+        // registro a partir da hash feita em diretório
+        int num_bucket = diretorio.getPaginaIndice(cpf);
+        System.out.println("\n\n" + cpf + " % " + (Math.pow(2, profundidade_global)) + " -> bucket " + num_bucket);
+
         // calcular posição de inicio do bucket no arquivo
         long pos_bucket = calcularPosBucket(num_bucket);
+        System.out.println("pos_bucket em inserirRegistro: " + pos_bucket);
 
         // status inicial considerando que haja alguma
         // IOException 
@@ -237,6 +202,7 @@ public class Indice {
         try {
             // caminhar até o ponto de início do bucket
             raf.seek(pos_bucket);
+            System.out.println("pos_bucket em inserirRegistro: " + pos_bucket);
 
             // ler metadados do bucket
             int profundidade_local = raf.readInt();
@@ -245,21 +211,49 @@ public class Indice {
             System.out.println("ocupacao_do_bucket " + ocupacao_do_bucket);
 
             // checar o status de uma próxima inserção no bucket 
-            // de número passado como argumento
-            status = getStatusDeUmaNovaInsercao(num_bucket);
+            // de número num_bucket
+            status = Bucket.obterStatusDeUmaNovaInsercao(ocupacao_do_bucket, profundidade_local, profundidade_global, tam_bucket);
             System.out.println("status: " + status);
 
             if (status == StatusDeInsercao.TUDO_OK) {
-                // ir até o fim do bucket no arquivo, que
-                // é a posição de inserção do novo registro
-                long posicao_de_insercao = pos_bucket + SIZEOF_METADADOS_BUCKET + ( ocupacao_do_bucket * SIZEOF_REGISTRO_DO_BUCKET );
-                raf.seek( posicao_de_insercao );
-                System.out.println("posicao_de_insercao " + posicao_de_insercao);
-                // inserir novo registro no bucket
-                raf.write( new RegistroDoBucket(cpf, num_registro).toByteArray() );
-                // atualizar ocupacao no arquivo
-                raf.seek(pos_bucket + 4);
-                raf.writeInt(++ocupacao_do_bucket);
+                inserirRegistroSimples(pos_bucket, new RegistroDoBucket(cpf, num_registro));
+
+            } else if (status == StatusDeInsercao.DUPLICAR_DIRETORIO) {
+                diretorio.duplicar();
+                int nova_p_global = diretorio.getProfundidade();
+                // alterar a profundidade global do indice
+                setProfundidadeGlobal(nova_p_global);
+                // alterar a profundidade do bucket que ocasionou
+                // a duplicação do diretório
+                raf.seek(pos_bucket);
+                raf.writeInt(nova_p_global);
+                // obter o número do novo bucket a partir
+                // da sua criação no arquivo de indice
+                int num_novo_bucket = inserirNovoBucketNoArquivo(nova_p_global);
+                // referenciar novo bucket no diretório
+                diretorio.reorganizar(num_bucket, num_novo_bucket, nova_p_global);
+                // reorganizar chaves do bucket
+                dividirBucket(num_bucket);
+                // calcular bucket onde inserir o registro
+                num_bucket = diretorio.getPaginaIndice(cpf);
+                // inserir novo registro
+                inserirRegistroSimples( calcularPosBucket(num_bucket), new RegistroDoBucket(cpf, num_registro) );
+
+            } else if (status == StatusDeInsercao.REARRANJAR_CHAVES) { // somente dividir
+                int nova_p_local = profundidade_local + 1;
+                // criar novo bucket com a nova profundidade
+                int num_novo_bucket = inserirNovoBucketNoArquivo(nova_p_local);
+                // alterar a profundidade do bucket atual
+                raf.seek(pos_bucket);
+                raf.writeInt(nova_p_local);
+                // referenciar novo bucket no diretório
+                diretorio.reorganizar(num_bucket, num_novo_bucket, nova_p_local);
+                // reorganizar chaves do bucket
+                dividirBucket(num_bucket);
+                // obter número do bucket onde inserir o registro
+                num_bucket = diretorio.getPaginaIndice(cpf);
+                // inserir novo registro
+                inserirRegistroSimples( calcularPosBucket(num_bucket), new RegistroDoBucket(cpf, num_registro) );
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -268,59 +262,147 @@ public class Indice {
         return status;
     }
 
+    // insere um novo registro na primeira posição do bucket
+    // que estiver vazia, ou seja, que o cpf == -1
+    private boolean inserirRegistroSimples(long pos_inicio_bucket, RegistroDoBucket registro) {
+        boolean deu_certo = false;
+        try {
+            // ler ocupacao do bucket
+            raf.seek(pos_inicio_bucket + 4);
+            int ocupacao_do_bucket = raf.readInt();
+            System.out.println("ocupacao em inserir...simples: " + ocupacao_do_bucket);
+
+            // pular para o primeiro registro do bucket
+            long posicao_primeiro_registro = pos_inicio_bucket + SIZEOF_METADADOS_BUCKET;
+            System.out.println("posicao_primeiro_registro em inserir...Simples: " + posicao_primeiro_registro);
+
+            long posicao_de_insercao = posicao_primeiro_registro;
+            boolean is_lapide = raf.readBoolean();
+            int cpf_lido = raf.readInt();
+            System.out.println("cpf_lido em inserir...Simples: " + cpf_lido);
+            int num_cpfs_lidos = 1;
+
+            // percorrer o bucket até encontrar uma posição vazia
+            // para inserir o novo registro;
+            // posição vazia é a que contém cpf == -1
+            while (cpf_lido != -1 && !is_lapide) {
+                raf.seek(posicao_primeiro_registro + (num_cpfs_lidos * (long) SIZEOF_REGISTRO_DO_BUCKET) );
+                posicao_de_insercao = raf.getFilePointer();
+                System.out.println("posicao_insercao em inserir...Simples: " + posicao_de_insercao);
+                is_lapide = raf.readBoolean();
+                cpf_lido = raf.readInt();
+                System.out.println("cpf_lido em inserir...Simples: " + cpf_lido);
+                num_cpfs_lidos++;
+            }
+            System.out.println("posicao_de_insercao " + posicao_de_insercao);
+            // inserir novo registro no bucket
+            raf.seek(posicao_de_insercao);
+            raf.write(registro.toByteArray());
+            // atualizar ocupacao no arquivo
+            raf.seek(pos_inicio_bucket + 4);
+            raf.writeInt(++ocupacao_do_bucket);
+            deu_certo = true;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return deu_certo;
+    }
+
+//    private void inserir(int cpf) {
+//        bucket = diretorio.getPaginaIndice(cpf);
+//        System.out.println("\n\nBucket do hash: " + bucket);
+//        StatusDeInsercao status;
+//        status = getStatusDeUmaNovaInsercao(bucket);
+//        System.out.println("status em teste_indice: " + status);
+//
+//        if (status == StatusDeInsercao.DUPLICAR_DIRETORIO) {
+//            diretorio.duplicar();
+//            // alterar a profundidade global do indice
+//            indice.setProfundidadeGlobal(diretorio.getProfundidade());
+//            // obter o novo número do bucket a partir
+//            // da criação de um novo bucket no arquivo de indice
+//            int num_novo_bucket = indice.inserirNovoBucketNoArquivo( diretorio.getProfundidade() );
+//            // referenciar novo bucket no diretório
+//            diretorio.reorganizar(bucket, num_novo_bucket, diretorio.getProfundidade());
+//            // reorganizar chaves do bucket
+//            indice.dividirBucket(bucket, diretorio);
+//            // inserir novo registro
+//            bucket = diretorio.getPaginaIndice(cpf);
+//            indice.inserirRegistroSimples(cpf, N, bucket);
+//
+//        } else if (status == StatusDeInsercao.REARRANJAR_CHAVES) { // somente dividir
+//            // obter a nova profundidade do bucket baseada
+//            // na atual
+//            int profundidadeBucket = indice.getProfundidadeDoBucket(bucket) + 1;
+//            // criar novo bucket com tal profundidade
+//            int num_novo_bucket = indice.inserirNovoBucketNoArquivo(profundidadeBucket);
+//            // alterar a profundidade atual do bucket
+//            indice.setProfundidadeDoBucket(profundidadeBucket + 1, bucket);
+//            // referenciar novo bucket no diretório
+//            diretorio.reorganizar(bucket, indice.getQtdBuckets(), profundidadeBucket);
+//            // reorganizar chaves do bucket
+//            indice.dividirBucket(bucket, diretorio);
+//            // inserir novo registro
+//            bucket = diretorio.getPaginaIndice(cpf);
+//            indice.inserirRegistroSimples(cpf, N, bucket);
+//        } else if (status == StatusDeInsercao.TUDO_OK) {
+//            indice.inserirRegistroSimples(cpf, N, bucket);
+//        }
+//    }
+
     // divide o bucket num_bucket e redistribui os registros.
     // primeiro altera a lápide de todos os registros para true e depois
     // muda a ocupacao para 0, depois reinsere os registros entre o
     // num_bucket e o outro bucket
-    public void dividirBucket(int num_bucket, Diretorio diretorio) {
+    public void dividirBucket(int num_bucket) {
         try {
             // move o cursor do arquivo para o começo do bucket
             long pos = calcularPosBucket(num_bucket);
-            raf.seek(pos);
 
-            int profundidade_do_bucket = raf.readInt();
-            int ocupacao = raf.readInt();
+            int novo_num_bucket, i = 0;
 
-            int novo_num_bucket;
-
-            // carregar bucket para a memória principal
-            Bucket bucket = getBucketDoArquivoDeIndice(pos);
-
-            RegistroDoBucket[] registros_do_bucket;
-            registros_do_bucket = bucket.getRegistrosDoBucket();
+            // carregar registros do bucket para a memória principal
+            RegistroDoBucket[] registros_do_bucket = getBucketDoArquivoDeIndice(pos).getRegistrosDoBucket();
 
             // para cada registro do bucket, o deletar alterando a lapide para true
-            // for (RegistroDoBucket registro : registros_do_bucket) {
-            //     raf.seek(pos + SIZEOF_METADADOS_BUCKET + (i*SIZEOF_REGISTRO_DO_BUCKET));
-            //     raf.writeBoolean(true);
-            // }
+            for (RegistroDoBucket registro : registros_do_bucket) {
+                raf.seek(pos + SIZEOF_METADADOS_BUCKET + (i * (long) SIZEOF_REGISTRO_DO_BUCKET));
+                raf.writeBoolean(true);
+                i++;
+            }
 
             // alterar a ocupacao para 0 pois todos os registros foram deletados
             raf.seek(pos + 4); // pos + tam(profundidade_do_bucket)
             raf.writeInt(0);
 
-            // realocar registros nos buckets (o que está carregado em 
+            // realocar registros nos buckets (o que está carregado em
             // memória e o recém criado)
             for (RegistroDoBucket registro : registros_do_bucket) {
                 // calcular hash para identificar o novo número do bucket
                 // do registro a partir da sua chave
                 novo_num_bucket = diretorio.getPaginaIndice(registro.getChave());
                 // inserir registro no novo bucket
-                inserirRegistro(registro.getChave(), registro.getNumRegistro(), novo_num_bucket);
+                inserirRegistroSimples( calcularPosBucket(novo_num_bucket), registro);
             }
         } catch (Exception err) {
             err.printStackTrace();
         }
     }
 
-    // calcular a posição de início do bucket com 
-    // dado o número do bucket
-    private long calcularPosBucket(int num_bucket) {
-        // seek para
-        // tamanho_dos_metadados_do_indice(SIZEOF_METADADOS_INDICE) + 
-        // (num_bucket - 1) * [tam_bucket *
-        // tamanho_do_registro_do_bucket(SIZEOF_REGISTRO_DO_BUCKET) + 
-        // tamanho_metadados_bucket(SIZEOF_METADADOS_BUCKET) ]
-        return SIZEOF_METADADOS_INDICE + (num_bucket - 1) * (tam_bucket * SIZEOF_REGISTRO_DO_BUCKET + SIZEOF_METADADOS_BUCKET);
+    public void mostrarDiretorio() {
+        int i = 0;
+        System.out.println("MOSTRAR DIRETORIO");
+        try {
+            RandomAccessFile raf_dir = new RandomAccessFile("diretorio.db", "r");
+            System.out.println("Pglobal: " + raf_dir.readInt());
+            while (true) {
+                System.out.println(i + "->" + raf_dir.readInt());
+                i++;
+            }
+        } catch (EOFException e) {
+            System.out.println("============");
+        } catch (IOException e ) {
+            e.printStackTrace();
+        }
     }
 }
