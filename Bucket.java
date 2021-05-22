@@ -12,8 +12,8 @@ public class Bucket {
 
     private int profundidade_local;
     private int ocupacao;
-    private int tam_bucket; // tamanho máximo do bucket
-    private RegistroDoBucket[] registros;
+    private final int tam_bucket; // tamanho máximo do bucket
+    private final RegistroDoBucket[] registros;
 
     public Bucket(int tam_bucket) {
         this(1, tam_bucket); // profundidade default é 1
@@ -37,40 +37,6 @@ public class Bucket {
         // default
         for (int i = 0; i < this.tam_bucket; i++) {
             registros[i] = new RegistroDoBucket();
-        }
-    }
-
-    // construir novo bucket a partir dos bytes que o
-    // representam
-    public Bucket(int tam_bucket, byte[] bucket_em_bytes) {
-        if (tam_bucket > 0)
-            this.tam_bucket = tam_bucket;
-
-        registros = new RegistroDoBucket[tam_bucket];
-
-        try (ByteArrayInputStream bais = new ByteArrayInputStream(bucket_em_bytes);
-             DataInputStream dis = new DataInputStream(bais);
-            ) {
-            // para os bytes de um registro
-            byte[] registro_em_bytes = new byte[SIZEOF_REGISTRO_BUCKET];
-
-            // ler metadados do bucket
-            this.profundidade_local = dis.readInt();
-            this.ocupacao = dis.readInt();
-
-            // ler registros do bucket
-            for (int i = 0; i < ocupacao; i++) {
-                dis.read(registro_em_bytes);
-                registros[i] = new RegistroDoBucket(registro_em_bytes);
-            }
-
-            // inicializar restante dos registros do bucket
-            // com valores default
-            for (int i = ocupacao; i < this.tam_bucket; i++) {
-                registros[i] = new RegistroDoBucket();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
