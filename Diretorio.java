@@ -1,6 +1,4 @@
-package trabalho_aed_prontuario.diretorio;
-
-import trabalho_aed_prontuario.indice.Indice;
+package trabalho_aed_prontuario.indice;
 
 import java.io.RandomAccessFile;
 import java.io.EOFException;
@@ -11,25 +9,24 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class Diretorio {
-    private static String arquivo = "diretorio.db";
+    private static final String ARQUIVO = "diretorio.db";
 
     private RandomAccessFile raf;
 
     private int profundidade;
-    private Indice indice;
+    // private Indice indice;
     private List<Integer> indices = new ArrayList<Integer>();
 
-    // caso o arquivo exista os indices e metadados são lidos
+    // caso o ARQUIVO exista os indices e metadados são lidos
     // e os parâmetros passados ao construtor são ignorados
-    // caso o arquivo NÃO exista é necessário criar os indices
-    // e metadados no início do arquivo
-    public Diretorio(int profundidade, int tamBuckets, Indice indice) {
+    // caso o ARQUIVO NÃO exista é necessário criar os indices
+    // e metadados no início do ARQUIVO
+    public Diretorio(int profundidade, int tamBuckets) {
         this.profundidade = profundidade;
-        this.arquivo = arquivo;
-        this.indice = indice;
+        // this.indice = indice;
 
         try {
-            raf = new RandomAccessFile(this.arquivo, "rws");
+            raf = new RandomAccessFile(ARQUIVO, "rws");
             if (raf.length() > 0) {
                 lerInicial();
             } else {
@@ -44,14 +41,14 @@ public class Diretorio {
         return profundidade;
     }
 
-    // escrever no inicio do arquivo a profundidade global e
+    // escrever no inicio do ARQUIVO a profundidade global e
     // os enderecos do indices
     // escrever em memoria os enderecos do indice
     private void escreverInicial() {
         try {
             raf.writeInt(profundidade);
             for (int i = 1; i <= Math.pow(2, this.profundidade); i++) {
-                indice.inserirNovoBucketNoArquivo(profundidade);
+                // indice.inserirNovoBucketNoArquivo(profundidade);
                 raf.writeInt(i);
                 this.indices.add(i);
             }
@@ -60,7 +57,7 @@ public class Diretorio {
         }
     }
 
-    // ler desde o inicio do arquivo a profundidade global e
+    // ler desde o inicio do ARQUIVO a profundidade global e
     // os enderecos do indices e também os escrever em memoria
     private void lerInicial() {
         try {
@@ -76,7 +73,7 @@ public class Diretorio {
             }
         } catch (EOFException ex) {
             // While true ali em cima levanta um erro
-            // quando chega no fim do arquivo, mas como isso
+            // quando chega no fim do ARQUIVO, mas como isso
             // é esperado simplesmente ignoramos o erro
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -125,7 +122,7 @@ public class Diretorio {
         this.profundidade++;
 
         try {
-            RandomAccessFile raf = new RandomAccessFile(this.arquivo, "rw");
+            RandomAccessFile raf = new RandomAccessFile(ARQUIVO, "rw");
             raf.seek(0);
             raf.writeInt(this.profundidade);
 
