@@ -1,125 +1,66 @@
 package trabalho_aed_prontuario.indice;
 
-import trabalho_aed_prontuario.diretorio.Diretorio;
-
 import java.io.RandomAccessFile;
 import java.io.IOException;
 
 public class TesteIndice {
-    private static int N = 0;
+        private static int N = 0;
 
-    public static void main(String[] args) {
+        public static void main(String[] args) {
             int tamBuckets = 4;
             int profundidade = 1;
-            Indice indice = new Indice(profundidade, tamBuckets); // esperado: arquivo de indices tenha sido
-            Diretorio diretorio = new Diretorio(profundidade, tamBuckets, indice); // esperado: arquivo de indices tenha sido
+            Indice indice = new Indice(profundidade, tamBuckets);
 
-            // criado com o número de buckets inicial baseado no tamanho do diretório
-            // ou na profundidade global
-            // params: pglobal, tamanho do bucket
-            int cpf;
+            int[] cpfs = {10,3,14,18,20,8,6,1,12,22,7,16,13,19};
+            for (int cpf : cpfs) {
+                indice.inserirRegistro(cpf, ++N);
+            }
+            // problemáticos: 8,22,19
+            // diretorio: p=3
+            // 000=0->1
+            // 001=1->2
+            // 010=2->3
+            // 011=3->2
+            // 100=4->1
+            // 101=5->5
+            // 110=6->4
+            // 111=7->5
+            // p=2 bucket 1: 20,8,12,16
+            // p=2 bucket 2: 3,1,19
+            // p=3 bucket 3: 10,18,
+            // p=3 bucket 4: 14,6,22,
+            // p=3 bucket 5: 7,13
 
-            cpf = 10;
-            inserir(cpf, indice, diretorio);
-
-            cpf = 3;
-            inserir(cpf, indice, diretorio);
-
-            cpf = 14;
-            inserir(cpf, indice, diretorio);
-
-            cpf = 18;
-            inserir(cpf, indice, diretorio);
-
-            cpf = 20;
-            inserir(cpf, indice, diretorio);
-
-            cpf = 8;
-            inserir(cpf, indice, diretorio);
-
-            cpf = 6;
-            inserir(cpf, indice, diretorio);
-
-            cpf = 1;
-            inserir(cpf, indice, diretorio);
-
-            cpf = 12;
-            inserir(cpf, indice, diretorio);
-
-            cpf = 22;
-            inserir(cpf, indice, diretorio);
-
-            cpf = 7;
-            inserir(cpf, indice, diretorio);
-
-            cpf = 16;
-            inserir(cpf, indice, diretorio);
-
-            cpf = 13;
-            inserir(cpf, indice, diretorio);
-
-            cpf = 19;
-            inserir(cpf, indice, diretorio);
-
-            RegistroDoBucket[] registros1 = indice.getBucket(12);
+            Bucket bucket1 = indice.getBucketDoArquivoDeIndice(12);
             System.out.println("Lendo do bucket 1:");
-            for (RegistroDoBucket registro : registros1) {
-                System.out.println("registro: " + registro);
+            for (RegistroDoBucket registro : bucket1.getRegistrosDoBucket()) {
+                    System.out.println("registro: " + registro);
             }
 
-            RegistroDoBucket[] registros2 = indice.getBucket(56);
+            Bucket bucket2 = indice.getBucketDoArquivoDeIndice(56);
             System.out.println("Lendo do bucket 2:");
-            for (RegistroDoBucket registro : registros2) {
-                System.out.println("registro: " + registro);
+            for (RegistroDoBucket registro : bucket2.getRegistrosDoBucket()) {
+                    System.out.println("registro: " + registro);
             }
 
-            RegistroDoBucket[] registros3 = indice.getBucket(100);
+            Bucket bucket3 = indice.getBucketDoArquivoDeIndice(100);
             System.out.println("Lendo do bucket 3:");
-            for (RegistroDoBucket registro : registros3) {
-                System.out.println("registro: " + registro);
+            for (RegistroDoBucket registro : bucket3.getRegistrosDoBucket()) {
+                    System.out.println("registro: " + registro);
             }
 
-            RegistroDoBucket[] registros4 = indice.getBucket(144);
+            Bucket bucket4 = indice.getBucketDoArquivoDeIndice(144);
             System.out.println("Lendo do bucket 4:");
-            for (RegistroDoBucket registro : registros4) {
-                System.out.println("registro: " + registro);
+            for (RegistroDoBucket registro : bucket4.getRegistrosDoBucket()) {
+                    System.out.println("registro: " + registro);
             }
 
-            RegistroDoBucket[] registros5 = indice.getBucket(188);
+            Bucket bucket5 = indice.getBucketDoArquivoDeIndice(188);
             System.out.println("Lendo do bucket 5:");
-            for (RegistroDoBucket registro : registros5) {
-                System.out.println("registro: " + registro);
+            for (RegistroDoBucket registro : bucket5.getRegistrosDoBucket()) {
+                    System.out.println("registro: " + registro);
             }
-    }
 
-    private static void inserir(int cpf, Indice indice, Diretorio diretorio) {
-        int bucket;
-
-        N++;
-
-        bucket = diretorio.getPaginaIndice(cpf);
-        int insercao;
-        insercao = indice.inserir_registro(cpf, bucket, N);
-
-        if (insercao == -1) {
-            diretorio.duplicar();
-            indice.setProfundidadeGlobal(diretorio.getProfundidade());
-
-            int profundidadeBucket = indice.inserir_registro(cpf, bucket, N);
-            diretorio.reorganizar(bucket, indice.getQtdBuckets(), profundidadeBucket);
-
-            indice.dividir_bucket(bucket, diretorio);
-
-            bucket = diretorio.getPaginaIndice(cpf);
-            indice.inserir_registro(cpf, bucket, N);
-
-        } else if (insercao != 0) { // somente dividir
-            diretorio.reorganizar(bucket, indice.getQtdBuckets(), insercao);
-
-            indice.dividir_bucket(bucket, diretorio);
-
-            bucket = diretorio.getPaginaIndice(cpf);
-            indice.inserir_registro(cpf, bucket, N);
-        }
+            indice.mostrarDiretorio();
     }
 }

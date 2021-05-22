@@ -18,7 +18,9 @@ public class RegistroDoBucket extends Serializavel {
         super(data);
     }
 
-    public RegistroDoBucket() {
+    // uso para inicializar um bucket com registros
+    // default
+    protected RegistroDoBucket() {
         chave = -1;
         num_registro = -1;
         is_lapide = false;
@@ -36,7 +38,7 @@ public class RegistroDoBucket extends Serializavel {
         is_lapide = false;
     }
 
-    public RegistroDoBucket(boolean is_lapide, int chave, int num_registro) {
+    protected RegistroDoBucket(boolean is_lapide, int chave, int num_registro) {
         this.is_lapide = is_lapide;
         this.chave = chave;
         this.num_registro = num_registro;
