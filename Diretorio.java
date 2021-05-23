@@ -37,6 +37,10 @@ public class Diretorio {
         }
     }
 
+    public Diretorio() {
+        this(0, 0);
+    }
+
     public int getProfundidade() {
         return profundidade;
     }
@@ -109,7 +113,6 @@ public class Diretorio {
             }
 
             this.indices = newIndices;
-            printDiretorio();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -122,7 +125,6 @@ public class Diretorio {
         this.profundidade++;
 
         try {
-            RandomAccessFile raf = new RandomAccessFile(ARQUIVO, "rw");
             raf.seek(0);
             raf.writeInt(this.profundidade);
 
@@ -140,12 +142,17 @@ public class Diretorio {
         }
     }
 
-    private void printDiretorio() {
-        System.out.println("DIRETORIO");
-        System.out.println("Profundidade: " + this.profundidade);
-        for (int i : indices) {
-            System.out.println(i);
+    public void imprimirArquivo() {
+        try {
+            lerInicial();
+
+            System.out.println("======== DIRETORIO =========");
+            System.out.println("Profundidade: " + profundidade);
+            for (int i = 0; i < indices.size(); i++) {
+                System.out.println("[" + i + "] Bucket: " + indices.get(i));
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
-        System.out.println("============");
     }
 }

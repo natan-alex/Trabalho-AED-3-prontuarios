@@ -6,6 +6,8 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 
+import java.util.Arrays;
+
 public class Bucket {
     // tamanho, em bytes, de um registro do bucket
     private static final byte SIZEOF_REGISTRO_BUCKET = 9;
@@ -89,7 +91,11 @@ public class Bucket {
         return registros;
     }
 
-    // retorna o status de uma nova inserção que 
+    public RegistroDoBucket[] getRegistrosPopuladosDoBucket() {
+        return (RegistroDoBucket[]) Arrays.copyOfRange(registros, 0, ocupacao);
+    }
+
+    // retorna o status de uma nova inserção que
     // aconteça no bucket com as informações passadas
     // como argumento;
     public static StatusDeInsercao obterStatusDeUmaNovaInsercao(int ocupacao, int p_local, int p_global, int tam_bucket) {
@@ -99,7 +105,7 @@ public class Bucket {
                 System.out.println("necessário duplicar dir");
                 return StatusDeInsercao.DUPLICAR_DIRETORIO;
             } else {
-                // necessário criar novo bucket e rearranjar 
+                // necessário criar novo bucket e rearranjar
                 // os registros do bucket em questão
                 System.out.println("necessário criar novo bucket!");
                 System.out.println("necessário rearranjar chaves!");
@@ -114,7 +120,7 @@ public class Bucket {
 
     // serializar o bucket no seu estado atual:
     // insere a profundidade_local, a ocupacao
-    // e os registros do bucket(todos, incluindo 
+    // e os registros do bucket(todos, incluindo
     // os que foram inicializados com valores default)
     public byte[] serializarBucket() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

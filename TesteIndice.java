@@ -1,5 +1,9 @@
 package trabalho_aed_prontuario.indice;
 
+import trabalho_aed_prontuario.mestre.*;
+import java.time.LocalDate;
+
+
 import java.io.RandomAccessFile;
 import java.io.IOException;
 import java.util.List;
@@ -11,11 +15,16 @@ public class TesteIndice {
         public static void main(String[] args) {
             int tamBuckets = 4;
             int profundidade = 1;
+            short tamAnotacoes = 10;
+
+            ArquivoMestre mestre = new ArquivoMestre(tamAnotacoes);
             Indice indice = new Indice(profundidade, tamBuckets);
 
             int[] cpfs = {10,3,14,18,20,8,6,1,12,22,7,16,13,19};
             for (int cpf : cpfs) {
-                indice.inserirRegistro(cpf, ++N);
+                Prontuario prontuario = new Prontuario(cpf, "Nome" + cpf, LocalDate.now(), 'm', tamAnotacoes, "blablabla");
+                int numRegistro = mestre.inserirRegistro(prontuario);
+                indice.inserirRegistro(cpf, numRegistro);
             }
             // problemáticos: 8,22,19
             // diretorio: p=3
@@ -34,7 +43,6 @@ public class TesteIndice {
             // p=3 bucket 5: 7,13
 
             Bucket bucket1 = indice.getBucketDoArquivoDeIndice(12);
-
             System.out.println("Lendo do bucket 1:");
             for (RegistroDoBucket registro : bucket1.getRegistrosDoBucket()) {
                     System.out.println("registro: " + registro);
@@ -64,6 +72,6 @@ public class TesteIndice {
                     System.out.println("registro: " + registro);
             }
 
-            indice.mostrarDiretorio();
-    }
+            mestre.imprimirArquivo();
+        }
 }

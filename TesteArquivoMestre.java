@@ -13,11 +13,11 @@ public class TesteArquivoMestre {
         try {
             RandomAccessFile raf = new RandomAccessFile("arquivo_mestre.db", "rw");
             ArquivoMestre arq = new ArquivoMestre((short) 100);
-            Prontuario p = new Prontuario(1, "fulano", LocalDate.now(), 'm', (short) 50);
-            Prontuario p2 = new Prontuario(2, "ciclano", LocalDate.now(), 'm', (short) 50);
+            Prontuario p = new Prontuario(1, "fulano", LocalDate.now(), 'm', (short) 50, "anot");
+            Prontuario p2 = new Prontuario(2, "ciclano", LocalDate.now(), 'm', (short) 50, "anot");
 
-            System.out.println(arq.inserir_registro(p));
-            System.out.println(arq.inserir_registro(p2));
+            System.out.println(arq.inserirRegistro(p));
+            System.out.println(arq.inserirRegistro(p2));
 
             raf.seek(0);
             int num_registros_no_arquivo = raf.readInt();

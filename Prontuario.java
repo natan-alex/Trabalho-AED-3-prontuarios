@@ -22,6 +22,7 @@ public class Prontuario extends Serializavel {
     private String anotacoes;
     private short tam_anotacoes;
 
+
     public Prontuario(byte[] data) {
         super(data);
     }
@@ -71,7 +72,8 @@ public class Prontuario extends Serializavel {
         if (nome_length < MAX_SIZE_NOME) {
             // completar a string com AUX_CHAR caso o tamanho do argumento
             // seja menor que MAX_SIZE_NOME
-            this.nome = String.format("%-"+MAX_SIZE_NOME+"s", nome).replace(' ', AUX_CHAR);
+            // this.nome = String.format("%-"+MAX_SIZE_NOME+"s", nome).replace(' ', AUX_CHAR);
+            this.nome = nome; //String.format("%-"+MAX_SIZE_NOME+"s", nome).replace(' ', AUX_CHAR);
         } else if (nome_length > MAX_SIZE_NOME) {
             // cortar a string até o tamanho desejado
             // caso seja maior que o permitido
@@ -113,9 +115,10 @@ public class Prontuario extends Serializavel {
         if (anotacoes_length < tam_anotacoes) {
             // completar a string com AUX_CHAR caso o tamanho do argumento
             // seja menor que tam_anotacoes
-            this.anotacoes = String.format("%-"+tam_anotacoes+"s", anotacoes).replace(' ', AUX_CHAR);
+            // this.anotacoes = String.format("%-"+tam_anotacoes+"s", anotacoes).replace(' ', AUX_CHAR);
+            this.anotacoes = anotacoes; //String.format("%-"+tam_anotacoes+"s", anotacoes).replace(' ', AUX_CHAR);
         } else if (anotacoes_length > tam_anotacoes) {
-            // cortar a string até o tamanho desejado 
+            // cortar a string até o tamanho desejado
             // caso seja maior que o permitido
             this.anotacoes = anotacoes.substring(0, tam_anotacoes);
         } else {
@@ -137,6 +140,7 @@ public class Prontuario extends Serializavel {
 
         try {
             dos.writeInt(cpf);
+            // System.out.println("=== NOME === " + nome);
             dos.writeUTF(nome);
             dos.writeShort( (short) data.getYear() );
             dos.writeByte( (byte) data.getMonthValue() );

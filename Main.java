@@ -24,22 +24,21 @@ public class Main {
         System.out.println("[6] - Simulacao");
         System.out.print("Opção: ");
 
-        opcao = in.nextInt();
+        // opcao = in.nextInt();
 
-        switch(opcao) {
+        switch(5) {
             case 1:
                 System.out.println("Qual será a profundidade inicial do hash? ");
                 opcao = in.nextInt();
 
                 // Injetar indice?
-                indice = new Indice(opcao, 4);
                 break;
             case 2:
                 // inserir registro
-                int cpf = 0;
-                Prontuario p = new Prontuario(1, "fulano", LocalDate.now(), 'm', (short) 10, "teste");
-                // int registro = arquivo_mestre.inserir_registro(p);
-                indice = new Indice(0, 0); // TODO: Arrumar.
+                // int cpf = 0;
+                // Prontuario p = new Prontuario(1, "fulano", LocalDate.now(), 'm', (short) 10, "teste");
+                // // int registro = arquivo_mestre.inserir_registro(p);
+                // indice = new Indice(0, 0); // TODO: Arrumar.
 
                 // indice.inserirRegistro(numBucket, cpf);
                 break;
@@ -50,6 +49,15 @@ public class Main {
                 // remover registro
                 break;
             case 5:
+                ArquivoMestre mestre = new ArquivoMestre();
+                mestre.imprimirArquivo();
+
+                Diretorio diretorio = new Diretorio();
+                diretorio.imprimirArquivo();
+
+                Indice indice = new Indice();
+                indice.imprimirArquivo();
+
                 // imprimir arquivos
                 break;
             case 6:

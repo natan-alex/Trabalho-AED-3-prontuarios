@@ -1,18 +1,32 @@
 package trabalho_aed_prontuario.mestre;
 
 import java.io.RandomAccessFile;
+import java.time.LocalDate;
+import java.net.Proxy;
 
 import java.io.IOException;
 import java.io.EOFException;
+import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 
 public class ArquivoMestre {
+    private static final int TAM_CABECALHO = 10;
+
     private RandomAccessFile raf;
+    // cpf: 4 bytes, nome: 50 bytes, date: 4 bytes, sexo: 2 bytes
+    private int tam_registro = 60;
 
     // atributos abaixo também são os metadados
     // do arquivo
-    private int num_registros_no_arquivo;
     private short num_bytes_anotacoes;
+    private int num_registros_no_arquivo;
     private int prox_id;
+
+    public ArquivoMestre() {
+        this((short) 0);
+    }
 
     public ArquivoMestre(short num_bytes_anotacoes) {
         try {
@@ -26,11 +40,11 @@ public class ArquivoMestre {
                 ler_metadados();
             } else {
                 this.num_bytes_anotacoes = (num_bytes_anotacoes > 0) ? num_bytes_anotacoes : 100;
+                tam_registro += this.num_bytes_anotacoes;
                 escrever_metadados();
                 num_registros_no_arquivo = 0;
                 prox_id = 1;
             }
-            System.out.println("num_bytes_anotacoes: " + this.num_bytes_anotacoes);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -45,6 +59,7 @@ public class ArquivoMestre {
             this.num_registros_no_arquivo = raf.readInt();
             this.num_bytes_anotacoes = raf.readShort();
             this.prox_id = raf.readInt();
+            tam_registro += this.num_bytes_anotacoes;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -64,13 +79,11 @@ public class ArquivoMestre {
     // inserir um registro no fim do arquivo de dados;
     // retorna o número de registros contidos no arquivo
     // que também diz sobre o número do registro inserido
-    public int inserir_registro(Prontuario registro) {
+    public int inserirRegistro(Prontuario registro) {
         try {
             // if (!registroJaExiste()) {
-            System.out.println("tam arquivo mestre: " + raf.length());
-            raf.seek( raf.length() ); // ir para o fim do arquivo
 
-            // escrever o id antes do registro
+            raf.seek(TAM_CABECALHO + (num_registros_no_arquivo*tam_registro)); // ir para o fim do arquivo
             raf.writeInt(prox_id);
 
             // obter registro em bytes para ser inserido
@@ -81,6 +94,7 @@ public class ArquivoMestre {
             // atualizar o número de registros presentes no arquivo
             raf.seek(0);
             raf.writeInt(++num_registros_no_arquivo);
+
             // atualizar prox id
             raf.seek(6); // pular o número de registros(int) e o número
             // de bytes para as anotações(short)
@@ -95,5 +109,38 @@ public class ArquivoMestre {
         }
 
         return num_registros_no_arquivo;
+    }
+
+    // imprime o cabeçalho e registros do arquivo mestre,
+    // pulando de registro a registro
+    public void imprimirArquivo() {
+        try {
+            raf.seek(0);
+
+            int num_registros = raf.readInt();
+            short num_bytes_anotacoes = raf.readShort();
+            int proximo_id = raf.readInt();
+
+            System.out.println("======= ARQUIVO MESTRE =========");
+            System.out.println("[Cabeçalho]");
+            System.out.println("Número de registros: " + num_registros);
+            System.out.println("Número de bytes de anotações: " + num_bytes_anotacoes);
+            System.out.println("Próximo id: " + proximo_id);
+
+            System.out.println("[Registros]");
+            for (int i = 0; i < num_registros; i++) {
+                // depois do cabeçalho, vai para a posição logo após
+                // o campo do id do registro, que é 4 bytes
+                raf.seek(TAM_CABECALHO + 4 + i*(tam_registro));
+
+                byte[] byteArray = new byte[tam_registro];
+                raf.read(byteArray);
+                Prontuario prontuario = new Prontuario(byteArray);
+
+                System.out.println(prontuario);
+            }
+        } catch (Exception err) {
+            err.printStackTrace();
+        }
     }
 }
