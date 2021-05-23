@@ -5,10 +5,8 @@ import java.util.Scanner;
 
 import trabalho_aed_prontuario.mestre.*;
 import trabalho_aed_prontuario.indice.*;
-import trabalho_aed_prontuario.diretorio.*;
 
 public class Main {
-    private static Diretorio diretorio;
     private static Indice indice;
 
     public static void main(String[] args) {
@@ -35,7 +33,6 @@ public class Main {
 
                 // Injetar indice?
                 indice = new Indice(opcao, 4);
-                diretorio = new Diretorio(opcao, 4, indice);
                 break;
             case 2:
                 // inserir registro
@@ -43,9 +40,7 @@ public class Main {
                 Prontuario p = new Prontuario(1, "fulano", LocalDate.now(), 'm', (short) 10, "teste");
                 // int registro = arquivo_mestre.inserir_registro(p);
                 indice = new Indice(0, 0); // TODO: Arrumar.
-                diretorio = new Diretorio(0, 4, indice);
 
-                int numBucket = diretorio.getPaginaIndice(cpf);
                 // indice.inserirRegistro(numBucket, cpf);
                 break;
             case 3:
