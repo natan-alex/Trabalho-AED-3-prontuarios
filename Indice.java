@@ -42,13 +42,14 @@ public class Indice {
                 this.qtd_buckets = 0;
                 escrever_metadados();
 
-                // instanciar diretorio
-                diretorio = new Diretorio(profundidade_global, tam_bucket);
                 // criar 2^p_global buckets iniciais
                 for (int i = 0; i < Math.pow(2, this.profundidade_global); i++) {
                     inserirNovoBucketNoArquivo(profundidade_global);
                 }
             }
+
+            // instanciar diretorio
+            diretorio = new Diretorio(profundidade_global, tam_bucket);
         } catch (IOException e) {
             e.printStackTrace();
         }

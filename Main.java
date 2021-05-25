@@ -24,9 +24,9 @@ public class Main {
         System.out.println("[6] - Simulacao");
         System.out.print("Opção: ");
 
-        // opcao = in.nextInt();
+        opcao = in.nextInt();
 
-        switch(5) {
+        switch(opcao) {
             case 1:
                 System.out.println("Qual será a profundidade inicial do hash? ");
                 opcao = in.nextInt();
