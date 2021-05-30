@@ -14,8 +14,8 @@ public class RegistroDoBucket extends Serializavel {
     private int num_registro;
     private boolean is_lapide;
 
-    public RegistroDoBucket(byte[] data) {
-        super(data);
+    public RegistroDoBucket(byte[] dados) {
+        super(dados);
     }
 
     // uso para inicializar um bucket com registros
