@@ -81,7 +81,6 @@ public class Prontuario extends Serializavel {
         } else {
             this.nome = nome;
         }
-        System.out.println("nome: " + this.nome + " tam: " + this.nome.length());
     }
 
 
@@ -124,7 +123,6 @@ public class Prontuario extends Serializavel {
         } else {
             this.anotacoes = anotacoes;
         }
-        System.out.println("anotacoes: " + this.anotacoes + " tam: " + this.anotacoes.length());
     }
 
     @Override
