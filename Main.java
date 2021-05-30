@@ -55,8 +55,8 @@ public class Main {
                 Diretorio diretorio = new Diretorio();
                 diretorio.imprimirArquivo();
 
-                Indice indice = new Indice();
-                indice.imprimirArquivo();
+//                Indice indice = new Indice();
+//                indice.imprimirArquivo();
 
                 // imprimir arquivos
                 break;
