@@ -1,32 +1,22 @@
 package trabalho_aed_prontuario.mestre;
 
 import java.io.RandomAccessFile;
-import java.time.LocalDate;
-import java.net.Proxy;
 
 import java.io.IOException;
-import java.io.EOFException;
-import java.io.ByteArrayOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 
 public class ArquivoMestre {
     private static final int TAM_CABECALHO = 10;
 
     private RandomAccessFile raf;
-    // cpf: 4 bytes, nome: 50 bytes, date: 4 bytes, sexo: 2 bytes
-    private int tam_registro = 60;
+
+    // id: 4 bytes, cpf: 4 bytes, nome: 50 bytes, date: 4 bytes, sexo: 2 bytes
+    private int tam_registro = 64;
 
     // atributos abaixo também são os metadados
     // do arquivo
     private short num_bytes_anotacoes;
     private int num_registros_no_arquivo;
     private int prox_id;
-
-    public ArquivoMestre() {
-        this((short) 0);
-    }
 
     public ArquivoMestre(short num_bytes_anotacoes) {
         try {
@@ -77,13 +67,13 @@ public class ArquivoMestre {
     }
 
     // inserir um registro no fim do arquivo de dados;
-    // retorna o número de registros contidos no arquivo
-    // que também diz sobre o número do registro inserido
+    // retorna -1 em caso de falha na inserção ou
+    // o valor de prox_id antes da inserção, que indica
+    // o número do registro que foi inserido
     public int inserirRegistro(Prontuario registro) {
         try {
-            // if (!registroJaExiste()) {
-
-            raf.seek(TAM_CABECALHO + (num_registros_no_arquivo*tam_registro)); // ir para o fim do arquivo
+            // ir para o fim do último registro do arquivo
+            raf.seek(TAM_CABECALHO + ((long)num_registros_no_arquivo*tam_registro));
             raf.writeInt(prox_id);
 
             // obter registro em bytes para ser inserido

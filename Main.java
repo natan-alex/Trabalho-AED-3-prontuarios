@@ -49,8 +49,8 @@ public class Main {
                 // remover registro
                 break;
             case 5:
-                ArquivoMestre mestre = new ArquivoMestre();
-                mestre.imprimirArquivo();
+//                ArquivoMestre mestre = new ArquivoMestre();
+//                mestre.imprimirArquivo();
 
                 Diretorio diretorio = new Diretorio();
                 diretorio.imprimirArquivo();
