@@ -262,7 +262,21 @@ public class Indice {
         }
     }
 
-
+    // obter o número do registro associado
+    // ao cpf no registro do bucket; retorna -1
+    // caso não encontre o cpf
+    public int getNumRegistro(int cpf) {
+        // obter num bucket a partir do cpf
+        int num_bucket = diretorio.getPaginaIndice(cpf);
+        // carregar bucket e procurar por cpf
+        Bucket bucket = carregarBucketDoArquivoDeIndice(num_bucket);
+        for (RegistroDoBucket registro : bucket.getRegistrosDoBucket()) {
+            if (registro.getChave() == cpf) {
+                return registro.getNumRegistro();
+            }
+        }
+        return -1;
+    }
 
     public void imprimirArquivo() {
         try {

@@ -73,9 +73,13 @@ public class TesteIndice {
 //            for (RegistroDoBucket registro : bucket5.getRegistrosDoBucket()) {
 //                    System.out.println("registro: " + registro);
 //            }
+            int cpf = 22;
+            System.out.println("NumRegistro associado ao cpf " + cpf + " : " + indice.getNumRegistro(cpf));
+            cpf = 15;
+            System.out.println("NumRegistro associado ao cpf " + cpf + " : " + indice.getNumRegistro(cpf));
+            cpf = 14;
+            System.out.println("NumRegistro associado ao cpf " + cpf + " : " + indice.getNumRegistro(cpf));
 
-            mestre.imprimirArquivo();
-            System.out.println("\n");
             indice.imprimirArquivo();
             System.out.println("\n");
         }
