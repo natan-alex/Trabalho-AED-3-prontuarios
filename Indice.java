@@ -56,7 +56,7 @@ public class Indice {
 
     // a classe é responsável por alterar a variável qtd_buckets
     // portanto o setter é privado
-    private void aumentarQtdBucketsEmUmaUnidade() {
+    private void aumentarQtdBucketsNoArquivo() {
         try {
             raf.seek(SIZEOF_METADADOS_INDICE - 4);
             raf.writeInt(++qtd_buckets);
@@ -108,7 +108,7 @@ public class Indice {
             raf.write( new Bucket(profundidade_local, tam_bucket).serializarBucket() );
 
             // atualizar a quantidade de buckets no arquivo
-            aumentarQtdBucketsEmUmaUnidade();
+            aumentarQtdBucketsNoArquivo();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -135,7 +135,6 @@ public class Indice {
     public Bucket carregarBucketDoArquivoDeIndice(int num_bucket) {
         return carregarBucketDoArquivoDeIndice( calcularPosBucket(num_bucket) );
     }
-
 
     // retornar um bucket com as informações lidas
     // do arquivo a partir da sua posição de início, passada
@@ -208,7 +207,7 @@ public class Indice {
         escreverBucketDaMemoriaProArquivo(novos_buckets[1], qtd_buckets + 1);
 
         // alterar a quantidade de buckets no arquivo
-        aumentarQtdBucketsEmUmaUnidade();
+        aumentarQtdBucketsNoArquivo();
 
         return StatusDeInsercao.TUDO_OK;
     }
@@ -262,6 +261,7 @@ public class Indice {
             e.printStackTrace();
         }
     }
+
 
 
     public void imprimirArquivo() {
