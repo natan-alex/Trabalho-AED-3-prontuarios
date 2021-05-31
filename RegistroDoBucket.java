@@ -12,7 +12,6 @@ public class RegistroDoBucket extends Serializavel {
     // correspondente ao CPF se encontra (começando por 0).
     private int chave;
     private int num_registro;
-    private boolean is_lapide;
 
     public RegistroDoBucket(byte[] dados) {
         super(dados);
@@ -23,23 +22,14 @@ public class RegistroDoBucket extends Serializavel {
     protected RegistroDoBucket() {
         chave = -1;
         num_registro = -1;
-        is_lapide = false;
     }
 
     public RegistroDoBucket(int chave) {
         this.chave = chave;
         num_registro = -1;
-        is_lapide = false;
     }
 
     public RegistroDoBucket(int chave, int num_registro) {
-        this.chave = chave;
-        this.num_registro = num_registro;
-        is_lapide = false;
-    }
-
-    protected RegistroDoBucket(boolean is_lapide, int chave, int num_registro) {
-        this.is_lapide = is_lapide;
         this.chave = chave;
         this.num_registro = num_registro;
     }
@@ -60,17 +50,9 @@ public class RegistroDoBucket extends Serializavel {
         this.num_registro = num_registro;
     }
 
-    public boolean getIsLapide() {
-        return is_lapide;
-    }
-
-    public void setIsLapide(boolean is_lapide) {
-        this.is_lapide = is_lapide;
-    }
-
     @Override
     public String toString() {
-        return "RegistroDoBucket: (chave = " + chave + ", num_registro = " + num_registro + ", is_lapide = " + is_lapide + ")";
+        return "RegistroDoBucket: (chave = " + chave + ", num_registro = " + num_registro + ")";
     }
 
     @Override
@@ -79,7 +61,6 @@ public class RegistroDoBucket extends Serializavel {
         DataOutputStream dos = new DataOutputStream(baos);
 
         try {
-            dos.writeBoolean(is_lapide);
             dos.writeInt(chave);
             dos.writeInt(num_registro);
             dos.flush();
@@ -97,7 +78,6 @@ public class RegistroDoBucket extends Serializavel {
         try (ByteArrayInputStream bais = new ByteArrayInputStream(data);
                 DataInputStream dis = new DataInputStream(bais)
             ) {
-            this.is_lapide = dis.readBoolean();
             this.chave = dis.readInt();
             this.num_registro = dis.readInt();
         } catch (IOException e) {
