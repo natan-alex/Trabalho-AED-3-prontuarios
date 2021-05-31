@@ -13,6 +13,8 @@ public class RegistroDoBucket extends Serializavel {
     private int chave;
     private int num_registro;
 
+    public static final byte SIZEOF_REGISTRO_DO_BUCKET = (byte) 8;
+
     public RegistroDoBucket(byte[] dados) {
         super(dados);
     }

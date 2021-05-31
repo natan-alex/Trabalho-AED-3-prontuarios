@@ -7,7 +7,7 @@ import java.io.IOException;
 public class Indice {
     // tamanho, em bytes, de um único registro do bucket
     // boolean para lápide + int para chave + int para o número do registro
-    private static final byte SIZEOF_REGISTRO_DO_BUCKET = 9;
+    private static final byte SIZEOF_REGISTRO_DO_BUCKET = RegistroDoBucket.SIZEOF_REGISTRO_DO_BUCKET;
     // tamanho, em bytes, dos metadados no arquivo de indice
     private static final byte SIZEOF_METADADOS_INDICE = 8;
     // tamanho, em bytes, dos metadados de um bucket

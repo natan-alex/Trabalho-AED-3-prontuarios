@@ -10,7 +10,7 @@ import java.util.Arrays;
 
 public class Bucket {
     // tamanho, em bytes, de um registro do bucket
-    private static final byte SIZEOF_REGISTRO_BUCKET = 9;
+    private static final byte SIZEOF_REGISTRO_DO_BUCKET = RegistroDoBucket.SIZEOF_REGISTRO_DO_BUCKET;
 
     private int profundidade_local;
     private int ocupacao;
@@ -53,7 +53,7 @@ public class Bucket {
             ) {
             this.profundidade_local = dis.readInt();
             this.ocupacao = dis.readInt();
-            byte[] registro = new byte[SIZEOF_REGISTRO_BUCKET];
+            byte[] registro = new byte[SIZEOF_REGISTRO_DO_BUCKET];
 
             // ler registros do bucket
             for (int i = 0; i < tam_bucket; i++) {
