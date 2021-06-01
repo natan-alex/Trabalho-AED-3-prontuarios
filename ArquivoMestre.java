@@ -18,6 +18,10 @@ public class ArquivoMestre {
     private int num_registros_no_arquivo;
     private int prox_id;
 
+    public ArquivoMestre() {
+        this((short) 0);
+    }
+
     public ArquivoMestre(short num_bytes_anotacoes) {
         try {
             raf = new RandomAccessFile("arquivo_mestre.db", "rws");
@@ -38,6 +42,10 @@ public class ArquivoMestre {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public short getNumBytesAnotacoes() {
+        return num_bytes_anotacoes;
     }
 
     // ler metadados em caso de o arquivo já existir;

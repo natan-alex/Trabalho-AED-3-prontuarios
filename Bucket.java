@@ -24,12 +24,12 @@ public class Bucket {
     public Bucket(int profundidade_local, int tam_bucket) {
         if (profundidade_local > 0)
             this.profundidade_local = profundidade_local;
-        else 
+        else
             this.profundidade_local = 1;
 
         if (tam_bucket > 0)
             this.tam_bucket = tam_bucket;
-        else 
+        else
             this.tam_bucket = 10;
 
         this.ocupacao = 0; // ocupação inicial é 0

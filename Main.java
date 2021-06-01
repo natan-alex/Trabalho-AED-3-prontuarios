@@ -7,11 +7,7 @@ import trabalho_aed_prontuario.mestre.*;
 import trabalho_aed_prontuario.indice.*;
 
 public class Main {
-    private static Indice indice;
-
     public static void main(String[] args) {
-        ArquivoMestre arquivo_mestre = new ArquivoMestre((short) 100);
-
         Scanner in = new Scanner(System.in);
         int opcao;
 
@@ -24,23 +20,47 @@ public class Main {
         System.out.println("[6] - Simulacao");
         System.out.print("Opção: ");
 
-        // opcao = in.nextInt();
+        opcao = in.nextInt();
 
-        switch(5) {
+        Indice indice;
+        Diretorio diretorio;
+        ArquivoMestre mestre;
+        Prontuario prontuario;
+
+        switch(opcao) {
             case 1:
                 System.out.println("Qual será a profundidade inicial do hash? ");
-                opcao = in.nextInt();
+                int profundidade = in.nextInt();
 
-                // Injetar indice?
+                System.out.println("Qual será o número de registros por bucket? ");
+                int tam_buckets = in.nextInt();
+
+                System.out.println("Qual será o tamanho de anotações por registro? ");
+                short tam_anotacoes = in.nextShort();
+
+                new Indice(profundidade, tam_buckets);
+                new ArquivoMestre(tam_anotacoes);
                 break;
             case 2:
-                // inserir registro
-                // int cpf = 0;
-                // Prontuario p = new Prontuario(1, "fulano", LocalDate.now(), 'm', (short) 10, "teste");
-                // // int registro = arquivo_mestre.inserir_registro(p);
-                // indice = new Indice(0, 0); // TODO: Arrumar.
+                indice = new Indice();
+                mestre = new ArquivoMestre();
 
-                // indice.inserirRegistro(numBucket, cpf);
+                System.out.print("Qual será o cpf do paciente? ");
+                int cpf = in.nextInt();
+
+                System.out.print("Qual será o nome do paciente? ");
+                String nome = in.next();
+
+                System.out.print("Qual será o sexo do paciente? ");
+                char sexo = in.next().charAt(0);
+
+                in.nextLine();
+                System.out.print("Qual será a anotação? ");
+                String anotacoes = in.nextLine();
+
+                prontuario = new Prontuario(cpf, nome, LocalDate.now(), sexo, mestre.getNumBytesAnotacoes(), anotacoes);
+                int num_registro = mestre.inserirRegistro(prontuario);
+                indice.inserirRegistro(cpf, num_registro);
                 break;
             case 3:
                 // editar registro
@@ -49,16 +69,14 @@ public class Main {
                 // remover registro
                 break;
             case 5:
-//                ArquivoMestre mestre = new ArquivoMestre();
-//                mestre.imprimirArquivo();
+                mestre = new ArquivoMestre();
+                mestre.imprimirArquivo();
 
-                Diretorio diretorio = new Diretorio();
+                indice = new Indice();
+                indice.imprimirArquivo();
+
+                diretorio = new Diretorio();
                 diretorio.imprimirArquivo();
-
-//                Indice indice = new Indice();
-//                indice.imprimirArquivo();
-
-                // imprimir arquivos
                 break;
             case 6:
                 // simulacao

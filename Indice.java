@@ -19,6 +19,10 @@ public class Indice {
     private int tam_bucket;
     private int qtd_buckets; // quantidade de buckets presente no arquivo
 
+    public Indice() {
+        this(1, 1);
+    }
+
     // caso o arquivo exista os metadados são lidos
     // e os parâmetros passados ao construtor são ignorados
     // caso o arquivo NÃO exista é necessário adicionar
@@ -40,15 +44,14 @@ public class Indice {
                 this.qtd_buckets = 0;
 
                 escrever_metadados();
-
-                // instanciar diretorio
-                diretorio = new Diretorio(profundidade_global, tam_bucket);
-
                 // criar 2^p_global buckets iniciais
                 for (int i = 0; i < Math.pow(2, profundidade_global); i++) {
                     inserirNovoBucketNoArquivo(profundidade_global);
                 }
             }
+
+            // instanciar diretorio
+            diretorio = new Diretorio(profundidade_global, tam_bucket);
         } catch (IOException e) {
             e.printStackTrace();
         }
