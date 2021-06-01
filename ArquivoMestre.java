@@ -1,6 +1,7 @@
 package trabalho_aed_prontuario.mestre;
 
 import java.io.RandomAccessFile;
+import java.time.LocalDate;
 
 import java.io.IOException;
 
@@ -144,15 +145,26 @@ public class ArquivoMestre {
     // mestre com esse cpf. Printar as informações contidas atualmente
     // e se não existir(ou for lápide) retorna false. Perguntar o
     // que o usuário quer alterar, excluindo o cpf.
-    public boolean editarRegistro(int cpf, int num_registro) {
-//        try {
-            Prontuario antigo = recuperarRegistro(num_registro);
-            System.out.println("Informaçoes do prontuario: " + antigo);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+    public boolean editarRegistro(int num_registro, int campo_enum, Object valor) {
+        Prontuario antigo = recuperarRegistro(num_registro);
 
-        return false;
+        switch(campo_enum) {
+            case 1:
+                antigo.setNome((String) valor);
+                break;
+            case 2:
+                antigo.setSexo(((String) valor).charAt(0));
+                break;
+            case 3:
+                antigo.setData((LocalDate) valor);
+                break;
+            case 4:
+                antigo.setAnotacoes((String) valor);
+                break;
+        }
+
+        System.out.println("Informaçoes do prontuario: " + antigo);
+        return true;
     }
 
     // imprime o cabeçalho e registros do arquivo mestre,

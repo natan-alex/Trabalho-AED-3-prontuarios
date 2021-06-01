@@ -27,6 +27,10 @@ public class Main {
         ArquivoMestre mestre;
         Prontuario prontuario;
 
+        int cpf, num_registro;
+        String nome, anotacoes;
+        char sexo;
+
         switch(opcao) {
             case 1:
                 System.out.println("Qual será a profundidade inicial do hash? ");
@@ -46,24 +50,38 @@ public class Main {
                 mestre = new ArquivoMestre();
 
                 System.out.print("Qual será o cpf do paciente? ");
-                int cpf = in.nextInt();
+                cpf = in.nextInt();
 
                 System.out.print("Qual será o nome do paciente? ");
-                String nome = in.next();
+                nome = in.next();
 
                 System.out.print("Qual será o sexo do paciente? ");
-                char sexo = in.next().charAt(0);
+                sexo = in.next().charAt(0);
 
                 in.nextLine();
                 System.out.print("Qual será a anotação? ");
-                String anotacoes = in.nextLine();
+                anotacoes = in.nextLine();
 
                 prontuario = new Prontuario(cpf, nome, LocalDate.now(), sexo, mestre.getNumBytesAnotacoes(), anotacoes);
-                int num_registro = mestre.inserirRegistro(prontuario);
+                num_registro = mestre.inserirRegistro(prontuario);
                 indice.inserirRegistro(cpf, num_registro);
                 break;
             case 3:
-                // editar registro
+                indice = new Indice();
+                mestre = new ArquivoMestre();
+
+                System.out.print("Qual será o cpf do paciente a ser modificado? ");
+                cpf = in.nextInt();
+
+                System.out.print("Qual dos seguintes campos deseja alterar? [1] Nome | [2] Sexo | [3] Data | [4] Anotações: ");
+                opcao = in.nextInt();
+
+                System.out.print("Escreva o novo valor: ");
+                in.nextLine();
+                Object valor = in.nextLine();
+
+                num_registro = indice.getNumRegistro(cpf);
+                mestre.editarRegistro(num_registro, opcao, valor);
                 break;
             case 4:
                 // remover registro
