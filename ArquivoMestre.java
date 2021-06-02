@@ -2,6 +2,7 @@ package trabalho_aed_prontuario.mestre;
 
 import java.io.RandomAccessFile;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import java.io.IOException;
 
@@ -156,11 +157,22 @@ public class ArquivoMestre {
                 antigo.setSexo(((String) valor).charAt(0));
                 break;
             case 3:
-                antigo.setData((LocalDate) valor);
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                LocalDate data = LocalDate.parse((String) valor, formatter);
+                antigo.setData(data);
                 break;
             case 4:
                 antigo.setAnotacoes((String) valor);
                 break;
+        }
+
+        try {
+            long posicao_do_registro = calcularPosicaoDoRegistro(num_registro);
+            raf.seek(posicao_do_registro + 4); // +4 para pular o id
+            byte[] registro_em_bytes = antigo.toByteArray();
+            raf.write(registro_em_bytes); // registro
+        } catch (Exception err) {
+            err.printStackTrace();
         }
 
         System.out.println("Informaçoes do prontuario: " + antigo);

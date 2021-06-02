@@ -1,6 +1,7 @@
 package trabalho_aed_prontuario;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
 import trabalho_aed_prontuario.mestre.*;
@@ -27,8 +28,11 @@ public class Main {
         ArquivoMestre mestre;
         Prontuario prontuario;
 
+        DateTimeFormatter formatter;
+
+        LocalDate data;
         int cpf, num_registro;
-        String nome, anotacoes;
+        String nome, anotacoes, strData;
         char sexo;
 
         switch(opcao) {
@@ -55,6 +59,11 @@ public class Main {
                 System.out.print("Qual será o nome do paciente? ");
                 nome = in.next();
 
+                System.out.print("Qual será a data? ");
+                strData = in.next();
+                formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                data = LocalDate.parse(strData, formatter);
+
                 System.out.print("Qual será o sexo do paciente? ");
                 sexo = in.next().charAt(0);
 
@@ -62,7 +71,7 @@ public class Main {
                 System.out.print("Qual será a anotação? ");
                 anotacoes = in.nextLine();
 
-                prontuario = new Prontuario(cpf, nome, LocalDate.now(), sexo, mestre.getNumBytesAnotacoes(), anotacoes);
+                prontuario = new Prontuario(cpf, nome, data, sexo, mestre.getNumBytesAnotacoes(), anotacoes);
                 num_registro = mestre.inserirRegistro(prontuario);
                 indice.inserirRegistro(cpf, num_registro);
                 break;
@@ -76,8 +85,8 @@ public class Main {
                 System.out.print("Qual dos seguintes campos deseja alterar? [1] Nome | [2] Sexo | [3] Data | [4] Anotações: ");
                 opcao = in.nextInt();
 
-                System.out.print("Escreva o novo valor: ");
                 in.nextLine();
+                System.out.println("Escreva o novo valor: "); // problema com anotacoes
                 Object valor = in.nextLine();
 
                 num_registro = indice.getNumRegistro(cpf);
