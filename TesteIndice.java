@@ -3,7 +3,6 @@ package trabalho_aed_prontuario.indice;
 import trabalho_aed_prontuario.mestre.*;
 import java.time.LocalDate;
 
-
 import java.io.RandomAccessFile;
 import java.io.IOException;
 import java.util.List;
@@ -19,13 +18,16 @@ public class TesteIndice {
 
             ArquivoMestre mestre = new ArquivoMestre(tamAnotacoes);
             Indice indice = new Indice(profundidade, tamBuckets);
+            Prontuario prontuario;
+            int numRegistro = 0;
 
             int[] cpfs = {10,3,14,18,20,8,6,1,12,22,7,16,13,19};
             for (int cpf : cpfs) {
-                Prontuario prontuario = new Prontuario(cpf, "Nome" + cpf, LocalDate.now(), 'm', tamAnotacoes, "blablabla");
-                int numRegistro = mestre.inserirRegistro(prontuario);
+                prontuario = new Prontuario(cpf, "Nome" + cpf, LocalDate.now(), 'm', tamAnotacoes, "blablabla");
+                numRegistro = mestre.inserirRegistro(prontuario);
                 indice.inserirRegistro(cpf, numRegistro);
             }
+
             // problemáticos: 8,22,19
             // diretorio: p=3
             // 000=0->1
@@ -42,36 +44,43 @@ public class TesteIndice {
             // p=3 bucket 4: 14,6,22,
             // p=3 bucket 5: 7,13
 
-            Bucket bucket1 = indice.getBucketDoArquivoDeIndice(12);
-            System.out.println("Lendo do bucket 1:");
-            for (RegistroDoBucket registro : bucket1.getRegistrosDoBucket()) {
-                    System.out.println("registro: " + registro);
-            }
+//            Bucket bucket1 = indice.getBucketDoArquivoDeIndice(1);
+//            System.out.println("Lendo do bucket 1:");
+//            for (RegistroDoBucket registro : bucket1.getRegistrosDoBucket()) {
+//                    System.out.println("registro: " + registro);
+//            }
+//
+//            Bucket bucket2 = indice.getBucketDoArquivoDeIndice(2);
+//            System.out.println("Lendo do bucket 2:");
+//            for (RegistroDoBucket registro : bucket2.getRegistrosDoBucket()) {
+//                    System.out.println("registro: " + registro);
+//            }
+//
+//            Bucket bucket3 = indice.getBucketDoArquivoDeIndice(3);
+//            System.out.println("Lendo do bucket 3:");
+//            for (RegistroDoBucket registro : bucket3.getRegistrosDoBucket()) {
+//                    System.out.println("registro: " + registro);
+//            }
+//
+//            Bucket bucket4 = indice.getBucketDoArquivoDeIndice(4);
+//            System.out.println("Lendo do bucket 4:");
+//            for (RegistroDoBucket registro : bucket4.getRegistrosDoBucket()) {
+//                    System.out.println("registro: " + registro);
+//            }
+//
+//            Bucket bucket5 = indice.getBucketDoArquivoDeIndice(5);
+//            System.out.println("Lendo do bucket 5:");
+//            for (RegistroDoBucket registro : bucket5.getRegistrosDoBucket()) {
+//                    System.out.println("registro: " + registro);
+//            }
+            int cpf = 22;
+            System.out.println("NumRegistro associado ao cpf " + cpf + " : " + indice.getNumRegistro(cpf));
+            cpf = 15;
+            System.out.println("NumRegistro associado ao cpf " + cpf + " : " + indice.getNumRegistro(cpf));
+            cpf = 14;
+            System.out.println("NumRegistro associado ao cpf " + cpf + " : " + indice.getNumRegistro(cpf));
 
-            Bucket bucket2 = indice.getBucketDoArquivoDeIndice(56);
-            System.out.println("Lendo do bucket 2:");
-            for (RegistroDoBucket registro : bucket2.getRegistrosDoBucket()) {
-                    System.out.println("registro: " + registro);
-            }
-
-            Bucket bucket3 = indice.getBucketDoArquivoDeIndice(100);
-            System.out.println("Lendo do bucket 3:");
-            for (RegistroDoBucket registro : bucket3.getRegistrosDoBucket()) {
-                    System.out.println("registro: " + registro);
-            }
-
-            Bucket bucket4 = indice.getBucketDoArquivoDeIndice(144);
-            System.out.println("Lendo do bucket 4:");
-            for (RegistroDoBucket registro : bucket4.getRegistrosDoBucket()) {
-                    System.out.println("registro: " + registro);
-            }
-
-            Bucket bucket5 = indice.getBucketDoArquivoDeIndice(188);
-            System.out.println("Lendo do bucket 5:");
-            for (RegistroDoBucket registro : bucket5.getRegistrosDoBucket()) {
-                    System.out.println("registro: " + registro);
-            }
-
-            mestre.imprimirArquivo();
+            indice.imprimirArquivo();
+            System.out.println("\n");
         }
 }

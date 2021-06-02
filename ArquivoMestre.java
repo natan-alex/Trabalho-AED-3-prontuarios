@@ -2,21 +2,17 @@ package trabalho_aed_prontuario.mestre;
 
 import java.io.RandomAccessFile;
 import java.time.LocalDate;
-import java.net.Proxy;
+import java.time.format.DateTimeFormatter;
 
 import java.io.IOException;
-import java.io.EOFException;
-import java.io.ByteArrayOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 
 public class ArquivoMestre {
     private static final int TAM_CABECALHO = 10;
 
     private RandomAccessFile raf;
-    // cpf: 4 bytes, nome: 50 bytes, date: 4 bytes, sexo: 2 bytes
-    private int tam_registro = 60;
+
+    // id: 4 bytes, cpf: 4 bytes, nome: 50 bytes, date: 4 bytes, sexo: 2 bytes
+    private int tam_registro = 64;
 
     // atributos abaixo também são os metadados
     // do arquivo
@@ -50,6 +46,10 @@ public class ArquivoMestre {
         }
     }
 
+    public short getNumBytesAnotacoes() {
+        return num_bytes_anotacoes;
+    }
+
     // ler metadados em caso de o arquivo já existir;
     // metadados: número de registros presentes no arquivo,
     // o número de bytes total para as anotações e o último
@@ -77,13 +77,13 @@ public class ArquivoMestre {
     }
 
     // inserir um registro no fim do arquivo de dados;
-    // retorna o número de registros contidos no arquivo
-    // que também diz sobre o número do registro inserido
+    // retorna -1 em caso de falha na inserção ou
+    // o valor de prox_id antes da inserção, que indica
+    // o número do registro que foi inserido
     public int inserirRegistro(Prontuario registro) {
         try {
-            // if (!registroJaExiste()) {
-
-            raf.seek(TAM_CABECALHO + (num_registros_no_arquivo*tam_registro)); // ir para o fim do arquivo
+            // ir para o fim do último registro do arquivo
+            raf.seek(TAM_CABECALHO + ((long)num_registros_no_arquivo*tam_registro));
             raf.writeInt(prox_id);
 
             // obter registro em bytes para ser inserido
@@ -100,15 +100,83 @@ public class ArquivoMestre {
             // de bytes para as anotações(short)
             raf.writeInt(++prox_id);
 
-            return prox_id;
-            // } else {
-            // registro ja existe no arquivo
-            // }
+            return prox_id - 1;
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return num_registros_no_arquivo;
+        return -1;
+    }
+
+    // calcular a posição, no arquivo, de um registro a
+    // partir de seu número; retorna -1 caso a posição
+    // for inválida
+    public long calcularPosicaoDoRegistro(int num_registro) {
+        if (num_registro <= 0 || num_registro > num_registros_no_arquivo) {
+            System.out.println("Número de registro " + num_registro + " inválido.");
+            return -1;
+        }
+        return TAM_CABECALHO + ( (long) (num_registro - 1) * tam_registro );
+    }
+
+    // retorna o Prontuario obtido do arquivo mestre
+    // dado o seu número; retorna null se o número do
+    // registro for inválido ou ocorrer alguma IOException
+    public Prontuario recuperarRegistro(int num_registro) {
+        if (num_registro <= 0 || num_registro > num_registros_no_arquivo) {
+            System.out.println("Número de registro " + num_registro + " inválido.");
+            return null;
+        }
+
+        try {
+            long posicao_do_registro = calcularPosicaoDoRegistro(num_registro);
+            raf.seek(posicao_do_registro + 4); // +4 para pular o id
+            byte[] registro = new byte[tam_registro];
+            raf.read(registro);
+            return new Prontuario(registro);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    // logica: pegar o cpf de um prontuario e usar o
+    // índice pra achar o número do registro no arquivo
+    // mestre com esse cpf. Printar as informações contidas atualmente
+    // e se não existir(ou for lápide) retorna false. Perguntar o
+    // que o usuário quer alterar, excluindo o cpf.
+    public boolean editarRegistro(int num_registro, int campo_enum, Object valor) {
+        Prontuario antigo = recuperarRegistro(num_registro);
+
+        switch(campo_enum) {
+            case 1:
+                antigo.setNome((String) valor);
+                break;
+            case 2:
+                antigo.setSexo(((String) valor).charAt(0));
+                break;
+            case 3:
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                LocalDate data = LocalDate.parse((String) valor, formatter);
+                antigo.setData(data);
+                break;
+            case 4:
+                antigo.setAnotacoes((String) valor);
+                break;
+        }
+
+        try {
+            long posicao_do_registro = calcularPosicaoDoRegistro(num_registro);
+            raf.seek(posicao_do_registro + 4); // +4 para pular o id
+            byte[] registro_em_bytes = antigo.toByteArray();
+            raf.write(registro_em_bytes); // registro
+        } catch (Exception err) {
+            err.printStackTrace();
+        }
+
+        System.out.println("Informaçoes do prontuario: " + antigo);
+        return true;
     }
 
     // imprime o cabeçalho e registros do arquivo mestre,

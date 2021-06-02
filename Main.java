@@ -1,17 +1,14 @@
 package trabalho_aed_prontuario;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
 import trabalho_aed_prontuario.mestre.*;
 import trabalho_aed_prontuario.indice.*;
 
 public class Main {
-    private static Indice indice;
-
     public static void main(String[] args) {
-        ArquivoMestre arquivo_mestre = new ArquivoMestre((short) 100);
-
         Scanner in = new Scanner(System.in);
         int opcao;
 
@@ -26,39 +23,87 @@ public class Main {
 
         opcao = in.nextInt();
 
+        Indice indice;
+        Diretorio diretorio;
+        ArquivoMestre mestre;
+        Prontuario prontuario;
+
+        DateTimeFormatter formatter;
+
+        LocalDate data;
+        int cpf, num_registro;
+        String nome, anotacoes, strData;
+        char sexo;
+
         switch(opcao) {
             case 1:
                 System.out.println("Qual será a profundidade inicial do hash? ");
-                opcao = in.nextInt();
+                int profundidade = in.nextInt();
 
-                // Injetar indice?
+                System.out.println("Qual será o número de registros por bucket? ");
+                int tam_buckets = in.nextInt();
+
+                System.out.println("Qual será o tamanho de anotações por registro? ");
+                short tam_anotacoes = in.nextShort();
+
+                new Indice(profundidade, tam_buckets);
+                new ArquivoMestre(tam_anotacoes);
                 break;
             case 2:
-                // inserir registro
-                // int cpf = 0;
-                // Prontuario p = new Prontuario(1, "fulano", LocalDate.now(), 'm', (short) 10, "teste");
-                // // int registro = arquivo_mestre.inserir_registro(p);
-                // indice = new Indice(0, 0); // TODO: Arrumar.
+                indice = new Indice();
+                mestre = new ArquivoMestre();
 
-                // indice.inserirRegistro(numBucket, cpf);
+                System.out.print("Qual será o cpf do paciente? ");
+                cpf = in.nextInt();
+
+                System.out.print("Qual será o nome do paciente? ");
+                nome = in.next();
+
+                System.out.print("Qual será a data? ");
+                strData = in.next();
+                formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                data = LocalDate.parse(strData, formatter);
+
+                System.out.print("Qual será o sexo do paciente? ");
+                sexo = in.next().charAt(0);
+
+                in.nextLine();
+                System.out.print("Qual será a anotação? ");
+                anotacoes = in.nextLine();
+
+                prontuario = new Prontuario(cpf, nome, data, sexo, mestre.getNumBytesAnotacoes(), anotacoes);
+                num_registro = mestre.inserirRegistro(prontuario);
+                indice.inserirRegistro(cpf, num_registro);
                 break;
             case 3:
-                // editar registro
+                indice = new Indice();
+                mestre = new ArquivoMestre();
+
+                System.out.print("Qual será o cpf do paciente a ser modificado? ");
+                cpf = in.nextInt();
+
+                System.out.print("Qual dos seguintes campos deseja alterar? [1] Nome | [2] Sexo | [3] Data | [4] Anotações: ");
+                opcao = in.nextInt();
+
+                in.nextLine();
+                System.out.println("Escreva o novo valor: "); // problema com anotacoes
+                Object valor = in.nextLine();
+
+                num_registro = indice.getNumRegistro(cpf);
+                mestre.editarRegistro(num_registro, opcao, valor);
                 break;
             case 4:
                 // remover registro
                 break;
             case 5:
-                ArquivoMestre mestre = new ArquivoMestre();
+                mestre = new ArquivoMestre();
                 mestre.imprimirArquivo();
 
-                Diretorio diretorio = new Diretorio();
-                diretorio.imprimirArquivo();
-
-                Indice indice = new Indice();
+                indice = new Indice();
                 indice.imprimirArquivo();
 
-                // imprimir arquivos
+                diretorio = new Diretorio();
+                diretorio.imprimirArquivo();
                 break;
             case 6:
                 // simulacao

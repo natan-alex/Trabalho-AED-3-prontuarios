@@ -10,7 +10,7 @@ import java.util.Arrays;
 
 public class Bucket {
     // tamanho, em bytes, de um registro do bucket
-    private static final byte SIZEOF_REGISTRO_BUCKET = 9;
+    private static final byte SIZEOF_REGISTRO_DO_BUCKET = RegistroDoBucket.SIZEOF_REGISTRO_DO_BUCKET;
 
     private int profundidade_local;
     private int ocupacao;
@@ -24,12 +24,12 @@ public class Bucket {
     public Bucket(int profundidade_local, int tam_bucket) {
         if (profundidade_local > 0)
             this.profundidade_local = profundidade_local;
-        else 
+        else
             this.profundidade_local = 1;
 
         if (tam_bucket > 0)
             this.tam_bucket = tam_bucket;
-        else 
+        else
             this.tam_bucket = 10;
 
         this.ocupacao = 0; // ocupação inicial é 0
@@ -44,27 +44,21 @@ public class Bucket {
 
     // criar novo bucket a partir de informações vindas do arquivo
     // de índices
-    protected Bucket(int tam_bucket, int profundidade_local, int ocupacao, byte[] registros_do_bucket_em_bytes) {
+    protected Bucket(int tam_bucket, byte[] bucket_em_bytes) {
         this.tam_bucket = tam_bucket;
-        this.profundidade_local = profundidade_local;
-        this.ocupacao = ocupacao;
         registros = new RegistroDoBucket[tam_bucket];
 
-        try (ByteArrayInputStream bais = new ByteArrayInputStream(registros_do_bucket_em_bytes);
+        try (ByteArrayInputStream bais = new ByteArrayInputStream(bucket_em_bytes);
              DataInputStream dis = new DataInputStream(bais);
             ) {
-            byte[] registro_em_bytes = new byte[SIZEOF_REGISTRO_BUCKET];
+            this.profundidade_local = dis.readInt();
+            this.ocupacao = dis.readInt();
+            byte[] registro = new byte[SIZEOF_REGISTRO_DO_BUCKET];
 
             // ler registros do bucket
-            for (int i = 0; i < ocupacao; i++) {
-                dis.read(registro_em_bytes);
-                registros[i] = new RegistroDoBucket(registro_em_bytes);
-            }
-
-            // inicializar restante dos registros do bucket
-            // com valores default
-            for (int i = ocupacao; i < this.tam_bucket; i++) {
-                registros[i] = new RegistroDoBucket();
+            for (int i = 0; i < tam_bucket; i++) {
+                dis.read(registro);
+                registros[i] = new RegistroDoBucket(registro);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -91,16 +85,11 @@ public class Bucket {
         return registros;
     }
 
-    public RegistroDoBucket[] getRegistrosPopuladosDoBucket() {
-        return (RegistroDoBucket[]) Arrays.copyOfRange(registros, 0, ocupacao);
-    }
-
     // retorna o status de uma nova inserção que
-    // aconteça no bucket com as informações passadas
-    // como argumento;
-    public static StatusDeInsercao obterStatusDeUmaNovaInsercao(int ocupacao, int p_local, int p_global, int tam_bucket) {
+    // aconteça no bucket
+    public StatusDeInsercao obterStatusDeUmaNovaInsercao(int profundidade_global) {
         if (ocupacao == tam_bucket) {
-            if (p_local == p_global) {
+            if (profundidade_local == profundidade_global) {
                 // necessário duplicar o bucket
                 System.out.println("necessário duplicar dir");
                 return StatusDeInsercao.DUPLICAR_DIRETORIO;
@@ -118,11 +107,23 @@ public class Bucket {
         }
     }
 
+    protected void inserirRegistro(RegistroDoBucket registro) {
+        // percorrer bucket até encontrar registro
+        // vazio (cpf == -1)
+        for (int i = 0; i < tam_bucket; i++) {
+            if (registros[i].getChave() == -1) {
+                registros[i] = registro;
+                setOcupacao(ocupacao + 1);
+                i = tam_bucket;
+            }
+        }
+    }
+
     // serializar o bucket no seu estado atual:
     // insere a profundidade_local, a ocupacao
     // e os registros do bucket(todos, incluindo
     // os que foram inicializados com valores default)
-    public byte[] serializarBucket() {
+    protected byte[] serializarBucket() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(baos);
 
@@ -144,14 +145,23 @@ public class Bucket {
         return baos.toByteArray();
     }
 
-    // serializa um único registro: retorna um registro 
-    // em um array de bytes
-    // recebe o número do registro no bucket(1 para o primeiro,
-    // 2 para o segundo registro, etc)
-    public byte[] serializarRegistro(int num_registro_no_bucket) {
-        // se número do registro inválido, não há o que serializar
-        if (num_registro_no_bucket <= 0 || num_registro_no_bucket > tam_bucket)
-            return null;
-        return registros[num_registro_no_bucket-1].toByteArray();   
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Bucket\n{");
+        sb.append("\n\tprofundidade_local=");
+        sb.append(profundidade_local);
+        sb.append("\n\tocupacao=");
+        sb.append(ocupacao);
+        sb.append("\n\tregistros\n\t[\n");
+
+        for (RegistroDoBucket registro : registros) {
+            sb.append("\t\t");
+            sb.append(registro);
+            sb.append('\n');
+        }
+
+        sb.append("\t]\n}");
+        return sb.toString();
     }
 }
