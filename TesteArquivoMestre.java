@@ -22,14 +22,15 @@ public class TesteArquivoMestre {
                 System.out.println("Posição do registro: " + mestre.calcularPosicaoDoRegistro(cont++));
             }
 
+            // testar edição
+            int cpf_editar = 8;
+            numRegistro = indice.getNumRegistro(cpf_editar);
+            Prontuario atual = mestre.recuperarRegistro(numRegistro);
+            Prontuario alterado = new Prontuario(cpf_editar, "shulambs", LocalDate.now().minusMonths(5), 'f', tamAnotacoes, "anotacoes de um bom medico");
+            mestre.editarRegistro(numRegistro, alterado);
+            System.out.println("Novo registro: " + mestre.recuperarRegistro(numRegistro));
 
-
-            Prontuario[] prontuarios = new Prontuario[cpfs.length];
-            for (int i = 0; i < cpfs.length; i++) {
-                prontuarios[i] = mestre.recuperarRegistro(i + 1);
-                System.out.println( (i+1) + ": " + prontuarios[i]);
-            }
-
+            System.out.println();
             mestre.imprimirArquivo();
 
         } catch (Exception e) {

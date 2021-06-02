@@ -144,13 +144,17 @@ public class ArquivoMestre {
     // mestre com esse cpf. Printar as informações contidas atualmente
     // e se não existir(ou for lápide) retorna false. Perguntar o
     // que o usuário quer alterar, excluindo o cpf.
-    public boolean editarRegistro(int cpf, int num_registro) {
-//        try {
-            Prontuario antigo = recuperarRegistro(num_registro);
-            System.out.println("Informaçoes do prontuario: " + antigo);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+    public boolean editarRegistro(int num_registro, Prontuario registro_alterado) {
+        try {
+            long posicao_do_registro = calcularPosicaoDoRegistro(num_registro);
+            // ir até o registro de fato, pulando id e lápide
+            raf.seek(posicao_do_registro + 4 + 1);
+            raf.write(registro_alterado.toByteArray());
+
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         return false;
     }
