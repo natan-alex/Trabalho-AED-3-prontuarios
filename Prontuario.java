@@ -50,13 +50,13 @@ public class Prontuario extends Serializavel {
             this.tam_anotacoes = tam_anotacoes;
     }
 
+    public int getCpf() {
+        return cpf;
+    }
+
     public void setCpf(int cpf) {
         if (cpf > 0)
             this.cpf = cpf;
-    }
-
-    public int getCpf() {
-        return cpf;
     }
 
     public String getNome() {
@@ -140,9 +140,9 @@ public class Prontuario extends Serializavel {
             dos.writeInt(cpf);
             // System.out.println("=== NOME === " + nome);
             dos.writeUTF(nome);
-            dos.writeShort( (short) data.getYear() );
-            dos.writeByte( (byte) data.getMonthValue() );
-            dos.writeByte( (byte) data.getDayOfMonth() );
+            dos.writeShort((short) data.getYear());
+            dos.writeByte((byte) data.getMonthValue());
+            dos.writeByte((byte) data.getDayOfMonth());
             dos.writeChar(sexo);
             dos.writeUTF(anotacoes);
             dos.flush();
@@ -160,15 +160,32 @@ public class Prontuario extends Serializavel {
     @Override
     protected void fromByteArray(byte[] data) {
         try (ByteArrayInputStream bais = new ByteArrayInputStream(data);
-                DataInputStream dis = new DataInputStream(bais)
-            ) {
+             DataInputStream dis = new DataInputStream(bais)
+        ) {
             this.cpf = dis.readInt();
             this.nome = dis.readUTF();
-            this.data = LocalDate.of( dis.readShort(), dis.readByte(), dis.readByte() );
+            this.data = LocalDate.of(dis.readShort(), dis.readByte(), dis.readByte());
             this.sexo = dis.readChar();
             this.anotacoes = dis.readUTF();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+    // identificar qual campo de um prontuário foi alterado
+    // durante a edição de um registro
+    public enum CampoAlterado {
+        NOME(1),
+        SEXO(2),
+        DATA(3),
+        ANOTACOES(4);
+
+        int opcao;
+
+        private CampoAlterado(int opcao) {
+            this.opcao = opcao;
+        }
+
+    }
+
 }
