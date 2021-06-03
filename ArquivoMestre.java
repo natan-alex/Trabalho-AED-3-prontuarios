@@ -154,29 +154,32 @@ public class ArquivoMestre {
     // mestre com esse cpf. Printar as informações contidas atualmente
     // e se não existir(ou for lápide) retorna false. Perguntar o
     // que o usuário quer alterar, excluindo o cpf.
-    public boolean editarRegistro(int num_registro, int campo_enum, Object valor) {
+    public boolean editarRegistro(int num_registro, int campo_enum, String valor) {
         Prontuario antigo = recuperarRegistro(num_registro);
 
         switch(campo_enum) {
             case 1:
-                antigo.setNome((String) valor);
+                antigo.setNome(valor);
                 break;
             case 2:
-                antigo.setSexo(((String) valor).charAt(0));
+                antigo.setSexo(valor.charAt(0));
                 break;
             case 3:
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-                LocalDate data = LocalDate.parse((String) valor, formatter);
+                LocalDate data = LocalDate.parse(valor, formatter);
                 antigo.setData(data);
                 break;
             case 4:
-                antigo.setAnotacoes((String) valor);
+                antigo.setAnotacoes(valor);
+                break;
+            default:
+                System.out.println("Opção inválida.");
                 break;
         }
 
         try {
             long posicao_do_registro = calcularPosicaoDoRegistro(num_registro);
-            raf.seek(posicao_do_registro + 4); // +4 para pular o id
+            raf.seek(posicao_do_registro + 5); // +5 para pular o lápide e id
             byte[] registro_em_bytes = antigo.toByteArray();
             raf.write(registro_em_bytes); // registro
         } catch (Exception err) {
@@ -201,7 +204,7 @@ public class ArquivoMestre {
             Prontuario prontuario;
             byte[] byteArray = new byte[tam_registro];
 
-            System.out.println("======= ARQUIVO MESTRE =========");
+            System.out.println("========== ARQUIVO MESTRE ==========");
             System.out.println("[Cabeçalho]");
             System.out.println("Número de registros: " + num_registros);
             System.out.println("Número de bytes de anotações: " + num_bytes_anotacoes);
@@ -209,9 +212,6 @@ public class ArquivoMestre {
 
             System.out.println("[Registros]");
             for (int i = 0; i < num_registros; i++) {
-                // depois do cabeçalho, vai para a posição logo após
-                // o campo do id do registro, que é 4 bytes
-//                raf.seek(TAM_CABECALHO + 4 + i*(tam_registro));
                 is_lapide = raf.readBoolean();
                 if (!is_lapide) {
                     id = raf.readInt();
