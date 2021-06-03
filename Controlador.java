@@ -74,12 +74,38 @@ public class Controlador {
         return (status == StatusDeInsercao.TUDO_OK);
     }
 
-    public boolean editarRegistro(int cpf, int opcao, String valor) {
+
+    public StatusDeEdicao editarRegistro(int cpf, int opcao_de_campo, String valor) {
         int num_registro = indice.getNumRegistro(cpf);
         if (num_registro == -1)
-            return false;
-        arquivo_mestre.editarRegistro(num_registro, opcao, valor);
-        return true;
+            return StatusDeEdicao.CPF_INVALIDO;
+        Prontuario.CampoAlterado campo_alterado = getCampoByNum(opcao_de_campo);
+        if (campo_alterado == null)
+            return StatusDeEdicao.CAMPO_A_ALTERAR_INVALIDO;
+        arquivo_mestre.editarRegistro(num_registro, campo_alterado, valor);
+        return StatusDeEdicao.TUDO_OK;
+    }
+
+    private Prontuario.CampoAlterado getCampoByNum(int opcao) {
+        if (opcao == 1) {
+            return Prontuario.CampoAlterado.NOME;
+        } else if (opcao == 2) {
+            return Prontuario.CampoAlterado.SEXO;
+        } else if (opcao == 3) {
+            return Prontuario.CampoAlterado.DATA;
+        } else if (opcao == 4){
+            return Prontuario.CampoAlterado.ANOTACOES;
+        } else {
+            return null;
+        }
+    }
+
+    public Prontuario recuperarRegistro(int cpf) {
+        int num_registro = indice.getNumRegistro(cpf);
+        if (num_registro == -1)
+            return null;
+        Prontuario registro = arquivo_mestre.recuperarRegistro(num_registro);
+        return registro;
     }
 
     public void removerRegistro() {
