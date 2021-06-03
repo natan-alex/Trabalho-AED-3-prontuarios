@@ -184,7 +184,6 @@ public class ArquivoMestre {
             err.printStackTrace();
         }
 
-        System.out.println("Informaçoes do prontuario: " + antigo);
         return deu_certo;
     }
 
