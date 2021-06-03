@@ -21,13 +21,9 @@ public class ArquivoMestre {
     private int num_registros_no_arquivo;
     private int prox_id;
 
-    public ArquivoMestre() {
-        this((short) 0);
-    }
-
-    public ArquivoMestre(short num_bytes_anotacoes) {
+    public ArquivoMestre(String nome_do_arquivo, short num_bytes_anotacoes) {
         try {
-            raf = new RandomAccessFile("arquivo_mestre.db", "rws");
+            raf = new RandomAccessFile(nome_do_arquivo, "rws");
             // se o arquivo tiver algo, ignorar o argumento num_bytes_anotacoes
             // e obter o número de bytes para as anotações por meio do metadado
             // referente a ele. Caso contrário, checar se o argumento é positivo

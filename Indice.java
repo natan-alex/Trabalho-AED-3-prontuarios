@@ -19,22 +19,13 @@ public class Indice {
     private int tam_bucket;
     private int qtd_buckets; // quantidade de buckets presente no arquivo
 
-    public Indice() {
-        this(1, 1);
-    }
-
     // caso o arquivo exista os metadados são lidos
     // e os parâmetros passados ao construtor são ignorados
     // caso o arquivo NÃO exista é necessário adicionar
     // os metadados no início do arquivo
-    public Indice(int profundidade_global, int tam_bucket) {
-        if (profundidade_global < 0) {
-            System.out.println("Profundidade global inválida, assumindo valor 1...");
-            profundidade_global = 1;
-        }
-
+    public Indice(String nome_indice, String nome_diretorio, int profundidade_global, int tam_bucket) {
         try {
-            raf = new RandomAccessFile("indice.db", "rws");
+            raf = new RandomAccessFile(nome_indice, "rws");
             // se possuir dados, significa que o arquivo já
             // contém a estrutura básica
             if (raf.length() > 0) {
@@ -52,7 +43,7 @@ public class Indice {
             }
 
             // instanciar diretorio
-            diretorio = new Diretorio(profundidade_global, tam_bucket);
+            diretorio = new Diretorio(nome_diretorio, profundidade_global, tam_bucket);
         } catch (IOException e) {
             e.printStackTrace();
         }
