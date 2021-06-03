@@ -146,7 +146,7 @@ public class Diretorio {
         try {
             lerInicial();
 
-            System.out.println("======== DIRETORIO =========");
+            System.out.println("========== DIRETORIO ==========");
             System.out.println("Profundidade: " + profundidade);
             for (int i = 0; i < indices.size(); i++) {
                 System.out.println("[" + i + "] Bucket: " + indices.get(i));

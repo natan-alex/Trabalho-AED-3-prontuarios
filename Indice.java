@@ -283,12 +283,14 @@ public class Indice {
     }
 
     public void imprimirArquivo() {
+        diretorio.imprimirArquivo();
+
         try {
             raf.seek(0);
             int tamBucket = raf.readInt();
             int qtdBuckets = raf.readInt();
 
-            System.out.println("======= ÍNDICE =========");
+            System.out.println("========== ÍNDICE ==========");
             System.out.println("[Cabeçalho]");
             System.out.println("Tamanho do bucket: " + tamBucket);
             System.out.println("Quandidade de buckets: " + qtd_buckets);
