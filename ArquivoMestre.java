@@ -122,7 +122,7 @@ public class ArquivoMestre {
     // dado o seu número; retorna null se o número do
     // registro for inválido ou ocorrer alguma IOException
     // OBS: num_registro vem do índice
-    protected Prontuario recuperarRegistro(int num_registro) {
+    public Prontuario recuperarRegistro(int num_registro) {
         if (num_registro <= 0 || num_registro > num_registros_no_arquivo) {
             System.out.println("Número de registro " + num_registro + " inválido.");
             return null;
@@ -150,22 +150,23 @@ public class ArquivoMestre {
     // mestre com esse cpf. Printar as informações contidas atualmente
     // e se não existir(ou for lápide) retorna false. Perguntar o
     // que o usuário quer alterar, excluindo o cpf.
-    public boolean editarRegistro(int num_registro, int campo_enum, String valor) {
+    public boolean editarRegistro(int num_registro, Prontuario.CampoAlterado campo_alterado, String valor) {
+        boolean deu_certo = false;
         Prontuario antigo = recuperarRegistro(num_registro);
 
-        switch(campo_enum) {
-            case 1:
+        switch(campo_alterado) {
+            case NOME:
                 antigo.setNome(valor);
                 break;
-            case 2:
+            case SEXO:
                 antigo.setSexo(valor.charAt(0));
                 break;
-            case 3:
+            case DATA:
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
                 LocalDate data = LocalDate.parse(valor, formatter);
                 antigo.setData(data);
                 break;
-            case 4:
+            case ANOTACOES:
                 antigo.setAnotacoes(valor);
                 break;
             default:
@@ -178,12 +179,13 @@ public class ArquivoMestre {
             raf.seek(posicao_do_registro + 5); // +5 para pular o lápide e id
             byte[] registro_em_bytes = antigo.toByteArray();
             raf.write(registro_em_bytes); // registro
+            deu_certo = true;
         } catch (Exception err) {
             err.printStackTrace();
         }
 
         System.out.println("Informaçoes do prontuario: " + antigo);
-        return true;
+        return deu_certo;
     }
 
     // imprime o cabeçalho e registros do arquivo mestre,
