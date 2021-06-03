@@ -4,13 +4,14 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
-import trabalho_aed_prontuario.mestre.*;
-import trabalho_aed_prontuario.indice.*;
+import trabalho_aed_prontuario.main.Controlador;
 
 public class Main {
     public static void main(String[] args) {
         Scanner in = new Scanner(System.in);
         int opcao;
+
+        Controlador controlador = null;
 
         System.out.println("MENU");
         System.out.println("[1] - Criar arquivo");
@@ -23,11 +24,7 @@ public class Main {
 
         opcao = in.nextInt();
 
-        Indice indice;
-        Diretorio diretorio;
-        ArquivoMestre mestre;
         Prontuario prontuario;
-
         DateTimeFormatter formatter;
 
         LocalDate data;
@@ -46,13 +43,9 @@ public class Main {
                 System.out.println("Qual será o tamanho de anotações por registro? ");
                 short tam_anotacoes = in.nextShort();
 
-                new Indice(profundidade, tam_buckets);
-                new ArquivoMestre(tam_anotacoes);
+                controlador = new Controlador(profundidade, tam_buckets, tam_anotacoes);
                 break;
             case 2:
-                indice = new Indice();
-                mestre = new ArquivoMestre();
-
                 System.out.print("Qual será o cpf do paciente? ");
                 cpf = in.nextInt();
 
@@ -71,14 +64,10 @@ public class Main {
                 System.out.print("Qual será a anotação? ");
                 anotacoes = in.nextLine();
 
-                prontuario = new Prontuario(cpf, nome, data, sexo, mestre.getNumBytesAnotacoes(), anotacoes);
-                num_registro = mestre.inserirRegistro(prontuario);
-                indice.inserirRegistro(cpf, num_registro);
+                prontuario = new Prontuario(cpf, nome, data, sexo, (short)10, anotacoes);
+                controlador.inserirRegistro(prontuario);
                 break;
             case 3:
-                indice = new Indice();
-                mestre = new ArquivoMestre();
-
                 System.out.print("Qual será o cpf do paciente a ser modificado? ");
                 cpf = in.nextInt();
 
@@ -87,23 +76,17 @@ public class Main {
 
                 in.nextLine();
                 System.out.println("Escreva o novo valor: "); // problema com anotacoes
-                Object valor = in.nextLine();
+                String valor = in.nextLine();
 
-                num_registro = indice.getNumRegistro(cpf);
-                mestre.editarRegistro(num_registro, opcao, valor);
+                controlador.editarRegistro(cpf, opcao, valor);
                 break;
             case 4:
                 // remover registro
+                controlador.removerRegistro();
                 break;
             case 5:
-                mestre = new ArquivoMestre();
-                mestre.imprimirArquivo();
-
-                indice = new Indice();
-                indice.imprimirArquivo();
-
-                diretorio = new Diretorio();
-                diretorio.imprimirArquivo();
+                // imprimir arquivos
+                controlador.imprimirArquivos();
                 break;
             case 6:
                 // simulacao
