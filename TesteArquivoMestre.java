@@ -9,9 +9,9 @@ public class TesteArquivoMestre {
             int[] cpfs = {10,3,14,18,20,8,6,1,12,22,7,16,13,19};
             Prontuario prontuario;
             short tamAnotacoes = (short) 50;
-            ArquivoMestre mestre = new ArquivoMestre(tamAnotacoes);
+            ArquivoMestre mestre = new ArquivoMestre("arquivo_mestre.db", tamAnotacoes);
             int cont = 1;
-            Indice indice = new Indice(1, 4);
+            Indice indice = new Indice("indice.db", "diretorio.db",1, 4);
             int numRegistro;
 
             for (int cpf : cpfs) {
@@ -27,7 +27,7 @@ public class TesteArquivoMestre {
             numRegistro = indice.getNumRegistro(cpf_editar);
             Prontuario atual = mestre.recuperarRegistro(numRegistro);
             Prontuario alterado = new Prontuario(cpf_editar, "shulambs", LocalDate.now().minusMonths(5), 'f', tamAnotacoes, "anotacoes de um bom medico");
-            mestre.editarRegistro(numRegistro, alterado);
+            // mestre.editarRegistro(numRegistro, alterado);
             System.out.println("Novo registro: " + mestre.recuperarRegistro(numRegistro));
 
             System.out.println();

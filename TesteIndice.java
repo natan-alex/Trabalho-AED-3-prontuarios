@@ -16,8 +16,8 @@ public class TesteIndice {
             int profundidade = 1;
             short tamAnotacoes = 10;
 
-            ArquivoMestre mestre = new ArquivoMestre(tamAnotacoes);
-            Indice indice = new Indice(profundidade, tamBuckets);
+            ArquivoMestre mestre = new ArquivoMestre("arquivo_mestre.db", tamAnotacoes);
+            Indice indice = new Indice("indice.db", "diretorio.db", profundidade, tamBuckets);
             Prontuario prontuario;
             int numRegistro = 0;
 
