@@ -7,6 +7,7 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 
 import trabalho_aed_prontuario.indice.Serializavel;
 
@@ -14,6 +15,7 @@ public class Prontuario extends Serializavel {
     // nome, data de nascimento, sexo e uma área de m caracteres/bytes para anotações do médico
     private static final byte MAX_SIZE_NOME = (byte) 50;
     private static final char AUX_CHAR = '|';
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private int cpf;
     private String nome;
@@ -127,7 +129,7 @@ public class Prontuario extends Serializavel {
 
     @Override
     public String toString() {
-        return "Prontuario: (nome = " + nome + ", data = " + data + ", sexo = " + sexo + ", anotacoes = " + anotacoes + ")";
+        return "Prontuario: (nome = " + nome + ", data = " + data.format(formatter) + ", sexo = " + sexo + ", anotacoes = " + anotacoes + ")";
     }
 
     // retorna um array de bytes com os valores dos atributos
