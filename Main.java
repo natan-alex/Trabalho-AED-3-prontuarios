@@ -1,9 +1,10 @@
-package trabalho_aed_prontuario;
+package trabalho_aed_prontuario.main;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
+import trabalho_aed_prontuario.mestre.Prontuario;
 import trabalho_aed_prontuario.main.Controlador;
 
 public class Main {
@@ -11,7 +12,7 @@ public class Main {
         Scanner in = new Scanner(System.in);
         int opcao;
 
-        Controlador controlador = null;
+        Controlador controlador = new Controlador();
 
         System.out.println("MENU");
         System.out.println("[1] - Criar arquivo");
@@ -43,7 +44,7 @@ public class Main {
                 System.out.println("Qual será o tamanho de anotações por registro? ");
                 short tam_anotacoes = in.nextShort();
 
-                controlador = new Controlador(profundidade, tam_buckets, tam_anotacoes);
+                controlador.criarArquivos(profundidade, tam_buckets, tam_anotacoes);
                 break;
             case 2:
                 System.out.print("Qual será o cpf do paciente? ");
@@ -71,10 +72,13 @@ public class Main {
                 System.out.print("Qual será o cpf do paciente a ser modificado? ");
                 cpf = in.nextInt();
 
+                prontuario = controlador.recuperarRegistro(cpf);
+                System.out.println("Informações atuais do prontuário: " + prontuario);
+
                 System.out.print("Qual dos seguintes campos deseja alterar? [1] Nome | [2] Sexo | [3] Data | [4] Anotações: ");
                 opcao = in.nextInt();
 
-                in.nextLine();
+                // in.nextLine();
                 System.out.println("Escreva o novo valor: "); // problema com anotacoes
                 String valor = in.nextLine();
 
