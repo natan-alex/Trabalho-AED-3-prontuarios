@@ -93,7 +93,15 @@ public class Main {
                 mestre.editarRegistro(num_registro, opcao, valor);
                 break;
             case 4:
-                // remover registro
+                indice = new Indice();
+                mestre = new ArquivoMestre();
+
+                System.out.print("Qual será o cpf do paciente a ser removido? ");
+                cpf = in.nextInt();
+
+                num_registro = indice.getNumRegistro(cpf);
+                indice.removerRegistro(cpf);
+                mestre.removerRegistro(num_registro);
                 break;
             case 5:
                 mestre = new ArquivoMestre();
@@ -113,3 +121,8 @@ public class Main {
         }
     }
 }
+
+//- Ir no bucket e setar o CPF para -1
+//- Remoção lógica no arquivo mestre => setar lápide para true
+//- Deixar no metadado do arquivo mestre o primeiro num registro deletado
+//- Deixar no metadado do proprio registro deletado o num registro do proximo deletado

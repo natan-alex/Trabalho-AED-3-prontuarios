@@ -107,6 +107,18 @@ public class Bucket {
         }
     }
 
+    protected void removerRegistro(int chave) {
+        // percorrer bucket até encontrar registro
+        // vazio (cpf == -1)
+        for (int i = 0; i < tam_bucket; i++) {
+            if (registros[i].getChave() == chave) {
+                registros[i].setChave(-1);
+                setOcupacao(ocupacao - 1);
+                i = tam_bucket;
+            }
+        }
+    }
+
     protected void inserirRegistro(RegistroDoBucket registro) {
         // percorrer bucket até encontrar registro
         // vazio (cpf == -1)
