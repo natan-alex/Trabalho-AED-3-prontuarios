@@ -1,12 +1,15 @@
 package trabalho_aed_prontuario.main;
 
 import trabalho_aed_prontuario.indice.*;
+import trabalho_aed_prontuario.indice.StatusDeInsercao;
 import trabalho_aed_prontuario.mestre.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class Controlador {
     private Indice indice;
@@ -27,7 +30,7 @@ public class Controlador {
         arquivo_mestre = new ArquivoMestre(MASTER_FILENAME, DEFAULT_TAM_ANOTACOES);
     }
 
-    public void criarArquivos(int profundidade_global, int tam_bucket, int tam_anotacoes) {
+    public boolean criarArquivos(int profundidade_global, int tam_bucket, int tam_anotacoes) {
         if (profundidade_global < 0) {
             System.out.println("Profundidade global " + profundidade_global + " inválida, assumindo valor " + DEFAULT_P_GLOBAL);
             profundidade_global = DEFAULT_P_GLOBAL;
@@ -40,9 +43,12 @@ public class Controlador {
             System.out.println("Tamanho " + tam_anotacoes + " para as anotações inválido, assumindo valor " + DEFAULT_TAM_ANOTACOES);
             tam_anotacoes = DEFAULT_TAM_ANOTACOES;
         }
-        apagarArquivos();
-        indice = new Indice(INDICE_FILENAME, DIR_FILENAME, profundidade_global, tam_bucket);
-        arquivo_mestre = new ArquivoMestre(MASTER_FILENAME, (short) tam_anotacoes);
+        if (apagarArquivos()) {
+            indice = new Indice(INDICE_FILENAME, DIR_FILENAME, profundidade_global, tam_bucket);
+            arquivo_mestre = new ArquivoMestre(MASTER_FILENAME, (short) tam_anotacoes);
+            return true;
+        }
+        return false;
     }
 
     // criar diretorio DB_FILES_DIR_NAME vazio se não existir;
@@ -126,8 +132,7 @@ public class Controlador {
         int num_registro = indice.getNumRegistro(cpf);
         if (num_registro == -1)
             return null;
-        Prontuario registro = arquivo_mestre.recuperarRegistro(num_registro);
-        return registro;
+        return arquivo_mestre.recuperarRegistro(num_registro);
     }
 
     public void removerRegistro() {
