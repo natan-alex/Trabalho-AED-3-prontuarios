@@ -150,35 +150,12 @@ public class ArquivoMestre {
     // mestre com esse cpf. Printar as informações contidas atualmente
     // e se não existir(ou for lápide) retorna false. Perguntar o
     // que o usuário quer alterar, excluindo o cpf.
-    public boolean editarRegistro(int num_registro, Prontuario.CampoAlterado campo_alterado, String valor) {
+    public boolean sobrescreverRegistroNoArquivo(Prontuario novo_prontuario, int num_registro) {
         boolean deu_certo = false;
-        Prontuario antigo = recuperarRegistro(num_registro);
-
-        switch(campo_alterado) {
-            case NOME:
-                antigo.setNome(valor);
-                break;
-            case SEXO:
-                antigo.setSexo(valor.charAt(0));
-                break;
-            case DATA:
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-                LocalDate data = LocalDate.parse(valor, formatter);
-                antigo.setData(data);
-                break;
-            case ANOTACOES:
-                antigo.setAnotacoes(valor);
-                break;
-            default:
-                System.out.println("Opção inválida.");
-                break;
-        }
-
         try {
             long posicao_do_registro = calcularPosicaoDoRegistro(num_registro);
             raf.seek(posicao_do_registro + 5); // +5 para pular o lápide e id
-            byte[] registro_em_bytes = antigo.toByteArray();
-            raf.write(registro_em_bytes); // registro
+            raf.write(novo_prontuario.toByteArray()); // registro
             deu_certo = true;
         } catch (Exception err) {
             err.printStackTrace();

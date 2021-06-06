@@ -58,31 +58,53 @@ public class Controlador {
     }
 
     // apaga os arquivos dentro de DB_FILES_DIR_NAME caso existirem
-    private void apagarArquivos() {
+    private boolean apagarArquivos() {
+        boolean deu_certo = false;
         try {
             Files.deleteIfExists(Path.of(INDICE_FILENAME));
             Files.deleteIfExists(Path.of(DIR_FILENAME));
             Files.deleteIfExists(Path.of(MASTER_FILENAME));
+            deu_certo = true;
         } catch(IOException e) {
             e.printStackTrace();
         }
+        return deu_certo;
     }
 
-    public boolean inserirRegistro(Prontuario prontuario) {
+    public StatusDeInsercao inserirRegistro(Prontuario prontuario) {
+        if (prontuario == null)
+            return StatusDeInsercao.REGISTRO_INVALIDO;
         int num_registro = arquivo_mestre.inserirRegistro(prontuario);
-        StatusDeInsercao status = indice.inserirRegistro(prontuario.getCpf(), num_registro);
-        return (status == StatusDeInsercao.TUDO_OK);
+        return indice.inserirRegistro(prontuario.getCpf(), num_registro);
     }
 
 
-    public StatusDeEdicao editarRegistro(int cpf, int opcao_de_campo, String valor) {
-        int num_registro = indice.getNumRegistro(cpf);
+    public StatusDeEdicao editarRegistro(Prontuario registro, int opcao_de_campo, String valor) {
+        int num_registro = indice.getNumRegistro(registro.getCpf());
         if (num_registro == -1)
             return StatusDeEdicao.CPF_INVALIDO;
         Prontuario.CampoAlterado campo_alterado = getCampoByNum(opcao_de_campo);
         if (campo_alterado == null)
             return StatusDeEdicao.CAMPO_A_ALTERAR_INVALIDO;
-        arquivo_mestre.editarRegistro(num_registro, campo_alterado, valor);
+        switch(campo_alterado) {
+            case NOME:
+                registro.setNome(valor);
+                break;
+            case SEXO:
+                registro.setSexo(valor.charAt(0));
+                break;
+            case DATA:
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                LocalDate data = LocalDate.parse(valor, formatter);
+                registro.setData(data);
+                break;
+            case ANOTACOES:
+                registro.setAnotacoes(valor);
+                break;
+            default:
+                break;
+        }
+        arquivo_mestre.sobrescreverRegistroNoArquivo(registro, num_registro);
         return StatusDeEdicao.TUDO_OK;
     }
 
