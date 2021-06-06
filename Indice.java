@@ -281,15 +281,15 @@ public class Indice {
         }
     }
 
-    // obter o número do registro associado
-    // ao cpf no registro do bucket; retorna -1
+    // obter o número do registro do arquivo mestre associado
+    // ao cpf a partir do registro do bucket; retorna -1
     // caso não encontre o cpf
     public int getNumRegistro(int cpf) {
-        // obter num bucket a partir do cpf
+        // obter número do bucket a partir do cpf
         int num_bucket = diretorio.getPaginaIndice(cpf);
-        // carregar bucket e procurar por cpf
-        Bucket bucket = carregarBucketDoArquivoDeIndice(num_bucket);
-        for (RegistroDoBucket registro : bucket.getRegistrosDoBucket()) {
+        // carregar registros do bucket e procurar por cpf
+        RegistroDoBucket[] registros = carregarBucketDoArquivoDeIndice(num_bucket).getRegistrosDoBucket();
+        for (RegistroDoBucket registro : registros) {
             if (registro.getChave() == cpf) {
                 return registro.getNumRegistro();
             }

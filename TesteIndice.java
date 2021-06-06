@@ -48,7 +48,6 @@ public class TesteIndice {
             numRegistro = mestre.inserirRegistro(prontuario);
             indice.inserirRegistro(66, numRegistro);
 
-
             indice.imprimirArquivo();
             mestre.imprimirArquivo();
             System.out.println("\n");

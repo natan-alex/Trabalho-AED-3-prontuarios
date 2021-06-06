@@ -22,16 +22,6 @@ public class TesteArquivoMestre {
                 System.out.println("Posição do registro: " + mestre.calcularPosicaoDoRegistro(cont++));
             }
 
-
-
-            Prontuario[] prontuarios = new Prontuario[cpfs.length];
-            for (int i = 0; i < cpfs.length; i++) {
-                prontuarios[i] = mestre.recuperarRegistro(i + 1);
-                System.out.println( (i+1) + ": " + prontuarios[i]);
-            }
-
-            mestre.imprimirArquivo();
-
         } catch (Exception e) {
             e.printStackTrace();
         }
