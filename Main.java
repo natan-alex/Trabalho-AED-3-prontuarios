@@ -10,9 +10,6 @@ import trabalho_aed_prontuario.mestre.Prontuario;
 import trabalho_aed_prontuario.main.Controlador;
 
 public class Main {
-    private static void cleanBuffer(Scanner sc) {
-    }
-
     public static void main(String[] args) {
         final Scanner in = new Scanner(System.in);
         final Controlador controlador = new Controlador();
@@ -43,11 +40,9 @@ public class Main {
             strData = "";
             sexo = ' ';
             anotacoes = "";
+            opcao = -1;
 
-            if (in.hasNextInt())
-                opcao = in.nextInt();
-            else
-                opcao = -1;
+            opcao = in.nextInt();
 
             switch (opcao) {
                 case 0:
@@ -58,16 +53,13 @@ public class Main {
                     int profundidade = -1, tam_buckets = -1;
                     short tam_anotacoes = -1;
                     System.out.print("Qual será a profundidade inicial do hash? ");
-                    if (in.hasNextInt())
-                        profundidade = in.nextInt();
+                    profundidade = in.nextInt();
 
                     System.out.print("Qual será o número de registros por bucket? ");
-                    if (in.hasNextInt())
-                        tam_buckets = in.nextInt();
+                    tam_buckets = in.nextInt();
 
                     System.out.print("Qual será o tamanho de anotações por registro? ");
-                    if (in.hasNextShort())
-                        tam_anotacoes = in.nextShort();
+                    tam_anotacoes = in.nextShort();
 
                     if (controlador.criarArquivos(profundidade, tam_buckets, tam_anotacoes))
                         System.out.println("Arquivos criados com sucesso.");
@@ -76,19 +68,16 @@ public class Main {
                     break;
                 case 2:
                     System.out.print("Qual será o cpf do paciente? ");
-                    if (in.hasNextInt())
-                        cpf = in.nextInt();
+                    cpf = in.nextInt();
 
                     // jogar fora o \n depois do int lido
                     in.nextLine();
 
                     System.out.print("Qual será o nome do paciente? ");
-                    if (in.hasNextLine())
-                        nome = in.nextLine();
+                    nome = in.nextLine();
 
                     System.out.print("Qual será a data? (Digite no formato dia/mês/ano): ");
-                    if (in.hasNextLine())
-                        strData = in.nextLine();
+                    strData = in.nextLine();
 
                     if (strData.length() == 10)
                         data = LocalDate.parse(strData, formatter);
@@ -96,12 +85,10 @@ public class Main {
                         data = LocalDate.parse(strData, formatter2);
 
                     System.out.print("Qual será o sexo do paciente? ");
-                    if (in.hasNextLine())
-                        sexo = in.nextLine().charAt(0);
+                    sexo = in.nextLine().charAt(0);
 
                     System.out.print("Qual será a anotação? ");
-                    if (in.hasNextLine())
-                        anotacoes = in.nextLine();
+                    anotacoes = in.nextLine();
 
                     prontuario = new Prontuario(cpf, nome, data, sexo, (short) 10, anotacoes);
 
@@ -112,8 +99,7 @@ public class Main {
                     break;
                 case 3:
                     System.out.print("Qual é o cpf vinculado ao prontuário que vai ser modificado? ");
-                    if (in.hasNextInt())
-                        cpf = in.nextInt();
+                    cpf = in.nextInt();
 
                     prontuario = controlador.recuperarRegistro(cpf);
 
@@ -131,10 +117,7 @@ public class Main {
                     System.out.println("[3] - Data");
                     System.out.println("[4] - Anotações");
                     System.out.print("Campo: ");
-                    opcao = -1;
-
-                    if (in.hasNextInt())
-                        opcao = in.nextInt();
+                    opcao = in.nextInt();
 
                     while (opcao < 1 || opcao > 4) {
                         System.out.print("Campo inválido. Digite novamente o número do campo: ");
@@ -144,10 +127,8 @@ public class Main {
                     // jogar fora o \n depois do int lido
                     in.nextLine();
 
-                    String valor = "";
                     System.out.print("Escreva o novo valor: "); // problema com anotacoes
-                    if (in.hasNextLine())
-                        valor = in.nextLine();
+                    String valor = in.nextLine();
 
                     if (controlador.editarRegistro(prontuario, opcao, valor) == StatusDeEdicao.TUDO_OK) {
                         System.out.println("Informações do prontuário atualizadas com sucesso.");
