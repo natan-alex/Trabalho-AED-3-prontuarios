@@ -127,7 +127,7 @@ public class Prontuario extends Serializavel {
 
     @Override
     public String toString() {
-        return "Prontuario: (nome = " + nome + ", data = " + data + ", sexo = " + sexo + ", anotacoes = " + anotacoes + ")";
+        return "Prontuario: (cpf = " + cpf + ", nome = " + nome + ", data = " + data + ", sexo = " + sexo + ", anotacoes = " + anotacoes + ")";
     }
 
     // retorna um array de bytes com os valores dos atributos
@@ -138,7 +138,6 @@ public class Prontuario extends Serializavel {
 
         try {
             dos.writeInt(cpf);
-            // System.out.println("=== NOME === " + nome);
             dos.writeUTF(nome);
             dos.writeShort( (short) data.getYear() );
             dos.writeByte( (byte) data.getMonthValue() );

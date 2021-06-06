@@ -121,8 +121,3 @@ public class Main {
         }
     }
 }
-
-//- Ir no bucket e setar o CPF para -1
-//- Remoção lógica no arquivo mestre => setar lápide para true
-//- Deixar no metadado do arquivo mestre o primeiro num registro deletado
-//- Deixar no metadado do proprio registro deletado o num registro do proximo deletado

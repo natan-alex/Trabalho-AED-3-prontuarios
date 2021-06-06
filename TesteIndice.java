@@ -28,59 +28,29 @@ public class TesteIndice {
                 indice.inserirRegistro(cpf, numRegistro);
             }
 
-            // problemáticos: 8,22,19
-            // diretorio: p=3
-            // 000=0->1
-            // 001=1->2
-            // 010=2->3
-            // 011=3->2
-            // 100=4->1
-            // 101=5->5
-            // 110=6->4
-            // 111=7->5
-            // p=2 bucket 1: 20,8,12,16
-            // p=2 bucket 2: 3,1,19
-            // p=3 bucket 3: 10,18,
-            // p=3 bucket 4: 14,6,22,
-            // p=3 bucket 5: 7,13
+            numRegistro = indice.getNumRegistro(3);
+            indice.removerRegistro(3);
+            mestre.removerRegistro(numRegistro);
 
-//            Bucket bucket1 = indice.getBucketDoArquivoDeIndice(1);
-//            System.out.println("Lendo do bucket 1:");
-//            for (RegistroDoBucket registro : bucket1.getRegistrosDoBucket()) {
-//                    System.out.println("registro: " + registro);
-//            }
-//
-//            Bucket bucket2 = indice.getBucketDoArquivoDeIndice(2);
-//            System.out.println("Lendo do bucket 2:");
-//            for (RegistroDoBucket registro : bucket2.getRegistrosDoBucket()) {
-//                    System.out.println("registro: " + registro);
-//            }
-//
-//            Bucket bucket3 = indice.getBucketDoArquivoDeIndice(3);
-//            System.out.println("Lendo do bucket 3:");
-//            for (RegistroDoBucket registro : bucket3.getRegistrosDoBucket()) {
-//                    System.out.println("registro: " + registro);
-//            }
-//
-//            Bucket bucket4 = indice.getBucketDoArquivoDeIndice(4);
-//            System.out.println("Lendo do bucket 4:");
-//            for (RegistroDoBucket registro : bucket4.getRegistrosDoBucket()) {
-//                    System.out.println("registro: " + registro);
-//            }
-//
-//            Bucket bucket5 = indice.getBucketDoArquivoDeIndice(5);
-//            System.out.println("Lendo do bucket 5:");
-//            for (RegistroDoBucket registro : bucket5.getRegistrosDoBucket()) {
-//                    System.out.println("registro: " + registro);
-//            }
-            int cpf = 22;
-            System.out.println("NumRegistro associado ao cpf " + cpf + " : " + indice.getNumRegistro(cpf));
-            cpf = 15;
-            System.out.println("NumRegistro associado ao cpf " + cpf + " : " + indice.getNumRegistro(cpf));
-            cpf = 14;
-            System.out.println("NumRegistro associado ao cpf " + cpf + " : " + indice.getNumRegistro(cpf));
+            numRegistro = indice.getNumRegistro(13);
+            indice.removerRegistro(13);
+            mestre.removerRegistro(numRegistro);
+
+            numRegistro = indice.getNumRegistro(22);
+            indice.removerRegistro(22);
+            mestre.removerRegistro(numRegistro);
+
+            prontuario = new Prontuario(9, "NomeNEW" + 9, LocalDate.now(), 'm', tamAnotacoes, "blablabla");
+            numRegistro = mestre.inserirRegistro(prontuario);
+            indice.inserirRegistro(9, numRegistro);
+
+            prontuario = new Prontuario(66, "Nome" + 66, LocalDate.now(), 'm', tamAnotacoes, "blablabla");
+            numRegistro = mestre.inserirRegistro(prontuario);
+            indice.inserirRegistro(66, numRegistro);
+
 
             indice.imprimirArquivo();
+            mestre.imprimirArquivo();
             System.out.println("\n");
         }
 }
