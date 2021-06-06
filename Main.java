@@ -33,16 +33,7 @@ public class Main {
             System.out.println("[5] - Imprimir arquivos");
             System.out.println("[6] - Simulacao");
             System.out.print("Opção: ");
-
-            cpf = -1;
-            nome = "";
-            data = null;
-            strData = "";
-            sexo = ' ';
-            anotacoes = "";
-            opcao = -1;
-
-            opcao = in.nextInt();
+            opcao = Integer.parseInt(in.nextLine());
 
             switch (opcao) {
                 case 0:
@@ -53,13 +44,13 @@ public class Main {
                     int profundidade = -1, tam_buckets = -1;
                     short tam_anotacoes = -1;
                     System.out.print("Qual será a profundidade inicial do hash? ");
-                    profundidade = in.nextInt();
+                    profundidade = Integer.parseInt(in.nextLine());
 
                     System.out.print("Qual será o número de registros por bucket? ");
-                    tam_buckets = in.nextInt();
+                    tam_buckets = Integer.parseInt(in.nextLine());
 
                     System.out.print("Qual será o tamanho de anotações por registro? ");
-                    tam_anotacoes = in.nextShort();
+                    tam_anotacoes = Short.parseShort(in.nextLine());
 
                     if (controlador.criarArquivos(profundidade, tam_buckets, tam_anotacoes))
                         System.out.println("Arquivos criados com sucesso.");
@@ -68,10 +59,8 @@ public class Main {
                     break;
                 case 2:
                     System.out.print("Qual será o cpf do paciente? ");
-                    cpf = in.nextInt();
-
-                    // jogar fora o \n depois do int lido
-                    in.nextLine();
+                    String lido = in.nextLine();
+                    cpf = Integer.parseInt(lido);
 
                     System.out.print("Qual será o nome do paciente? ");
                     nome = in.nextLine();
@@ -99,7 +88,7 @@ public class Main {
                     break;
                 case 3:
                     System.out.print("Qual é o cpf vinculado ao prontuário que vai ser modificado? ");
-                    cpf = in.nextInt();
+                    cpf = Integer.parseInt(in.nextLine());
 
                     prontuario = controlador.recuperarRegistro(cpf);
 
@@ -117,15 +106,12 @@ public class Main {
                     System.out.println("[3] - Data");
                     System.out.println("[4] - Anotações");
                     System.out.print("Campo: ");
-                    opcao = in.nextInt();
+                    opcao = Integer.parseInt(in.nextLine());
 
                     while (opcao < 1 || opcao > 4) {
                         System.out.print("Campo inválido. Digite novamente o número do campo: ");
-                        opcao = in.nextInt();
+                        opcao = Integer.parseInt(in.nextLine());
                     }
-
-                    // jogar fora o \n depois do int lido
-                    in.nextLine();
 
                     System.out.print("Escreva o novo valor: "); // problema com anotacoes
                     String valor = in.nextLine();
