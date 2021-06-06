@@ -15,7 +15,7 @@ public class TesteArquivoMestre {
             int numRegistro;
 
             for (int cpf : cpfs) {
-                prontuario = new Prontuario(cpf, "Nome" + cpf, LocalDate.now(), 'm', tamAnotacoes, "blablabla");
+                prontuario = new Prontuario(cpf, "Nome" + cpf, LocalDate.now(), 'm', "blablabla");
                 numRegistro = mestre.inserirRegistro(prontuario);
                 System.out.println("Número do registro: " + numRegistro);
                 indice.inserirRegistro(cpf, numRegistro);
@@ -26,7 +26,7 @@ public class TesteArquivoMestre {
             int cpf_editar = 8;
             numRegistro = indice.getNumRegistro(cpf_editar);
             Prontuario atual = mestre.recuperarRegistro(numRegistro);
-            Prontuario alterado = new Prontuario(cpf_editar, "shulambs", LocalDate.now().minusMonths(5), 'f', tamAnotacoes, "anotacoes de um bom medico");
+            Prontuario alterado = new Prontuario(cpf_editar, "shulambs", LocalDate.now().minusMonths(5), 'f', "anotacoes de um bom medico");
             // mestre.editarRegistro(numRegistro, alterado);
             System.out.println("Novo registro: " + mestre.recuperarRegistro(numRegistro));
 

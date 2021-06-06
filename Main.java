@@ -90,7 +90,7 @@ public class Main {
                     System.out.print("Qual será a anotação? ");
                     anotacoes = in.nextLine();
 
-                    prontuario = new Prontuario(cpf, nome, data, sexo, (short) 10, anotacoes);
+                    prontuario = new Prontuario(cpf, nome, data, sexo, anotacoes);
 
                     if (controlador.inserirRegistro(prontuario) == StatusDeInsercao.TUDO_OK)
                         System.out.println("Prontuário inserido com sucesso.");

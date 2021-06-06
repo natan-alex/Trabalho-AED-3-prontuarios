@@ -83,6 +83,12 @@ public class ArquivoMestre {
             raf.writeBoolean(false); // is_lapide == false
             raf.writeInt(prox_id);
 
+            // cortar tamanho das anotacoes, caso necessario,
+            // antes de inserir o registro
+            String anotacoes = registro.getAnotacoes();
+            if (anotacoes.length() > num_bytes_anotacoes)
+                registro.setAnotacoes(anotacoes.substring(0, num_bytes_anotacoes));
+
             // obter registro em bytes para ser inserido
             byte[] registro_em_bytes = registro.toByteArray();
             raf.write(registro_em_bytes); // registro
@@ -152,6 +158,12 @@ public class ArquivoMestre {
     // que o usuário quer alterar, excluindo o cpf.
     public boolean sobrescreverRegistroNoArquivo(Prontuario novo_prontuario, int num_registro) {
         boolean deu_certo = false;
+        // cortar tamanho das anotacoes, caso necessario,
+        // antes de inserir o registro
+        String anotacoes = novo_prontuario.getAnotacoes();
+        if (anotacoes.length() > num_bytes_anotacoes)
+            novo_prontuario.setAnotacoes(anotacoes.substring(0, num_bytes_anotacoes));
+
         try {
             long posicao_do_registro = calcularPosicaoDoRegistro(num_registro);
             raf.seek(posicao_do_registro + 5); // +5 para pular o lápide e id

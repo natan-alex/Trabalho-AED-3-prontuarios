@@ -23,7 +23,7 @@ public class TesteIndice {
 
             int[] cpfs = {10,3,14,18,20,8,6,1,12,22,7,16,13,19};
             for (int cpf : cpfs) {
-                prontuario = new Prontuario(cpf, "Nome" + cpf, LocalDate.now(), 'm', tamAnotacoes, "blablabla");
+                prontuario = new Prontuario(cpf, "Nome" + cpf, LocalDate.now(), 'm', "blablabla");
                 numRegistro = mestre.inserirRegistro(prontuario);
                 indice.inserirRegistro(cpf, numRegistro);
             }

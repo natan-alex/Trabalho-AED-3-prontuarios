@@ -14,7 +14,6 @@ import trabalho_aed_prontuario.indice.Serializavel;
 public class Prontuario extends Serializavel {
     // nome, data de nascimento, sexo e uma área de m caracteres/bytes para anotações do médico
     private static final byte MAX_SIZE_NOME = (byte) 50;
-    private static final char AUX_CHAR = '|';
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private int cpf;
@@ -22,34 +21,25 @@ public class Prontuario extends Serializavel {
     private LocalDate data;
     private char sexo;
     private String anotacoes;
-    private short tam_anotacoes;
-
 
     public Prontuario(byte[] data) {
         super(data);
     }
 
-    public Prontuario(int cpf, String nome, LocalDate data, char sexo, short tam_anotacoes) {
-        setCpf(cpf);
+    public Prontuario(int cpf, String nome, LocalDate data, char sexo) {
+        this.cpf = cpf;
         setNome(nome);
-        setData(data);
-        setSexo(sexo);
-        setTamAnotacoes(tam_anotacoes);
-        setAnotacoes("");
+        this.data = data;
+        this.sexo = sexo;
+        this.anotacoes = "";
     }
 
-    public Prontuario(int cpf, String nome, LocalDate data, char sexo, short tam_anotacoes, String anotacoes) {
-        setCpf(cpf);
+    public Prontuario(int cpf, String nome, LocalDate data, char sexo, String anotacoes) {
+        this.cpf = cpf;
         setNome(nome);
-        setData(data);
-        setSexo(sexo);
-        setTamAnotacoes(tam_anotacoes);
-        setAnotacoes(anotacoes);
-    }
-
-    private void setTamAnotacoes(short tam_anotacoes) {
-        if (tam_anotacoes > 0)
-            this.tam_anotacoes = tam_anotacoes;
+        this.data = data;
+        this.sexo = sexo;
+        this.anotacoes = anotacoes;
     }
 
     public int getCpf() {
@@ -62,21 +52,11 @@ public class Prontuario extends Serializavel {
     }
 
     public String getNome() {
-        // antes de retornar necessário remover os AUX_CHAR
-        return nome.substring(0, nome.indexOf(AUX_CHAR));
+        return nome;
     }
 
     public void setNome(String nome) {
-        // se o argumento tiver tamanho menor que o tamanho máximo
-        // completar com espaços, senão, limitar os caracteres até
-        // a quantcpfade máxima, "cortando "a string
-        int nome_length = nome.length();
-        if (nome_length < MAX_SIZE_NOME) {
-            // completar a string com AUX_CHAR caso o tamanho do argumento
-            // seja menor que MAX_SIZE_NOME
-            // this.nome = String.format("%-"+MAX_SIZE_NOME+"s", nome).replace(' ', AUX_CHAR);
-            this.nome = nome; //String.format("%-"+MAX_SIZE_NOME+"s", nome).replace(' ', AUX_CHAR);
-        } else if (nome_length > MAX_SIZE_NOME) {
+        if (nome.length() > MAX_SIZE_NOME) {
             // cortar a string até o tamanho desejado
             // caso seja maior que o permitido
             this.nome = nome.substring(0, MAX_SIZE_NOME);
@@ -85,46 +65,28 @@ public class Prontuario extends Serializavel {
         }
     }
 
-
     public LocalDate getData() {
         return data;
     }
 
     public void setData(LocalDate data) {
-        if (data != null)
-            this.data = data;
+        this.data = data;
     }
 
     public char getSexo() {
         return sexo;
     }
 
-    public void setSexo(char _sexo) {
-        _sexo = Character.toLowerCase(_sexo);
-        if (_sexo == 'm' || _sexo == 'f') // ++
-            this.sexo = _sexo;
+    public void setSexo(char sexo) {
+        this.sexo = sexo;
     }
 
     public String getAnotacoes() {
-        return anotacoes.substring(0, anotacoes.indexOf(AUX_CHAR));
+        return anotacoes;
     }
 
     public void setAnotacoes(String anotacoes) {
-        // faz o mesmo que a setNome com relação ao tamanho e corte
-        // da string que vier como argumento
-        int anotacoes_length = anotacoes.length();
-        if (anotacoes_length < tam_anotacoes) {
-            // completar a string com AUX_CHAR caso o tamanho do argumento
-            // seja menor que tam_anotacoes
-            // this.anotacoes = String.format("%-"+tam_anotacoes+"s", anotacoes).replace(' ', AUX_CHAR);
-            this.anotacoes = anotacoes; //String.format("%-"+tam_anotacoes+"s", anotacoes).replace(' ', AUX_CHAR);
-        } else if (anotacoes_length > tam_anotacoes) {
-            // cortar a string até o tamanho desejado
-            // caso seja maior que o permitido
-            this.anotacoes = anotacoes.substring(0, tam_anotacoes);
-        } else {
-            this.anotacoes = anotacoes;
-        }
+        this.anotacoes = anotacoes;
     }
 
     @Override
@@ -140,7 +102,6 @@ public class Prontuario extends Serializavel {
 
         try {
             dos.writeInt(cpf);
-            // System.out.println("=== NOME === " + nome);
             dos.writeUTF(nome);
             dos.writeShort((short) data.getYear());
             dos.writeByte((byte) data.getMonthValue());
@@ -174,20 +135,12 @@ public class Prontuario extends Serializavel {
         }
     }
 
-    // identificar qual campo de um prontuário foi alterado
+    // auxiliar na identificação de qual campo de um prontuário foi alterado
     // durante a edição de um registro
     public enum CampoAlterado {
-        NOME(1),
-        SEXO(2),
-        DATA(3),
-        ANOTACOES(4);
-
-        int opcao;
-
-        private CampoAlterado(int opcao) {
-            this.opcao = opcao;
-        }
-
+        NOME(),
+        SEXO(),
+        DATA(),
+        ANOTACOES();
     }
-
 }
