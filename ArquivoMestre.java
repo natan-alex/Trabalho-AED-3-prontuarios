@@ -23,13 +23,9 @@ public class ArquivoMestre {
     private int prox_id_vazio;
     private int ultimo_id_vazio;
 
-    public ArquivoMestre() {
-        this((short) 0);
-    }
-
-    public ArquivoMestre(short num_bytes_anotacoes) {
+    public ArquivoMestre(String nome_do_arquivo, short num_bytes_anotacoes) {
         try {
-            raf = new RandomAccessFile("arquivo_mestre.db", "rws");
+            raf = new RandomAccessFile(nome_do_arquivo, "rws");
             // se o arquivo tiver algo, ignorar o argumento num_bytes_anotacoes
             // e obter o número de bytes para as anotações por meio do metadado
             // referente a ele. Caso contrário, checar se o argumento é positivo
@@ -90,6 +86,12 @@ public class ArquivoMestre {
     // caso tenha um valor, caso contrário, insere no fim
     // do arquivo
     public int inserirRegistro(Prontuario registro) {
+        // cortar tamanho das anotacoes, caso necessario,
+        // antes de inserir o registro
+        String anotacoes = registro.getAnotacoes();
+        if (anotacoes.length() > num_bytes_anotacoes)
+            registro.setAnotacoes(anotacoes.substring(0, num_bytes_anotacoes));
+
         try {
             if (prox_id_vazio == -1) {
                 // ir para o fim do último registro do arquivo
@@ -161,7 +163,7 @@ public class ArquivoMestre {
     // dado o seu número; retorna null se o número do
     // registro for inválido ou ocorrer alguma IOException
     // OBS: num_registro vem do índice
-    protected Prontuario recuperarRegistro(int num_registro) {
+    public Prontuario recuperarRegistro(int num_registro) {
         if (num_registro <= 0 || num_registro > num_registros_no_arquivo) {
             System.out.println("Número de registro " + num_registro + " inválido.");
             return null;
@@ -226,37 +228,25 @@ public class ArquivoMestre {
     // printar as informações contidas atualmente
     // e se não existir(ou for lápide) retorna false. Perguntar o
     // que o usuário quer alterar, excluindo o cpf.
-    public boolean editarRegistro(int num_registro, int campo_enum, Object valor) {
-        Prontuario antigo = recuperarRegistro(num_registro);
-
-        switch(campo_enum) {
-            case 1:
-                antigo.setNome((String) valor);
-                break;
-            case 2:
-                antigo.setSexo(((String) valor).charAt(0));
-                break;
-            case 3:
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-                LocalDate data = LocalDate.parse((String) valor, formatter);
-                antigo.setData(data);
-                break;
-            case 4:
-                antigo.setAnotacoes((String) valor);
-                break;
-        }
+    public boolean sobrescreverRegistroNoArquivo(Prontuario novo_prontuario, int num_registro) {
+        boolean deu_certo = false;
+        // cortar tamanho das anotacoes, caso necessario,
+        // antes de inserir o registro
+        String anotacoes = novo_prontuario.getAnotacoes();
+        if (anotacoes.length() > num_bytes_anotacoes)
+            novo_prontuario.setAnotacoes(anotacoes.substring(0, num_bytes_anotacoes));
 
         try {
             long posicao_do_registro = calcularPosicaoDoRegistro(num_registro);
             raf.seek(posicao_do_registro + 4 + 4 + 1); // +4 para pular o id, +4 para pular o prox_id_vazio, +1 lapide
-            byte[] registro_em_bytes = antigo.toByteArray();
+            byte[] registro_em_bytes = novo_prontuario.toByteArray();
             raf.write(registro_em_bytes); // registro
+            deu_certo = true;
         } catch (Exception err) {
             err.printStackTrace();
         }
 
-        System.out.println("Informaçoes do prontuario: " + antigo);
-        return true;
+        return deu_certo;
     }
 
     // imprime o cabeçalho e registros do arquivo mestre,
@@ -276,7 +266,7 @@ public class ArquivoMestre {
             Prontuario prontuario;
             byte[] byteArray = new byte[tam_registro];
 
-            System.out.println("======= ARQUIVO MESTRE =========");
+            System.out.println("========== ARQUIVO MESTRE ==========");
             System.out.println("[Cabeçalho]");
             System.out.println("Número de registros: " + num_registros);
             System.out.println("Número de bytes de anotações: " + num_bytes_anotacoes);

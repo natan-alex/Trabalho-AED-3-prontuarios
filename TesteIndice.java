@@ -16,14 +16,14 @@ public class TesteIndice {
             int profundidade = 1;
             short tamAnotacoes = 10;
 
-            ArquivoMestre mestre = new ArquivoMestre(tamAnotacoes);
-            Indice indice = new Indice(profundidade, tamBuckets);
+            ArquivoMestre mestre = new ArquivoMestre("arquivo_mestre.db", tamAnotacoes);
+            Indice indice = new Indice("indice.db", "diretorio.db", profundidade, tamBuckets);
             Prontuario prontuario;
             int numRegistro = 0;
 
             int[] cpfs = {10,3,14,18,20,8,6,1,12,22,7,16,13,19};
             for (int cpf : cpfs) {
-                prontuario = new Prontuario(cpf, "Nome" + cpf, LocalDate.now(), 'm', tamAnotacoes, "blablabla");
+                prontuario = new Prontuario(cpf, "Nome" + cpf, LocalDate.now(), 'm', "blablabla");
                 numRegistro = mestre.inserirRegistro(prontuario);
                 indice.inserirRegistro(cpf, numRegistro);
             }
@@ -40,11 +40,11 @@ public class TesteIndice {
             indice.removerRegistro(22);
             mestre.removerRegistro(numRegistro);
 
-            prontuario = new Prontuario(9, "NomeNEW" + 9, LocalDate.now(), 'm', tamAnotacoes, "blablabla");
+            prontuario = new Prontuario(9, "NomeNEW" + 9, LocalDate.now(), 'm', "blablabla");
             numRegistro = mestre.inserirRegistro(prontuario);
             indice.inserirRegistro(9, numRegistro);
 
-            prontuario = new Prontuario(66, "Nome" + 66, LocalDate.now(), 'm', tamAnotacoes, "blablabla");
+            prontuario = new Prontuario(66, "Nome" + 66, LocalDate.now(), 'm', "blablabla");
             numRegistro = mestre.inserirRegistro(prontuario);
             indice.inserirRegistro(66, numRegistro);
 

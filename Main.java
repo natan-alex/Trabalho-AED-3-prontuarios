@@ -1,123 +1,144 @@
-package trabalho_aed_prontuario;
+package trabalho_aed_prontuario.main;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.Scanner;
 
-import trabalho_aed_prontuario.mestre.*;
-import trabalho_aed_prontuario.indice.*;
+import trabalho_aed_prontuario.indice.StatusDeInsercao;
+import trabalho_aed_prontuario.mestre.Prontuario;
+import trabalho_aed_prontuario.main.Controlador;
 
 public class Main {
     public static void main(String[] args) {
-        Scanner in = new Scanner(System.in);
-        int opcao;
+        final Scanner in = new Scanner(System.in);
+        final Controlador controlador = new Controlador();
+        final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        final DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("dd/MM/yy");
 
-        System.out.println("MENU");
-        System.out.println("[1] - Criar arquivo");
-        System.out.println("[2] - Inserir registro");
-        System.out.println("[3] - Editar registro");
-        System.out.println("[4] - Remover registro");
-        System.out.println("[5] - Imprimir arquivos");
-        System.out.println("[6] - Simulacao");
-        System.out.print("Opção: ");
-
-        opcao = in.nextInt();
-
-        Indice indice;
-        Diretorio diretorio;
-        ArquivoMestre mestre;
-        Prontuario prontuario;
-
-        DateTimeFormatter formatter;
-
-        LocalDate data;
-        int cpf, num_registro;
+        int cpf;
         String nome, anotacoes, strData;
         char sexo;
+        LocalDate data;
+        int opcao;
+        Prontuario prontuario;
 
-        switch(opcao) {
-            case 1:
-                System.out.println("Qual será a profundidade inicial do hash? ");
-                int profundidade = in.nextInt();
+        do {
+            System.out.println("   MENU");
+            System.out.println("[0] - Sair");
+            System.out.println("[1] - Criar arquivo");
+            System.out.println("[2] - Inserir registro");
+            System.out.println("[3] - Editar registro");
+            System.out.println("[4] - Remover registro");
+            System.out.println("[5] - Imprimir arquivos");
+            System.out.println("[6] - Simulacao");
+            System.out.print("Opção: ");
+            opcao = Integer.parseInt(in.nextLine());
 
-                System.out.println("Qual será o número de registros por bucket? ");
-                int tam_buckets = in.nextInt();
+            switch (opcao) {
+                case 0:
+                    in.close();
+                    System.out.println("Programa encerrado.");
+                    break;
+                case 1:
+                    int profundidade = -1, tam_buckets = -1;
+                    short tam_anotacoes = -1;
+                    System.out.print("Qual será a profundidade inicial do hash? ");
+                    profundidade = Integer.parseInt(in.nextLine());
 
-                System.out.println("Qual será o tamanho de anotações por registro? ");
-                short tam_anotacoes = in.nextShort();
+                    System.out.print("Qual será o número de registros por bucket? ");
+                    tam_buckets = Integer.parseInt(in.nextLine());
 
-                new Indice(profundidade, tam_buckets);
-                new ArquivoMestre(tam_anotacoes);
-                break;
-            case 2:
-                indice = new Indice();
-                mestre = new ArquivoMestre();
+                    System.out.print("Qual será o tamanho de anotações por registro? ");
+                    tam_anotacoes = Short.parseShort(in.nextLine());
 
-                System.out.print("Qual será o cpf do paciente? ");
-                cpf = in.nextInt();
+                    if (controlador.criarArquivos(profundidade, tam_buckets, tam_anotacoes))
+                        System.out.println("Arquivos criados com sucesso.");
+                    else
+                        System.out.println("Falha ao criar arquivos.");
+                    break;
+                case 2:
+                    System.out.print("Qual será o cpf do paciente? ");
+                    String lido = in.nextLine();
+                    cpf = Integer.parseInt(lido);
 
-                System.out.print("Qual será o nome do paciente? ");
-                nome = in.next();
+                    System.out.print("Qual será o nome do paciente? ");
+                    nome = in.nextLine();
 
-                System.out.print("Qual será a data? ");
-                strData = in.next();
-                formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-                data = LocalDate.parse(strData, formatter);
+                    System.out.print("Qual será a data? (Digite no formato dia/mês/ano): ");
+                    strData = in.nextLine();
 
-                System.out.print("Qual será o sexo do paciente? ");
-                sexo = in.next().charAt(0);
+                    if (strData.length() == 10)
+                        data = LocalDate.parse(strData, formatter);
+                    else
+                        data = LocalDate.parse(strData, formatter2);
 
-                in.nextLine();
-                System.out.print("Qual será a anotação? ");
-                anotacoes = in.nextLine();
+                    System.out.print("Qual será o sexo do paciente? ");
+                    sexo = in.nextLine().charAt(0);
 
-                prontuario = new Prontuario(cpf, nome, data, sexo, mestre.getNumBytesAnotacoes(), anotacoes);
-                num_registro = mestre.inserirRegistro(prontuario);
-                indice.inserirRegistro(cpf, num_registro);
-                break;
-            case 3:
-                indice = new Indice();
-                mestre = new ArquivoMestre();
+                    System.out.print("Qual será a anotação? ");
+                    anotacoes = in.nextLine();
 
-                System.out.print("Qual será o cpf do paciente a ser modificado? ");
-                cpf = in.nextInt();
+                    prontuario = new Prontuario(cpf, nome, data, sexo, anotacoes);
 
-                System.out.print("Qual dos seguintes campos deseja alterar? [1] Nome | [2] Sexo | [3] Data | [4] Anotações: ");
-                opcao = in.nextInt();
+                    if (controlador.inserirRegistro(prontuario) == StatusDeInsercao.TUDO_OK)
+                        System.out.println("Prontuário inserido com sucesso.");
+                    else
+                        System.out.println("Falha ao inserir prontuário.");
+                    break;
+                case 3:
+                    System.out.print("Qual é o cpf vinculado ao prontuário que vai ser modificado? ");
+                    cpf = Integer.parseInt(in.nextLine());
 
-                in.nextLine();
-                System.out.println("Escreva o novo valor: "); // problema com anotacoes
-                Object valor = in.nextLine();
+                    prontuario = controlador.recuperarRegistro(cpf);
 
-                num_registro = indice.getNumRegistro(cpf);
-                mestre.editarRegistro(num_registro, opcao, valor);
-                break;
-            case 4:
-                indice = new Indice();
-                mestre = new ArquivoMestre();
+                    if (prontuario == null) {
+                        System.out.println("Cpf não cadastrado.");
+                        return;
+                    }
 
-                System.out.print("Qual será o cpf do paciente a ser removido? ");
-                cpf = in.nextInt();
+                    System.out.println("Informações atuais do prontuário: ");
+                    System.out.println(prontuario);
 
-                num_registro = indice.getNumRegistro(cpf);
-                indice.removerRegistro(cpf);
-                mestre.removerRegistro(num_registro);
-                break;
-            case 5:
-                mestre = new ArquivoMestre();
-                mestre.imprimirArquivo();
+                    System.out.println("Qual dos seguintes campos deseja alterar?");
+                    System.out.println("[1] - Nome");
+                    System.out.println("[2] - Sexo");
+                    System.out.println("[3] - Data");
+                    System.out.println("[4] - Anotações");
+                    System.out.print("Campo: ");
+                    opcao = Integer.parseInt(in.nextLine());
 
-                indice = new Indice();
-                indice.imprimirArquivo();
+                    while (opcao < 1 || opcao > 4) {
+                        System.out.print("Campo inválido. Digite novamente o número do campo: ");
+                        opcao = Integer.parseInt(in.nextLine());
+                    }
 
-                diretorio = new Diretorio();
-                diretorio.imprimirArquivo();
-                break;
-            case 6:
-                // simulacao
-                break;
-            default:
-                break;
-        }
+                    System.out.print("Escreva o novo valor: "); // problema com anotacoes
+                    String valor = in.nextLine();
+
+                    if (controlador.editarRegistro(prontuario, opcao, valor) == StatusDeEdicao.TUDO_OK) {
+                        System.out.println("Informações do prontuário atualizadas com sucesso.");
+                    } else {
+                        System.out.println("Falha ao atualizar informções do prontuário.");
+                    }
+                    break;
+                case 4:
+                    System.out.print("Qual será o cpf do paciente a ser removido? ");
+                    opcao = Integer.parseInt(in.nextLine());
+
+                    controlador.removerRegistro(opcao);
+                    break;
+                case 5:
+                    // imprimir arquivos
+                    controlador.imprimirArquivos();
+                    break;
+                case 6:
+                    // simulacao
+                    break;
+                default:
+                    System.out.println("Opção inválida.");
+                    break;
+            }
+        } while (opcao != 0);
     }
 }
