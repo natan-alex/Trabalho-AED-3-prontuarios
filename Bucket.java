@@ -91,14 +91,10 @@ public class Bucket {
         if (ocupacao == tam_bucket) {
             if (profundidade_local == profundidade_global) {
                 // necessário duplicar o bucket
-                System.out.println("necessário duplicar dir");
                 return StatusDeInsercao.DUPLICAR_DIRETORIO;
             } else {
                 // necessário criar novo bucket e rearranjar
                 // os registros do bucket em questão
-                System.out.println("necessário criar novo bucket!");
-                System.out.println("necessário rearranjar chaves!");
-
                 return StatusDeInsercao.REARRANJAR_CHAVES;
             }
         } else {
