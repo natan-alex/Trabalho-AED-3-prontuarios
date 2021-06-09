@@ -7,13 +7,17 @@ import java.time.format.DateTimeFormatter;
 import java.io.IOException;
 
 public class ArquivoMestre {
-    // prox_id_vazio: 4 bytes, ultimo_id_vazio: 4 bytes,
-    private static final int TAM_CABECALHO = 10 + 4 + 4;
+    // num_bytes_anotacoes: 2, num_registros_no_arquivo: 4,
+    // prox_id: 4, prox_id_vazio: 4 bytes, ultimo_id_vazio: 4 bytes;
+    private static final int TAM_CABECALHO = 18;
 
     private RandomAccessFile raf;
 
-    // id: 4 bytes, prox_id_vazio: 4 bytes, cpf: 4 bytes, nome: 50 bytes, date: 4 bytes, sexo: 2 bytes, lápide: 1 byte
-    private int tam_registro = 64 + 4 + 1;
+    // id: 4 bytes, prox_id_vazio: 4 bytes, cpf: 4 bytes,
+    // nome: 50 bytes, data: 4 bytes, sexo: 2 bytes, lápide: 1 byte
+    private int tam_registro_completo = 69;
+    // somente o tamanho de um registro, excluindo seus "metadados"(id, prox_id_vazio, lapide)
+    private int tam_registro = 60;
 
     // atributos abaixo também são os metadados
     // do arquivo
@@ -34,12 +38,13 @@ public class ArquivoMestre {
             if (raf.length() > 0) {
                 ler_metadados();
             } else {
-                this.num_bytes_anotacoes = (num_bytes_anotacoes > 0) ? num_bytes_anotacoes : 100;
+                this.num_bytes_anotacoes = num_bytes_anotacoes;
                 escrever_metadados();
                 prox_id = 1;
                 ultimo_id_vazio = prox_id_vazio = -1;
                 num_registros_no_arquivo = 0;
             }
+            tam_registro_completo += this.num_bytes_anotacoes;
             tam_registro += this.num_bytes_anotacoes;
         } catch (IOException e) {
             e.printStackTrace();
@@ -61,7 +66,6 @@ public class ArquivoMestre {
             this.prox_id = raf.readInt();
             this.prox_id_vazio = raf.readInt();
             this.ultimo_id_vazio = raf.readInt();
-            tam_registro += this.num_bytes_anotacoes;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -81,10 +85,11 @@ public class ArquivoMestre {
     }
 
     // inserir um registro no fim do arquivo de dados ou
-    // em um registro logicamente deletado
+    // em um registro logicamente deletado;
     // verifica o prox_id_vazio do registro e insere nele
     // caso tenha um valor, caso contrário, insere no fim
-    // do arquivo
+    // do arquivo;
+    // retorna o número do registro inserido
     public int inserirRegistro(Prontuario registro) {
         // cortar tamanho das anotacoes, caso necessario,
         // antes de inserir o registro
@@ -95,7 +100,7 @@ public class ArquivoMestre {
         try {
             if (prox_id_vazio == -1) {
                 // ir para o fim do último registro do arquivo
-                raf.seek(TAM_CABECALHO + ((long)num_registros_no_arquivo*tam_registro));
+                raf.seek(TAM_CABECALHO + ((long)num_registros_no_arquivo * tam_registro_completo));
                 raf.writeInt(prox_id);
                 raf.writeInt(-1); // prox_id_vazio
                 raf.writeBoolean(false); // lapide
@@ -116,18 +121,24 @@ public class ArquivoMestre {
 
                 return prox_id - 1;
             } else {
-                // vai para o bucket de prox_id_removido para pegar o
+                // vai para o registro de prox_id_removido para pegar o
                 // prox_prox_id_removido e assim modificar o cabecalho com este valor
                 // assim, na proxima insercao, o proximo proximo id removido será reutilizado
-                long proximo_registro_removido = calcularPosicaoDoRegistro(prox_id_vazio);
-                raf.seek(proximo_registro_removido);
-                int _prox_id = raf.readInt();
+                long pos_registro_removido = calcularPosicaoDoRegistro(prox_id_vazio);
+                raf.seek(pos_registro_removido); // pular o id do registro removido, que será reaproveitado
+                int id_registro = raf.readInt();
                 prox_id_vazio = raf.readInt(); // prox_prox_id_removido
-                raf.seek(TAM_CABECALHO - 8);
-                raf.writeInt(prox_id_vazio); // atualiza prox_id_removido do cabecalho
 
-                raf.seek(proximo_registro_removido);
-                raf.writeInt(_prox_id); // num_registro_antigo
+                // atualizar prox_id_removido do cabecalho
+                raf.seek(TAM_CABECALHO - 8);
+                raf.writeInt(prox_id_vazio);
+
+                // atualizar número de registros
+                raf.seek(0);
+                raf.writeInt(++num_registros_no_arquivo);
+
+                // voltar ao registro e alterar seus "metadados"
+                raf.seek(pos_registro_removido + 4);
                 raf.writeInt(-1); // prox_id_vazio
                 raf.writeBoolean(false); // lapide
 
@@ -136,8 +147,9 @@ public class ArquivoMestre {
                 raf.write(registro_em_bytes); // registro
                 registro_em_bytes = null;
 
-                // nao precisa atualizar o numero de registros pois reutilizou um
-                return _prox_id;
+                // retorna o id do registro de número prox_id_vazio,
+                // que corresponde ao número do registro que foi sobrescrito
+                return id_registro;
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -154,9 +166,7 @@ public class ArquivoMestre {
             System.out.println("Número de registro " + num_registro + " inválido.");
             return -1;
         }
-        // o tamanho do registro não considera o id e o campo lápide,
-        // o que justifica o + 4(id) + 1(lápide)
-        return TAM_CABECALHO + ( (long) (num_registro - 1) * (tam_registro) );
+        return TAM_CABECALHO + ( (long) (num_registro - 1) * (tam_registro_completo) );
     }
 
     // retorna o Prontuario obtido do arquivo mestre
@@ -173,10 +183,8 @@ public class ArquivoMestre {
             long posicao_do_registro = calcularPosicaoDoRegistro(num_registro);
             raf.seek(posicao_do_registro + 4 + 4); // +4 para pular o id, +4 para pular o prox_id_vazio
             boolean lapide = raf.readBoolean();
-            byte[] registro = new byte[tam_registro];
-            raf.read(registro);
             if (!lapide) {
-                int id = raf.readInt();
+                byte[] registro = new byte[tam_registro];
                 raf.read(registro);
                 return new Prontuario(registro);
             }
@@ -196,11 +204,18 @@ public class ArquivoMestre {
         }
 
         try {
+            long posicao_do_registro = calcularPosicaoDoRegistro(num_registro);
+            raf.seek(posicao_do_registro);
+            // ler id do registro que será deletado logicamente
+            int id_registro = raf.readInt();
+            int prox_id_vazio_lido = raf.readInt();
+            raf.writeBoolean(true); // deleta logicamente modificando a lapide para true
+
             // se o prox_id_vazio for -1, nao ha nenhum registro deletado no arquivo
             // portanto, basta alterar o seu valor para o registro a ser deletado atual
             // e atribuir o mesmo valor ao ultimo_id_vazio
             if (prox_id_vazio == -1) {
-                ultimo_id_vazio = prox_id_vazio = num_registro;
+                ultimo_id_vazio = prox_id_vazio = id_registro;
                 raf.seek(TAM_CABECALHO - 8);
                 raf.writeInt(prox_id_vazio);
                 raf.writeInt(ultimo_id_vazio);
@@ -210,15 +225,15 @@ public class ArquivoMestre {
                 // atribui o ultimo_id_vazio ao id do registro atual a ser deletado
                 long posicao_registro_ultimo_deletado = calcularPosicaoDoRegistro(ultimo_id_vazio);
                 raf.seek(posicao_registro_ultimo_deletado + 4); // +4 para pular id
-                raf.writeInt(num_registro); // prox_id_deletado
-                ultimo_id_vazio = num_registro;
+                raf.writeInt(id_registro); // prox_id_deletado
+                ultimo_id_vazio = id_registro;
                 raf.seek(TAM_CABECALHO - 4);
                 raf.writeInt(ultimo_id_vazio);
             }
 
-            long posicao_do_registro = calcularPosicaoDoRegistro(num_registro);
-            raf.seek(posicao_do_registro + 8);
-            raf.writeBoolean(true); // deleta logicamente modificando a lapide para true
+            // alterar número de registros removidos
+            raf.seek(0);
+            raf.writeInt(--num_registros_no_arquivo);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -255,16 +270,16 @@ public class ArquivoMestre {
         try {
             raf.seek(0);
 
+            int id, _prox_id_vazio;
+            boolean is_lapide;
+            Prontuario prontuario;
+            byte[] byteArray = new byte[tam_registro];
+
             int num_registros = raf.readInt();
             short num_bytes_anotacoes = raf.readShort();
             int proximo_id = raf.readInt();
             int proximo_id_vazio = raf.readInt();
             int ultimo_id_vazio = raf.readInt();
-
-            int id, _prox_id_vazio;
-            boolean is_lapide;
-            Prontuario prontuario;
-            byte[] byteArray = new byte[tam_registro];
 
             System.out.println("========== ARQUIVO MESTRE ==========");
             System.out.println("[Cabeçalho]");
@@ -276,16 +291,13 @@ public class ArquivoMestre {
 
             System.out.println("[Registros]");
             for (int i = 0; i < num_registros; i++) {
-                raf.seek(TAM_CABECALHO + i*(tam_registro));
                 id = raf.readInt(); // 4
                 _prox_id_vazio = raf.readInt(); // 4
                 is_lapide = raf.readBoolean(); // 1
                 System.out.print("Num registro: " + id + " | Proximo id vazio: " + _prox_id_vazio + " | Lapide: " + is_lapide + " | ");
-
-                raf.seek(TAM_CABECALHO + 9 + i*(tam_registro));
+                // ler infos do prontuario e mostrá-lo
                 raf.read(byteArray);
                 prontuario = new Prontuario(byteArray);
-
                 System.out.println(prontuario);
             }
         } catch (Exception err) {
