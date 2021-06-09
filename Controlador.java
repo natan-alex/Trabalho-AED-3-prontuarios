@@ -88,7 +88,7 @@ public class Controlador {
             return indice.inserirRegistro(prontuario.getCpf(), num_registro);
         };
 
-        return StatusDeInsercao.values()[(int) executaEMedeTempo(insere, "inserir")];
+        return StatusDeInsercao.values()[ ((StatusDeInsercao) executaEMedeTempo(insere, "inserir")).getNumOpcao()];
     }
 
 
@@ -122,7 +122,7 @@ public class Controlador {
             return StatusDeEdicao.TUDO_OK;
         };
 
-        return StatusDeEdicao.values()[(int) executaEMedeTempo(edita, "editar")];
+        return StatusDeEdicao.values()[ ((StatusDeEdicao)executaEMedeTempo(edita, "editar")).getNumOpcao() ];
     }
 
     private Prontuario.CampoAlterado getCampoByNum(int opcao) {
@@ -177,10 +177,13 @@ public class Controlador {
             // 1 registro = 69 bytes
             // 15561476 registros = 1 GB
             // int lastCpf = 15561476;
-            int lastCpf = 155;
+            int lastCpf = 15561476;
+            Prontuario prontuario;
+            int numRegistro;
+
             for (int cpf = 1; cpf <= lastCpf; cpf++) {
-                Prontuario prontuario = new Prontuario(cpf, "Nome" + cpf, LocalDate.now(), 'm', "blablabla");
-                int numRegistro = arquivo_mestre.inserirRegistro(prontuario);
+                prontuario = new Prontuario(cpf, "Nome" + cpf, LocalDate.now(), 'm', "blablabla");
+                numRegistro = arquivo_mestre.inserirRegistro(prontuario);
                 indice.inserirRegistro(cpf, numRegistro);
             }
             return null;

@@ -7,9 +7,19 @@ package trabalho_aed_prontuario.indice;
 // REARRANJAR_CHAVES caso seja necessário criar novo bucket 
 // e rearranjar as chaves do novo bucket e do bucket atual
 public enum StatusDeInsercao {
-    IOEXCEPTION_LANCADA,
-    REGISTRO_INVALIDO,
-    DUPLICAR_DIRETORIO,
-    TUDO_OK,
-    REARRANJAR_CHAVES;
+    IOEXCEPTION_LANCADA(0),
+    REGISTRO_INVALIDO(1),
+    DUPLICAR_DIRETORIO(2),
+    TUDO_OK(3),
+    REARRANJAR_CHAVES(4);
+
+    int num_opcao;
+
+    private StatusDeInsercao(int num_opcao) {
+        this.num_opcao = num_opcao;
+    }
+
+    public int getNumOpcao() {
+        return num_opcao;
+    }
 }
