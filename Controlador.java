@@ -88,7 +88,7 @@ public class Controlador {
             return indice.inserirRegistro(prontuario.getCpf(), num_registro);
         };
 
-        return StatusDeInsercao.values()[ ((StatusDeInsercao) executaEMedeTempo(insere, "inserir")).getNumOpcao()];
+        return (StatusDeInsercao) executaEMedeTempo(insere, "inserir");
     }
 
 
@@ -97,22 +97,21 @@ public class Controlador {
             int num_registro = indice.getNumRegistro(registro.getCpf());
             if (num_registro == -1)
                 return StatusDeEdicao.CPF_INVALIDO;
-            Prontuario.CampoAlterado campo_alterado = getCampoByNum(opcao_de_campo);
-            if (campo_alterado == null)
+            if (opcao_de_campo < 1 || opcao_de_campo > 4)
                 return StatusDeEdicao.CAMPO_A_ALTERAR_INVALIDO;
-            switch(campo_alterado) {
-                case NOME:
+            switch(opcao_de_campo) {
+                case 1:
                     registro.setNome(valor);
                     break;
-                case SEXO:
+                case 2:
                     registro.setSexo(valor.charAt(0));
                     break;
-                case DATA:
+                case 3:
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
                     LocalDate data = LocalDate.parse(valor, formatter);
                     registro.setData(data);
                     break;
-                case ANOTACOES:
+                case 4:
                     registro.setAnotacoes(valor);
                     break;
                 default:
@@ -122,21 +121,7 @@ public class Controlador {
             return StatusDeEdicao.TUDO_OK;
         };
 
-        return StatusDeEdicao.values()[ ((StatusDeEdicao)executaEMedeTempo(edita, "editar")).getNumOpcao() ];
-    }
-
-    private Prontuario.CampoAlterado getCampoByNum(int opcao) {
-        if (opcao == 1) {
-            return Prontuario.CampoAlterado.NOME;
-        } else if (opcao == 2) {
-            return Prontuario.CampoAlterado.SEXO;
-        } else if (opcao == 3) {
-            return Prontuario.CampoAlterado.DATA;
-        } else if (opcao == 4){
-            return Prontuario.CampoAlterado.ANOTACOES;
-        } else {
-            return null;
-        }
+        return (StatusDeEdicao) executaEMedeTempo(edita, "editar");
     }
 
     public Prontuario recuperarRegistro(int cpf) {
@@ -180,11 +165,16 @@ public class Controlador {
             int lastCpf = 15561476;
             Prontuario prontuario;
             int numRegistro;
+            int ultimo_cpf_usado = 1;
+            long inicio, fim;
 
-            for (int cpf = 1; cpf <= lastCpf; cpf++) {
+            for (int cpf = ultimo_cpf_usado; cpf <= lastCpf; cpf++) {
+                inicio = System.currentTimeMillis();
                 prontuario = new Prontuario(cpf, "Nome" + cpf, LocalDate.now(), 'm', "blablabla");
                 numRegistro = arquivo_mestre.inserirRegistro(prontuario);
                 indice.inserirRegistro(cpf, numRegistro);
+                fim = System.currentTimeMillis();
+                System.out.println("Tempo de UMA inserção: " + (fim - inicio) + "ms");
             }
             return null;
         };
@@ -193,17 +183,14 @@ public class Controlador {
     }
 
     private Object executaEMedeTempo(Supplier<Object> fn, String label) {
-        Date date = new Date();
-        long t1 = date.getTime();
+        long inicio = System.currentTimeMillis();
 
         Object result = fn.get();
 
-        Date date2 = new Date();
-        long t2 = date2.getTime();
-        long diferenca = t2 - t1;
+        long fim = System.currentTimeMillis();
+        long diferenca = fim - inicio; // diferenca em milisegundos
 
-        String formattedDelta = new SimpleDateFormat("mm:ss:SSS").format(new Date(diferenca));
-        System.out.println("=== Tempo para " + label + ": " + formattedDelta + " ====");
+        System.out.println("=== Tempo para " + label + ": " + (diferenca) + "ms. ====");
 
         return result;
     }
