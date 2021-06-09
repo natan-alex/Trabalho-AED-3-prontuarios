@@ -5,11 +5,14 @@ import trabalho_aed_prontuario.indice.StatusDeInsercao;
 import trabalho_aed_prontuario.mestre.*;
 
 import java.io.IOException;
+import java.util.function.Supplier;
+import java.util.Date;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.text.SimpleDateFormat;
 
 public class Controlador {
     private Indice indice;
@@ -78,40 +81,48 @@ public class Controlador {
     }
 
     public StatusDeInsercao inserirRegistro(Prontuario prontuario) {
-        if (prontuario == null)
-            return StatusDeInsercao.REGISTRO_INVALIDO;
-        int num_registro = arquivo_mestre.inserirRegistro(prontuario);
-        return indice.inserirRegistro(prontuario.getCpf(), num_registro);
+        Supplier<Object> insere = () -> {
+            if (prontuario == null)
+                return StatusDeInsercao.REGISTRO_INVALIDO;
+            int num_registro = arquivo_mestre.inserirRegistro(prontuario);
+            return indice.inserirRegistro(prontuario.getCpf(), num_registro);
+        };
+
+        return StatusDeInsercao.values()[(int) executaEMedeTempo(insere, "inserir")];
     }
 
 
     public StatusDeEdicao editarRegistro(Prontuario registro, int opcao_de_campo, String valor) {
-        int num_registro = indice.getNumRegistro(registro.getCpf());
-        if (num_registro == -1)
-            return StatusDeEdicao.CPF_INVALIDO;
-        Prontuario.CampoAlterado campo_alterado = getCampoByNum(opcao_de_campo);
-        if (campo_alterado == null)
-            return StatusDeEdicao.CAMPO_A_ALTERAR_INVALIDO;
-        switch(campo_alterado) {
-            case NOME:
-                registro.setNome(valor);
-                break;
-            case SEXO:
-                registro.setSexo(valor.charAt(0));
-                break;
-            case DATA:
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-                LocalDate data = LocalDate.parse(valor, formatter);
-                registro.setData(data);
-                break;
-            case ANOTACOES:
-                registro.setAnotacoes(valor);
-                break;
-            default:
-                break;
-        }
-        arquivo_mestre.sobrescreverRegistroNoArquivo(registro, num_registro);
-        return StatusDeEdicao.TUDO_OK;
+        Supplier<Object> edita = () -> {
+            int num_registro = indice.getNumRegistro(registro.getCpf());
+            if (num_registro == -1)
+                return StatusDeEdicao.CPF_INVALIDO;
+            Prontuario.CampoAlterado campo_alterado = getCampoByNum(opcao_de_campo);
+            if (campo_alterado == null)
+                return StatusDeEdicao.CAMPO_A_ALTERAR_INVALIDO;
+            switch(campo_alterado) {
+                case NOME:
+                    registro.setNome(valor);
+                    break;
+                case SEXO:
+                    registro.setSexo(valor.charAt(0));
+                    break;
+                case DATA:
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                    LocalDate data = LocalDate.parse(valor, formatter);
+                    registro.setData(data);
+                    break;
+                case ANOTACOES:
+                    registro.setAnotacoes(valor);
+                    break;
+                default:
+                    break;
+            }
+            arquivo_mestre.sobrescreverRegistroNoArquivo(registro, num_registro);
+            return StatusDeEdicao.TUDO_OK;
+        };
+
+        return StatusDeEdicao.values()[(int) executaEMedeTempo(edita, "editar")];
     }
 
     private Prontuario.CampoAlterado getCampoByNum(int opcao) {
@@ -129,22 +140,68 @@ public class Controlador {
     }
 
     public Prontuario recuperarRegistro(int cpf) {
-        int num_registro = indice.getNumRegistro(cpf);
-        if (num_registro == -1)
-            return null;
-        return arquivo_mestre.recuperarRegistro(num_registro);
+        Supplier<Object> recupera = () -> {
+            int num_registro = indice.getNumRegistro(cpf);
+            if (num_registro == -1)
+                return null;
+            return arquivo_mestre.recuperarRegistro(num_registro);
+        };
+
+        return (Prontuario) executaEMedeTempo(recupera, "recuperar");
     }
 
     public void removerRegistro(int cpf) {
-        int num_registro = indice.getNumRegistro(cpf);
-        if (num_registro == -1)
-            return;
-        indice.removerRegistro(cpf);
-        arquivo_mestre.removerRegistro(num_registro);
+        Supplier<Object> remove = () -> {
+            int num_registro = indice.getNumRegistro(cpf);
+            if (num_registro == -1)
+                return null;
+
+            indice.removerRegistro(cpf);
+            arquivo_mestre.removerRegistro(num_registro);
+            return null;
+        };
+        executaEMedeTempo(remove, "remover");
     }
 
     public void imprimirArquivos() {
-        arquivo_mestre.imprimirArquivo();
-        indice.imprimirArquivo();
+        Supplier<Object> imprime = () -> {
+            arquivo_mestre.imprimirArquivo();
+            indice.imprimirArquivo();
+            return null;
+        };
+        executaEMedeTempo(imprime, "imprimir os arquivos");
+    }
+
+    public void simular() {
+        Supplier<Object> simula = () -> {
+            // 1 registro = 69 bytes
+            // 15561476 registros = 1 GB
+            // int lastCpf = 15561476;
+            int lastCpf = 155;
+            for (int cpf = 1; cpf <= lastCpf; cpf++) {
+                Prontuario prontuario = new Prontuario(cpf, "Nome" + cpf, LocalDate.now(), 'm', "blablabla");
+                int numRegistro = arquivo_mestre.inserirRegistro(prontuario);
+                indice.inserirRegistro(cpf, numRegistro);
+            }
+            return null;
+        };
+
+        executaEMedeTempo(simula, "simulação");
+    }
+
+    private Object executaEMedeTempo(Supplier<Object> fn, String label) {
+        Date date = new Date();
+        long t1 = date.getTime();
+
+        Object result = fn.get();
+
+        Date date2 = new Date();
+        long t2 = date2.getTime();
+        long diferenca = t2 - t1;
+
+        String formattedDelta = new SimpleDateFormat("mm:ss:SSS").format(new Date(diferenca));
+        System.out.println("=== Tempo para " + label + ": " + formattedDelta + " ====");
+
+        return result;
     }
 }

@@ -134,6 +134,7 @@ public class Main {
                     break;
                 case 6:
                     // simulacao
+                    controlador.simular();
                     break;
                 default:
                     System.out.println("Opção inválida.");
