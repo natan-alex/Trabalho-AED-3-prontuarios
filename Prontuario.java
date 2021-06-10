@@ -22,8 +22,8 @@ public class Prontuario extends Serializavel {
     private char sexo;
     private String anotacoes;
 
-    public Prontuario(byte[] data) {
-        super(data);
+    public Prontuario(byte[] dados) {
+        fromByteArray(dados);
     }
 
     public Prontuario(int cpf, String nome, LocalDate data, char sexo) {

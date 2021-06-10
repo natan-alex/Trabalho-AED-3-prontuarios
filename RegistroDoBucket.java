@@ -16,7 +16,7 @@ public class RegistroDoBucket extends Serializavel {
     public static final byte SIZEOF_REGISTRO_DO_BUCKET = (byte) 8;
 
     public RegistroDoBucket(byte[] dados) {
-        super(dados);
+        fromByteArray(dados);
     }
 
     // uso para inicializar um bucket com registros
