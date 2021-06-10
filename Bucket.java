@@ -9,9 +9,6 @@ import java.io.IOException;
 import java.util.Arrays;
 
 public class Bucket {
-    // tamanho, em bytes, de um registro do bucket
-    private static final byte SIZEOF_REGISTRO_DO_BUCKET = RegistroDoBucket.SIZEOF_REGISTRO_DO_BUCKET;
-
     private int profundidade_local;
     private int ocupacao;
     private final int tam_bucket; // tamanho máximo do bucket
@@ -53,7 +50,7 @@ public class Bucket {
             ) {
             this.profundidade_local = dis.readInt();
             this.ocupacao = dis.readInt();
-            byte[] registro = new byte[SIZEOF_REGISTRO_DO_BUCKET];
+            byte[] registro = new byte[RegistroDoBucket.SIZEOF_REGISTRO_DO_BUCKET];
 
             // ler registros do bucket
             for (int i = 0; i < tam_bucket; i++) {
