@@ -51,6 +51,10 @@ public class ArquivoMestre {
         }
     }
 
+    public int getTamRegistroCompleto() {
+        return tam_registro_completo;
+    }
+
     public short getNumBytesAnotacoes() {
         return num_bytes_anotacoes;
     }
