@@ -12,7 +12,8 @@ public class Diretorio {
     private RandomAccessFile raf;
 
     private int profundidade;
-    private List<Integer> indices = new ArrayList<Integer>();
+    private final int[] indices;
+    private int controlador;
 
     // caso o arquivo exista os indices e metadados são lidos
     // e os parâmetros passados ao construtor são ignorados
@@ -20,6 +21,8 @@ public class Diretorio {
     // e metadados no início do arquivo
     public Diretorio(String nome_do_arquivo, int profundidade) {
         this.profundidade = profundidade;
+        indices = new int[8192];
+        controlador = 0;
 
         try {
             raf = new RandomAccessFile(nome_do_arquivo, "rws");
@@ -46,7 +49,7 @@ public class Diretorio {
             raf.writeInt(profundidade);
             for (int i = 1; i <= num_buckets; i++) {
                 raf.writeInt(i);
-                this.indices.add(i);
+                indices[controlador++] = i;
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -58,16 +61,16 @@ public class Diretorio {
     private void lerInicial() {
         try {
             raf.seek(0);
-            this.profundidade = raf.readInt();
+            profundidade = raf.readInt();
 
-            this.indices.clear();
-            while(true) {
-                indices.add(raf.readInt());
+            controlador = 0;
+            int num_buckets = (int) Math.pow(2, profundidade);
+            int contador = 0;
+
+            while(contador != num_buckets) {
+                indices[controlador++] = raf.readInt();
+                contador++;
             }
-        } catch (EOFException ex) {
-            // While true ali em cima levanta um erro
-            // quando chega no fim do arquivo, mas como isso
-            // é esperado simplesmente ignoramos o erro
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -77,7 +80,7 @@ public class Diretorio {
     // o endereco do bucket no diretorio
     public int getPaginaIndice(int entrada) {
         int posicao = (int) Math.round(entrada % Math.pow(2, profundidade));
-        return indices.get(posicao);
+        return indices[posicao];
     }
 
     // reorganiza os ponteiros com base no bucket que
@@ -85,24 +88,22 @@ public class Diretorio {
     // do bucket utiliza a profundidade para reorganizar
     // os ponteiros entre os enderecos dos dois buckets
     public void reorganizar(int adrDupBucket, int adrNovoBucket, int profBucket) {
-        List<Integer> newIndices = new ArrayList<Integer>(indices);
         int oldReference, newReference;
 
         try {
-            for (int i = 0; i < this.indices.size(); i++) {
-                if (this.indices.get(i) == adrDupBucket) {
+            for (int i = 0; i < controlador; i++) {
+                System.out.println("indices["+i+"]: " + indices[i]);
+                if (indices[i] == adrDupBucket) {
                     oldReference = (int) Math.round(i % Math.pow(2, profBucket - 1));
                     newReference = (int) Math.round(i % Math.pow(2, profBucket));
 
                     if (oldReference != newReference) {
-                        raf.seek((i + 1)*4);
+                        raf.seek(4 + (long) (i + 1)*4);
                         raf.writeInt(adrNovoBucket);
-                        newIndices.set(i, adrNovoBucket);
+                        indices[i] = adrNovoBucket;
                     }
                 }
             }
-
-            this.indices = newIndices;
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -111,22 +112,19 @@ public class Diretorio {
     // duplica o diretorio sem reorganizar os ponteiros e
     // escreve em disco e em memoria os novos enderecos dos indices
     public void duplicar() {
-        List<Integer> newIndices = new ArrayList<Integer>(indices);
-        this.profundidade++;
-
         try {
             raf.seek(0);
-            raf.writeInt(this.profundidade);
+            raf.writeInt(++profundidade);
 
-            int tamArquivo = 4 + this.indices.size()*4;
-            raf.seek(tamArquivo);
+            raf.seek( raf.length() );
 
-            for (int i : this.indices) {
-                raf.writeInt(i);
-                newIndices.add(i);
+            int tam_indices = controlador;
+            int indices_i;
+            for (int i = 0; i < tam_indices; i++) {
+                indices_i = indices[i];
+                raf.writeInt(indices_i);
+                indices[controlador++] = indices_i;
             }
-
-            this.indices = newIndices;
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -134,12 +132,11 @@ public class Diretorio {
 
     public void imprimirArquivo() {
         try {
-            lerInicial();
+            raf.seek(0);
             System.out.println("========== DIRETORIO ==========");
-            System.out.println("Profundidade: " + profundidade);
-            int indices_size = indices.size();
-            for (int i = 0; i < indices_size; i++) {
-                System.out.println("[" + i + "] Bucket: " + indices.get(i));
+            System.out.println("Profundidade: " + raf.readInt());
+            for (int i = 0; i < controlador; i++) {
+                System.out.println("[" + i + "] Bucket: " + raf.readInt());
             }
         } catch (Exception ex) {
             ex.printStackTrace();
