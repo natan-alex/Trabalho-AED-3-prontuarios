@@ -287,16 +287,21 @@ public class Indice {
             raf.seek(0);
             int tamBucket = raf.readInt();
             int qtdBuckets = raf.readInt();
+            byte[] bucket_em_bytes = new byte[sizeof_full_bucket];
+            Bucket bucket;
 
             System.out.println("========== ÍNDICE ==========");
             System.out.println("[Cabeçalho]");
             System.out.println("Tamanho do bucket: " + tamBucket);
-            System.out.println("Quandidade de buckets: " + qtd_buckets);
+            System.out.println("Quantidade de buckets: " + qtdBuckets);
 
             System.out.println("[Registros]");
             for (int i = 1; i <= qtdBuckets; i++) {
                 System.out.println("[Bucket " + i + "] ");
-                System.out.println( carregarBucketDoArquivoDeIndice(i) );
+                // ler bucket inteiro
+                raf.read(bucket_em_bytes);
+                bucket = new Bucket(tamBucket, bucket_em_bytes);
+                System.out.println(bucket);
             }
         } catch(Exception err) {
             err.printStackTrace();
