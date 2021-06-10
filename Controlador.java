@@ -6,13 +6,11 @@ import trabalho_aed_prontuario.mestre.*;
 
 import java.io.IOException;
 import java.util.function.Supplier;
-import java.util.Date;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.text.SimpleDateFormat;
 
 public class Controlador {
     private Indice indice;
@@ -107,7 +105,11 @@ public class Controlador {
                     registro.setSexo(valor.charAt(0));
                     break;
                 case 3:
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                    DateTimeFormatter formatter;
+                    if (valor.length() == 8)
+                        formatter = DateTimeFormatter.ofPattern("dd/MM/yy");
+                    else
+                        formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
                     LocalDate data = LocalDate.parse(valor, formatter);
                     registro.setData(data);
                     break;
@@ -159,10 +161,9 @@ public class Controlador {
 
     public void simular() {
         Supplier<Object> simula = () -> {
-            // 1 registro = 69 bytes
-            // 15561476 registros = 1 GB
-            // int lastCpf = 15561476;
-            int lastCpf = 15561476;
+            int tam_registro_arq_mestre = arquivo_mestre.getTamRegistroCompleto();
+            int lastCpf = 1024 * 1024 * 1024 / tam_registro_arq_mestre;
+            System.out.println("lastCpf: " + lastCpf);
             Prontuario prontuario;
             int numRegistro;
             int ultimo_cpf_usado = 1;
@@ -174,7 +175,7 @@ public class Controlador {
                 numRegistro = arquivo_mestre.inserirRegistro(prontuario);
                 indice.inserirRegistro(cpf, numRegistro);
                 fim = System.currentTimeMillis();
-                System.out.println("Tempo de UMA inserção: " + (fim - inicio) + "ms");
+                System.out.println("Tempo pra inserir o cpf " + cpf + ": " + (fim - inicio) + "ms");
             }
             return null;
         };
