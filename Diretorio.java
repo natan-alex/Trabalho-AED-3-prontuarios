@@ -12,16 +12,14 @@ public class Diretorio {
     private RandomAccessFile raf;
 
     private int profundidade;
-    // private Indice indice;
     private List<Integer> indices = new ArrayList<Integer>();
 
     // caso o arquivo exista os indices e metadados são lidos
     // e os parâmetros passados ao construtor são ignorados
     // caso o arquivo NÃO exista é necessário criar os indices
     // e metadados no início do arquivo
-    public Diretorio(String nome_do_arquivo, int profundidade, int tamBuckets) {
+    public Diretorio(String nome_do_arquivo, int profundidade) {
         this.profundidade = profundidade;
-        // this.indice = indice;
 
         try {
             raf = new RandomAccessFile(nome_do_arquivo, "rws");
@@ -44,9 +42,9 @@ public class Diretorio {
     // escrever em memoria os enderecos do indice
     private void escreverInicial() {
         try {
+            int num_buckets = (int) Math.pow(2, this.profundidade);
             raf.writeInt(profundidade);
-            for (int i = 1; i <= Math.pow(2, this.profundidade); i++) {
-                // indice.inserirNovoBucketNoArquivo(profundidade);
+            for (int i = 1; i <= num_buckets; i++) {
                 raf.writeInt(i);
                 this.indices.add(i);
             }
@@ -60,14 +58,11 @@ public class Diretorio {
     private void lerInicial() {
         try {
             raf.seek(0);
-
-            int dado = raf.readInt();
-            this.profundidade = dado;
+            this.profundidade = raf.readInt();
 
             this.indices.clear();
             while(true) {
-                dado = raf.readInt();
-                indices.add(dado);
+                indices.add(raf.readInt());
             }
         } catch (EOFException ex) {
             // While true ali em cima levanta um erro
@@ -91,12 +86,13 @@ public class Diretorio {
     // os ponteiros entre os enderecos dos dois buckets
     public void reorganizar(int adrDupBucket, int adrNovoBucket, int profBucket) {
         List<Integer> newIndices = new ArrayList<Integer>(indices);
+        int oldReference, newReference;
 
         try {
             for (int i = 0; i < this.indices.size(); i++) {
                 if (this.indices.get(i) == adrDupBucket) {
-                    int oldReference = (int) Math.round(i % Math.pow(2, profBucket - 1));
-                    int newReference = (int) Math.round(i % Math.pow(2, profBucket));
+                    oldReference = (int) Math.round(i % Math.pow(2, profBucket - 1));
+                    newReference = (int) Math.round(i % Math.pow(2, profBucket));
 
                     if (oldReference != newReference) {
                         raf.seek((i + 1)*4);
@@ -139,10 +135,10 @@ public class Diretorio {
     public void imprimirArquivo() {
         try {
             lerInicial();
-
             System.out.println("========== DIRETORIO ==========");
             System.out.println("Profundidade: " + profundidade);
-            for (int i = 0; i < indices.size(); i++) {
+            int indices_size = indices.size();
+            for (int i = 0; i < indices_size; i++) {
                 System.out.println("[" + i + "] Bucket: " + indices.get(i));
             }
         } catch (Exception ex) {

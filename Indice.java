@@ -5,13 +5,8 @@ import java.io.RandomAccessFile;
 import java.io.IOException;
 
 public class Indice {
-    // tamanho, em bytes, de um único registro do bucket
-    // boolean para lápide + int para chave + int para o número do registro
-    private static final byte SIZEOF_REGISTRO_DO_BUCKET = RegistroDoBucket.SIZEOF_REGISTRO_DO_BUCKET;
-    // tamanho, em bytes, dos metadados no arquivo de indice
     private static final byte SIZEOF_METADADOS_INDICE = 8;
-    // tamanho, em bytes, dos metadados de um bucket
-    private static final byte SIZEOF_METADADOS_BUCKET = 8;
+    private byte sizeof_full_bucket;
 
     private RandomAccessFile raf;
     private Diretorio diretorio;
@@ -42,8 +37,10 @@ public class Indice {
                 }
             }
 
+            sizeof_full_bucket = (byte) (8 + tam_bucket * RegistroDoBucket.SIZEOF_REGISTRO_DO_BUCKET);
+
             // instanciar diretorio
-            diretorio = new Diretorio(nome_diretorio, profundidade_global, tam_bucket);
+            diretorio = new Diretorio(nome_diretorio, profundidade_global);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -121,7 +118,7 @@ public class Indice {
         // para isso pula-se num_bucket - 1 buckets, que são
         // compostos por metadados de tamanho SIZEOF_METADADOS_BUCKET
         // e tam_bucket registros
-        return SIZEOF_METADADOS_INDICE + (num_bucket - 1) * (tam_bucket * (long)SIZEOF_REGISTRO_DO_BUCKET + SIZEOF_METADADOS_BUCKET);
+        return SIZEOF_METADADOS_INDICE + (long) (num_bucket - 1) * sizeof_full_bucket;
     }
 
     // retornar um bucket com as informações lidas
@@ -140,7 +137,7 @@ public class Indice {
             raf.seek(pos_inicio);
 
             // ler bucket inteiro
-            byte[] bucket_em_bytes = new byte[SIZEOF_METADADOS_BUCKET + tam_bucket * SIZEOF_REGISTRO_DO_BUCKET];
+            byte[] bucket_em_bytes = new byte[sizeof_full_bucket];
             raf.read(bucket_em_bytes);
 
             // retornar novo bucket com as informações lidas
@@ -158,10 +155,7 @@ public class Indice {
         try {
             Bucket bucket = carregarBucketDoArquivoDeIndice(num_bucket);
             bucket.removerRegistro(cpf);
-
             escreverBucketDaMemoriaProArquivo(bucket, num_bucket);
-
-            System.out.println("Bucket removido: " + bucket.toString());
         } catch(Exception err) {
             err.printStackTrace();
         }
@@ -229,10 +223,8 @@ public class Indice {
     private Bucket[] distribuirRegistrosDoBucket(Bucket bucket, int num_bucket) {
         int profundidade_novo_bucket = bucket.getProfundidadeLocal() + 1;
 
-        // número do novo bucket corresponde
-        // ao número de buckets presentes no
-        // arquivo, já que os números de buckets
-        // começam em 1
+        // número do novo bucket corresponde ao número de buckets presentes no
+        // arquivo, já que os números de buckets começam em 1
         int num_novo_bucket = qtd_buckets + 1;
 
         // carregar novo bucket para a memória principal

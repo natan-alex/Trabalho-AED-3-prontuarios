@@ -134,13 +134,4 @@ public class Prontuario extends Serializavel {
             e.printStackTrace();
         }
     }
-
-    // auxiliar na identificação de qual campo de um prontuário foi alterado
-    // durante a edição de um registro
-    public enum CampoAlterado {
-        NOME(),
-        SEXO(),
-        DATA(),
-        ANOTACOES();
-    }
 }
