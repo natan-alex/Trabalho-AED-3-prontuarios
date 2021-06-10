@@ -166,7 +166,7 @@ public class ArquivoMestre {
     // partir de seu número; retorna -1 caso o num_registro
     // seja inválido
     protected long calcularPosicaoDoRegistro(int num_registro) {
-        if (num_registro <= 0 || num_registro > num_registros_no_arquivo) {
+        if (num_registro <= 0) {
             System.out.println("Número de registro " + num_registro + " inválido.");
             return -1;
         }
