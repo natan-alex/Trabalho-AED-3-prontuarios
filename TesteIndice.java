@@ -28,28 +28,31 @@ public class TesteIndice {
                 indice.inserirRegistro(cpf, numRegistro);
             }
 
-            numRegistro = indice.getNumRegistro(3);
-            indice.removerRegistro(3);
-            mestre.removerRegistro(numRegistro);
-
-            numRegistro = indice.getNumRegistro(13);
-            indice.removerRegistro(13);
-            mestre.removerRegistro(numRegistro);
-
-            numRegistro = indice.getNumRegistro(22);
-            indice.removerRegistro(22);
-            mestre.removerRegistro(numRegistro);
-
-            prontuario = new Prontuario(9, "NomeNEW" + 9, LocalDate.now(), 'm', "blablabla");
-            numRegistro = mestre.inserirRegistro(prontuario);
-            indice.inserirRegistro(9, numRegistro);
-
-            prontuario = new Prontuario(66, "Nome" + 66, LocalDate.now(), 'm', "blablabla");
-            numRegistro = mestre.inserirRegistro(prontuario);
-            indice.inserirRegistro(66, numRegistro);
-
-            indice.imprimirArquivo();
             mestre.imprimirArquivo();
-            System.out.println("\n");
+            indice.imprimirArquivo();
+//
+//            numRegistro = indice.getNumRegistro(3);
+//            indice.removerRegistro(3);
+//            mestre.removerRegistro(numRegistro);
+//
+//            numRegistro = indice.getNumRegistro(13);
+//            indice.removerRegistro(13);
+//            mestre.removerRegistro(numRegistro);
+//
+//            numRegistro = indice.getNumRegistro(22);
+//            indice.removerRegistro(22);
+//            mestre.removerRegistro(numRegistro);
+//
+//            prontuario = new Prontuario(9, "NomeNEW" + 9, LocalDate.now(), 'm', "blablabla");
+//            numRegistro = mestre.inserirRegistro(prontuario);
+//            indice.inserirRegistro(9, numRegistro);
+//
+//            prontuario = new Prontuario(66, "Nome" + 66, LocalDate.now(), 'm', "blablabla");
+//            numRegistro = mestre.inserirRegistro(prontuario);
+//            indice.inserirRegistro(66, numRegistro);
+//
+//            indice.imprimirArquivo();
+//            mestre.imprimirArquivo();
+//            System.out.println("\n");
         }
 }

@@ -151,14 +151,9 @@ public class Indice {
 
     public void removerRegistro(int cpf) {
         int num_bucket = diretorio.getPaginaIndice(cpf);
-
-        try {
-            Bucket bucket = carregarBucketDoArquivoDeIndice(num_bucket);
-            bucket.removerRegistro(cpf);
-            escreverBucketDaMemoriaProArquivo(bucket, num_bucket);
-        } catch(Exception err) {
-            err.printStackTrace();
-        }
+        Bucket bucket = carregarBucketDoArquivoDeIndice(num_bucket);
+        bucket.removerRegistro(cpf);
+        escreverBucketDaMemoriaProArquivo(bucket, num_bucket);
     }
 
     // inserir um registro em um bucket;
