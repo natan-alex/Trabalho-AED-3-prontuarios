@@ -177,6 +177,11 @@ public class Controlador {
                 fim = System.currentTimeMillis();
                 System.out.println("Tempo pra inserir o cpf " + cpf + ": " + (fim - inicio) + "ms");
             }
+
+            if (arquivo_mestre.getNumRegistrosMemoria() > 0) {
+                arquivo_mestre.flushRegistrosMemoria();
+            }
+
             return null;
         };
 

@@ -92,7 +92,7 @@ public class Diretorio {
 
         try {
             for (int i = 0; i < controlador; i++) {
-                System.out.println("indices["+i+"]: " + indices[i]);
+                // System.out.println("indices["+i+"]: " + indices[i]);
                 if (indices[i] == adrDupBucket) {
                     oldReference = (int) Math.round(i % Math.pow(2, profBucket - 1));
                     newReference = (int) Math.round(i % Math.pow(2, profBucket));
