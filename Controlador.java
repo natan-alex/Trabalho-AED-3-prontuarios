@@ -83,6 +83,7 @@ public class Controlador {
             if (prontuario == null)
                 return StatusDeInsercao.REGISTRO_INVALIDO;
             int num_registro = arquivo_mestre.inserirRegistro(prontuario);
+            System.out.println("num_registro: " + num_registro);
             return indice.inserirRegistro(prontuario.getCpf(), num_registro);
         };
 

@@ -6,7 +6,7 @@ import java.io.IOException;
 
 public class Indice {
     private static final byte SIZEOF_METADADOS_INDICE = 8;
-    private byte sizeof_full_bucket;
+    private short sizeof_full_bucket;
 
     private RandomAccessFile raf;
     private Diretorio diretorio;
@@ -37,7 +37,7 @@ public class Indice {
                 }
             }
 
-            sizeof_full_bucket = (byte) (8 + tam_bucket * RegistroDoBucket.SIZEOF_REGISTRO_DO_BUCKET);
+            sizeof_full_bucket = (short) (8 + this.tam_bucket * RegistroDoBucket.SIZEOF_REGISTRO_DO_BUCKET);
 
             // instanciar diretorio
             diretorio = new Diretorio(nome_diretorio, profundidade_global);
@@ -118,6 +118,8 @@ public class Indice {
         // para isso pula-se num_bucket - 1 buckets, que são
         // compostos por metadados de tamanho SIZEOF_METADADOS_BUCKET
         // e tam_bucket registros
+        System.out.println("posição do bucket de número " + num_bucket + ": ");
+        System.out.println(SIZEOF_METADADOS_INDICE + (long) (num_bucket - 1) * sizeof_full_bucket);
         return SIZEOF_METADADOS_INDICE + (long) (num_bucket - 1) * sizeof_full_bucket;
     }
 
@@ -169,14 +171,18 @@ public class Indice {
         // registro é inválido
         if (cpf <= 0 || num_registro <= 0)
             return StatusDeInsercao.REGISTRO_INVALIDO;
+        System.out.println("cpf: " + cpf);
 
         // calcular número do bucket onde inserir o
         // registro a partir da hash feita em diretório
         int num_bucket = diretorio.getPaginaIndice(cpf);
+        System.out.println("num_bucket: " + num_bucket);
 
         // carregar bucket de número num_bucket do arquivo
         // para a memória principal
         Bucket bucket = carregarBucketDoArquivoDeIndice(num_bucket);
+        System.out.println("bucket em mem: ");
+        System.out.println(bucket);
 
         // checar o status de uma próxima inserção no bucket
         // que está em memória
