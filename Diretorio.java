@@ -20,7 +20,7 @@ public class Diretorio {
     // caso o arquivo NÃO exista é necessário criar os indices
     // e metadados no início do arquivo
     public Diretorio(String nome_do_arquivo, int profundidade) {
-        indices = new int[8192];
+        indices = new int[1000000];
         controlador = 0;
 
         try {
@@ -90,7 +90,6 @@ public class Diretorio {
         try {
             int oldReference, newReference;
             for (int i = 0; i < controlador; i++) {
-                // System.out.println("indices["+i+"]: " + indices[i]);
                 if (indices[i] == adrDupBucket) {
                     oldReference = (int) Math.round(i % Math.pow(2, profBucket - 1));
                     newReference = (int) Math.round(i % Math.pow(2, profBucket));

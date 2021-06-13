@@ -83,7 +83,6 @@ public class Controlador {
             if (prontuario == null)
                 return StatusDeInsercao.REGISTRO_INVALIDO;
             int num_registro = arquivo_mestre.inserirRegistro(prontuario);
-            System.out.println("num_registro: " + num_registro);
             return indice.inserirRegistro(prontuario.getCpf(), num_registro);
         };
 
@@ -166,7 +165,6 @@ public class Controlador {
         Supplier<Object> simula = () -> {
             int tam_registro_arq_mestre = arquivo_mestre.getTamRegistroCompleto();
             int lastCpf = 1024 * 1024 * 1024 / tam_registro_arq_mestre;
-            System.out.println("lastCpf: " + lastCpf);
             Prontuario prontuario;
             int numRegistro;
             long inicio, fim;

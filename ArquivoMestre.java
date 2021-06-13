@@ -205,7 +205,7 @@ public class ArquivoMestre {
     public Prontuario recuperarRegistro(int num_registro) {
         flushRegistrosMemoria();
 
-        if (num_registro <= 0 || num_registro > num_registros_no_arquivo) {
+        if (num_registro <= 0) {
             System.out.println("Número de registro " + num_registro + " inválido.");
             return null;
         }
@@ -231,7 +231,7 @@ public class ArquivoMestre {
     public void removerRegistro(int num_registro) {
         flushRegistrosMemoria();
 
-        if (num_registro <= 0 || num_registro > num_registros_no_arquivo) {
+        if (num_registro <= 0) {
             System.out.println("Número de registro " + num_registro + " inválido.");
             return;
         }
