@@ -94,7 +94,7 @@ public class Main {
 
                     if (prontuario == null) {
                         System.out.println("Cpf não cadastrado.");
-                        return;
+                        break;
                     }
 
                     System.out.println("Informações atuais do prontuário: ");
