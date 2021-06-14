@@ -48,6 +48,23 @@ public class TesteIndice {
             numRegistro = mestre.inserirRegistro(prontuario);
             indice.inserirRegistro(66, numRegistro);
 
+            prontuario = new Prontuario(122, "Nome" + 122, LocalDate.now(), 'm', "blablabla");
+            numRegistro = mestre.inserirRegistro(prontuario);
+            indice.inserirRegistro(122, numRegistro);
+
+            prontuario = new Prontuario(123, "Nome" + 123, LocalDate.now(), 'm', "blablabla");
+            numRegistro = mestre.inserirRegistro(prontuario);
+            indice.inserirRegistro(123, numRegistro);
+
+            prontuario = new Prontuario(127, "Nome" + 127, LocalDate.now(), 'm', "blablabla");
+            numRegistro = mestre.inserirRegistro(prontuario);
+            indice.inserirRegistro(127, numRegistro);
+
+            prontuario = new Prontuario(131, "Nome" + 131, LocalDate.now(), 'm', "blablabla");
+            numRegistro = mestre.inserirRegistro(prontuario);
+            indice.inserirRegistro(131, numRegistro);
+
+
             indice.imprimirArquivo();
             mestre.imprimirArquivo();
             System.out.println("\n");

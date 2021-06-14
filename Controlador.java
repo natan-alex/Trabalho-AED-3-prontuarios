@@ -163,7 +163,7 @@ public class Controlador {
     public void simular() {
         Supplier<Object> simula = () -> {
             int tam_registro_arq_mestre = arquivo_mestre.getTamRegistroCompleto();
-            int lastCpf = 1024 * 1024 * 1024 / tam_registro_arq_mestre;
+            int lastCpf = 1024 *1024 * 1024 / tam_registro_arq_mestre;
             System.out.println("lastCpf: " + lastCpf);
             Prontuario prontuario;
             int numRegistro;
