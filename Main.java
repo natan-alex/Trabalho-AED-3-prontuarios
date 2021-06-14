@@ -94,7 +94,7 @@ public class Main {
 
                     if (prontuario == null) {
                         System.out.println("Cpf não cadastrado.");
-                        return;
+                        break;
                     }
 
                     System.out.println("Informações atuais do prontuário: ");
@@ -126,7 +126,10 @@ public class Main {
                     System.out.print("Qual será o cpf do paciente a ser removido? ");
                     opcao = Integer.parseInt(in.nextLine());
 
-                    controlador.removerRegistro(opcao);
+                    if (controlador.removerRegistro(opcao) == StatusDeRemocao.TUDO_OK)
+                        System.out.println("Prontuário removido com sucesso.");
+                    else
+                        System.out.println("Falha ao remover prontuário.");
                     break;
                 case 5:
                     // imprimir arquivos

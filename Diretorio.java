@@ -20,8 +20,7 @@ public class Diretorio {
     // caso o arquivo NÃO exista é necessário criar os indices
     // e metadados no início do arquivo
     public Diretorio(String nome_do_arquivo, int profundidade) {
-        this.profundidade = profundidade;
-        indices = new int[8192];
+        indices = new int[1000000];
         controlador = 0;
 
         try {
@@ -29,6 +28,7 @@ public class Diretorio {
             if (raf.length() > 0) {
                 lerInicial();
             } else {
+                this.profundidade = profundidade;
                 escreverInicial();
             }
         } catch (Exception e) {
@@ -60,7 +60,6 @@ public class Diretorio {
     // os enderecos do indices e também os escrever em memoria
     private void lerInicial() {
         try {
-            raf.seek(0);
             profundidade = raf.readInt();
 
             controlador = 0;
@@ -88,9 +87,8 @@ public class Diretorio {
     // do bucket utiliza a profundidade para reorganizar
     // os ponteiros entre os enderecos dos dois buckets
     public void reorganizar(int adrDupBucket, int adrNovoBucket, int profBucket) {
-        int oldReference, newReference;
-
         try {
+            int oldReference, newReference;
             for (int i = 0; i < controlador; i++) {
                 if (indices[i] == adrDupBucket) {
                     oldReference = (int) Math.round(i % Math.pow(2, profBucket - 1));

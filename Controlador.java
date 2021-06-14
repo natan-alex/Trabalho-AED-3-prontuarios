@@ -5,6 +5,11 @@ import trabalho_aed_prontuario.indice.StatusDeInsercao;
 import trabalho_aed_prontuario.mestre.*;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Collections;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 import java.util.function.Supplier;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -79,19 +84,19 @@ public class Controlador {
     }
 
     public StatusDeInsercao inserirRegistro(Prontuario prontuario) {
-        Supplier<Object> insere = () -> {
+        Supplier<StatusDeInsercao> insere = () -> {
             if (prontuario == null)
                 return StatusDeInsercao.REGISTRO_INVALIDO;
             int num_registro = arquivo_mestre.inserirRegistro(prontuario);
             return indice.inserirRegistro(prontuario.getCpf(), num_registro);
         };
 
-        return (StatusDeInsercao) executaEMedeTempo(insere, "inserir");
+        return executaEMedeTempo(insere, "inserir");
     }
 
 
     public StatusDeEdicao editarRegistro(Prontuario registro, int opcao_de_campo, String valor) {
-        Supplier<Object> edita = () -> {
+        Supplier<StatusDeEdicao> edita = () -> {
             int num_registro = indice.getNumRegistro(registro.getCpf());
             if (num_registro == -1)
                 return StatusDeEdicao.CPF_INVALIDO;
@@ -123,31 +128,32 @@ public class Controlador {
             return StatusDeEdicao.TUDO_OK;
         };
 
-        return (StatusDeEdicao) executaEMedeTempo(edita, "editar");
+        return executaEMedeTempo(edita, "editar");
     }
 
     public Prontuario recuperarRegistro(int cpf) {
-        Supplier<Object> recupera = () -> {
+        Supplier<Prontuario> recupera = () -> {
             int num_registro = indice.getNumRegistro(cpf);
             if (num_registro == -1)
                 return null;
             return arquivo_mestre.recuperarRegistro(num_registro);
         };
 
-        return (Prontuario) executaEMedeTempo(recupera, "recuperar");
+        return executaEMedeTempo(recupera, "recuperar");
     }
 
-    public void removerRegistro(int cpf) {
-        Supplier<Object> remove = () -> {
+    public StatusDeRemocao removerRegistro(int cpf) {
+        Supplier<StatusDeRemocao> remove = () -> {
             int num_registro = indice.getNumRegistro(cpf);
             if (num_registro == -1)
-                return null;
+                return StatusDeRemocao.CPF_INVALIDO;
 
             indice.removerRegistro(cpf);
             arquivo_mestre.removerRegistro(num_registro);
-            return null;
+            return StatusDeRemocao.TUDO_OK;
         };
-        executaEMedeTempo(remove, "remover");
+
+        return executaEMedeTempo(remove, "remover");
     }
 
     public void imprimirArquivos() {
@@ -156,20 +162,23 @@ public class Controlador {
             indice.imprimirArquivo();
             return null;
         };
+
         executaEMedeTempo(imprime, "imprimir os arquivos");
     }
 
     public void simular() {
-        Supplier<Object> simula = () -> {
-            int tam_registro_arq_mestre = arquivo_mestre.getTamRegistroCompleto();
-            int lastCpf = 1024 * 1024 * 1024 / tam_registro_arq_mestre;
-            System.out.println("lastCpf: " + lastCpf);
+        final int tam_registro_arq_mestre = arquivo_mestre.getTamRegistroCompleto();
+        final int lastCpf = 1024 * 1024 * 1024 / tam_registro_arq_mestre;
+        final int ultimo_cpf_usado = 1;
+        final List<Integer> cpfs = IntStream.rangeClosed(ultimo_cpf_usado, lastCpf).boxed().collect(Collectors.toList());
+        Collections.shuffle(cpfs);
+
+        Supplier<Object> simulaInsere = () -> {
             Prontuario prontuario;
             int numRegistro;
-            int ultimo_cpf_usado = 1;
             long inicio, fim;
 
-            for (int cpf = ultimo_cpf_usado; cpf <= lastCpf; cpf++) {
+            for (Integer cpf : cpfs) {
                 inicio = System.currentTimeMillis();
                 prontuario = new Prontuario(cpf, "Nome" + cpf, LocalDate.now(), 'm', "blablabla");
                 numRegistro = arquivo_mestre.inserirRegistro(prontuario);
@@ -177,16 +186,37 @@ public class Controlador {
                 fim = System.currentTimeMillis();
                 System.out.println("Tempo pra inserir o cpf " + cpf + ": " + (fim - inicio) + "ms");
             }
+
+            if (arquivo_mestre.getNumRegistrosMemoria() > 0) {
+                arquivo_mestre.flushRegistrosMemoria();
+            }
+
             return null;
         };
+        executaEMedeTempo(simulaInsere, "simulação [inserção]");
 
-        executaEMedeTempo(simula, "simulação");
+        Supplier<Object> simulaBusca = () -> {
+            Prontuario prontuario;
+            int numRegistro;
+            long inicio, fim;
+
+            for (Integer cpf : cpfs) {
+                inicio = System.currentTimeMillis();
+                numRegistro = indice.getNumRegistro(cpf);
+                prontuario = arquivo_mestre.recuperarRegistro(numRegistro);
+                fim = System.currentTimeMillis();
+                System.out.println("Tempo pra procurar o registro " + cpf + ": " + (fim - inicio) + "ms");
+            }
+
+            return null;
+        };
+        executaEMedeTempo(simulaBusca, "simulação [busca]");
     }
 
-    private Object executaEMedeTempo(Supplier<Object> fn, String label) {
+    private <T> T executaEMedeTempo(Supplier<T> fn, String label) {
         long inicio = System.currentTimeMillis();
 
-        Object result = fn.get();
+        T result = fn.get();
 
         long fim = System.currentTimeMillis();
         long diferenca = fim - inicio; // diferenca em milisegundos

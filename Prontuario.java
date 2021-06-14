@@ -94,6 +94,26 @@ public class Prontuario extends Serializavel {
         return "Prontuario: (cpf = " + cpf +  ", nome = " + nome + ", data = " + data.format(formatter) + ", sexo = " + sexo + ", anotacoes = " + anotacoes + ")";
     }
 
+    public byte[] toByteArrayComCabecalho(int id, int prox_id_vazio, boolean lapide) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream dos = new DataOutputStream(baos);
+
+        try {
+            dos.writeInt(id);
+            dos.writeInt(prox_id_vazio);
+            dos.writeBoolean(lapide);
+            dos.write(toByteArray());
+            dos.flush();
+            dos.close();
+            dos = null;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return baos.toByteArray();
+    }
+
+
     // retorna um array de bytes com os valores dos atributos
     @Override
     protected byte[] toByteArray() {

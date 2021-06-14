@@ -6,7 +6,7 @@ import java.io.IOException;
 
 public class Indice {
     private static final byte SIZEOF_METADADOS_INDICE = 8;
-    private byte sizeof_full_bucket;
+    private short sizeof_full_bucket;
 
     private RandomAccessFile raf;
     private Diretorio diretorio;
@@ -37,7 +37,7 @@ public class Indice {
                 }
             }
 
-            sizeof_full_bucket = (byte) (8 + tam_bucket * RegistroDoBucket.SIZEOF_REGISTRO_DO_BUCKET);
+            sizeof_full_bucket = (short) (8 + this.tam_bucket * RegistroDoBucket.SIZEOF_REGISTRO_DO_BUCKET);
 
             // instanciar diretorio
             diretorio = new Diretorio(nome_diretorio, profundidade_global);

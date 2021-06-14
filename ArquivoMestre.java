@@ -1,12 +1,19 @@
 package trabalho_aed_prontuario.mestre;
 
+import java.io.ByteArrayOutputStream;
 import java.io.RandomAccessFile;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.ArrayList;
 import java.time.format.DateTimeFormatter;
 
 import java.io.IOException;
 
 public class ArquivoMestre {
+    private static final int MAX_REGISTROS_MEMORIA = 1000;
+    private static int num_registros_memoria = 0;
+    private ByteArrayOutputStream registros_bytes_memoria;
+
     // num_bytes_anotacoes: 2, num_registros_no_arquivo: 4,
     // prox_id: 4, prox_id_vazio: 4 bytes, ultimo_id_vazio: 4 bytes;
     private static final int TAM_CABECALHO = 18;
@@ -28,6 +35,8 @@ public class ArquivoMestre {
     private int ultimo_id_vazio;
 
     public ArquivoMestre(String nome_do_arquivo, short num_bytes_anotacoes) {
+        registros_bytes_memoria = new ByteArrayOutputStream();
+
         try {
             raf = new RandomAccessFile(nome_do_arquivo, "rws");
             // se o arquivo tiver algo, ignorar o argumento num_bytes_anotacoes
@@ -59,6 +68,10 @@ public class ArquivoMestre {
         return num_bytes_anotacoes;
     }
 
+    public int getNumRegistrosMemoria() {
+        return num_registros_memoria;
+    }
+
     // ler metadados em caso de o arquivo já existir;
     // metadados: número de registros presentes no arquivo,
     // o número de bytes total para as anotações e o último
@@ -88,11 +101,36 @@ public class ArquivoMestre {
         }
     }
 
+    // escrever no arquivo todos os registros (em array de bytes)
+    // em memória, resetando o buffer de registros e atualizando
+    // os valores de num_registros_memoria e prox_id
+    public void flushRegistrosMemoria() {
+        try {
+            raf.seek(TAM_CABECALHO + ((long)num_registros_no_arquivo * tam_registro_completo));
+            raf.write(registros_bytes_memoria.toByteArray());
+
+            registros_bytes_memoria.reset();
+
+            raf.seek(6);
+            raf.writeInt(prox_id);
+
+            raf.seek(0);
+            num_registros_no_arquivo += num_registros_memoria;
+            raf.writeInt(num_registros_no_arquivo);
+
+            num_registros_memoria = 0;
+        } catch(Exception err) {
+            err.printStackTrace();
+        }
+    }
+
     // inserir um registro no fim do arquivo de dados ou
     // em um registro logicamente deletado;
     // verifica o prox_id_vazio do registro e insere nele
     // caso tenha um valor, caso contrário, insere no fim
     // do arquivo;
+    // se não tiver nenhum registro deletado, a inserção
+    // será feita em bloco;
     // retorna o número do registro inserido
     public int inserirRegistro(Prontuario registro) {
         // cortar tamanho das anotacoes, caso necessario,
@@ -103,28 +141,36 @@ public class ArquivoMestre {
 
         try {
             if (prox_id_vazio == -1) {
-                // ir para o fim do último registro do arquivo
-                raf.seek(TAM_CABECALHO + ((long)num_registros_no_arquivo * tam_registro_completo));
-                raf.writeInt(prox_id);
-                raf.writeInt(-1); // prox_id_vazio
-                raf.writeBoolean(false); // lapide
+                // obtém uma lista de bytes do registro com o cabecalho incluido e depois
+                // cria um novo array de bytes de tamanho igual ao tamanho
+                // fixo do registro para pode completar o `registro_em_bytes`,
+                // que não é fixo. Por exemplo, supondo que tam_registr_completo é 8:
+                //   - registro_bytes = 11010
+                //   - padded_registro_bytes = 00000000
+                // agora, é copiado o registro_bytes para o padded_registro_bytes, começando na
+                // posição 0, portanto o resultado é (depois do System.arraycopy)
+                //   - padded_registro_bytes = 00011010
+                // então quando formos escrever o registro em bloco, não teremos problema
+                // de não respeitar o tamanho alocado do registro
+                byte[] registro_bytes = registro.toByteArrayComCabecalho(prox_id, -1, false);
+                byte[] padded_registro_bytes = new byte[tam_registro_completo];
+                System.arraycopy(registro_bytes, 0, padded_registro_bytes, 0, registro_bytes.length);
 
-                // obter registro em bytes para ser inserido
-                byte[] registro_em_bytes = registro.toByteArray();
-                raf.write(registro_em_bytes); // registro
-                registro_em_bytes = null;
+                registros_bytes_memoria.write(padded_registro_bytes);
+                num_registros_memoria++;
 
-                // atualizar o número de registros presentes no arquivo
-                raf.seek(0);
-                raf.writeInt(++num_registros_no_arquivo);
+                // trecho para otimizar a inserção utilizando a inserção em bloco
+                //  se o número de registros em memória for igual ao máximo suportado
+                //  então todos os registros são escritos no arquivo
+                if (num_registros_memoria == MAX_REGISTROS_MEMORIA) {
+                    flushRegistrosMemoria();
+                }
 
-                // atualizar prox id
-                raf.seek(6); // pular o número de registros(int) e o número
-                // de bytes para as anotações(short)
-                raf.writeInt(++prox_id);
-
+                prox_id++;
                 return prox_id - 1;
             } else {
+                flushRegistrosMemoria();
+
                 // vai para o registro de prox_id_removido para pegar o
                 // prox_prox_id_removido e assim modificar o cabecalho com este valor
                 // assim, na proxima insercao, o proximo proximo id removido será reutilizado
@@ -178,7 +224,9 @@ public class ArquivoMestre {
     // registro for inválido ou ocorrer alguma IOException
     // OBS: num_registro vem do índice
     public Prontuario recuperarRegistro(int num_registro) {
-        if (num_registro <= 0 || num_registro > num_registros_no_arquivo) {
+        flushRegistrosMemoria();
+
+        if (num_registro <= 0) {
             System.out.println("Número de registro " + num_registro + " inválido.");
             return null;
         }
@@ -202,7 +250,9 @@ public class ArquivoMestre {
     // remove logicamente o registro alterando o valor da lapide para true
     // atualiza o prox_id_vazio e o ultimo_id_vazio
     public void removerRegistro(int num_registro) {
-        if (num_registro <= 0 || num_registro > num_registros_no_arquivo) {
+        flushRegistrosMemoria();
+
+        if (num_registro <= 0) {
             System.out.println("Número de registro " + num_registro + " inválido.");
             return;
         }
@@ -248,6 +298,8 @@ public class ArquivoMestre {
     // e se não existir(ou for lápide) retorna false. Perguntar o
     // que o usuário quer alterar, excluindo o cpf.
     public boolean sobrescreverRegistroNoArquivo(Prontuario novo_prontuario, int num_registro) {
+        flushRegistrosMemoria();
+
         boolean deu_certo = false;
         // cortar tamanho das anotacoes, caso necessario,
         // antes de inserir o registro
@@ -271,6 +323,8 @@ public class ArquivoMestre {
     // imprime o cabeçalho e registros do arquivo mestre,
     // pulando de registro a registro
     public void imprimirArquivo() {
+        flushRegistrosMemoria();
+
         try {
             raf.seek(0);
 
@@ -294,7 +348,7 @@ public class ArquivoMestre {
             System.out.println("Último id vazio: " + ultimo_id_vazio);
 
             System.out.println("[Registros]");
-            for (int i = 0; i < num_registros; i++) {
+            for (int i = 0; i < (proximo_id - 1); i++) {
                 id = raf.readInt(); // 4
                 _prox_id_vazio = raf.readInt(); // 4
                 is_lapide = raf.readBoolean(); // 1
