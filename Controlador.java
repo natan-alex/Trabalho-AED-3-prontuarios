@@ -84,19 +84,19 @@ public class Controlador {
     }
 
     public StatusDeInsercao inserirRegistro(Prontuario prontuario) {
-        Supplier<Object> insere = () -> {
+        Supplier<StatusDeInsercao> insere = () -> {
             if (prontuario == null)
                 return StatusDeInsercao.REGISTRO_INVALIDO;
             int num_registro = arquivo_mestre.inserirRegistro(prontuario);
             return indice.inserirRegistro(prontuario.getCpf(), num_registro);
         };
 
-        return (StatusDeInsercao) executaEMedeTempo(insere, "inserir");
+        return executaEMedeTempo(insere, "inserir");
     }
 
 
     public StatusDeEdicao editarRegistro(Prontuario registro, int opcao_de_campo, String valor) {
-        Supplier<Object> edita = () -> {
+        Supplier<StatusDeEdicao> edita = () -> {
             int num_registro = indice.getNumRegistro(registro.getCpf());
             if (num_registro == -1)
                 return StatusDeEdicao.CPF_INVALIDO;
@@ -128,31 +128,32 @@ public class Controlador {
             return StatusDeEdicao.TUDO_OK;
         };
 
-        return (StatusDeEdicao) executaEMedeTempo(edita, "editar");
+        return executaEMedeTempo(edita, "editar");
     }
 
     public Prontuario recuperarRegistro(int cpf) {
-        Supplier<Object> recupera = () -> {
+        Supplier<Prontuario> recupera = () -> {
             int num_registro = indice.getNumRegistro(cpf);
             if (num_registro == -1)
                 return null;
             return arquivo_mestre.recuperarRegistro(num_registro);
         };
 
-        return (Prontuario) executaEMedeTempo(recupera, "recuperar");
+        return executaEMedeTempo(recupera, "recuperar");
     }
 
-    public void removerRegistro(int cpf) {
-        Supplier<Object> remove = () -> {
+    public StatusDeRemocao removerRegistro(int cpf) {
+        Supplier<StatusDeRemocao> remove = () -> {
             int num_registro = indice.getNumRegistro(cpf);
             if (num_registro == -1)
-                return null;
+                return StatusDeRemocao.CPF_INVALIDO;
 
             indice.removerRegistro(cpf);
             arquivo_mestre.removerRegistro(num_registro);
-            return null;
+            return StatusDeRemocao.TUDO_OK;
         };
-        executaEMedeTempo(remove, "remover");
+
+        return executaEMedeTempo(remove, "remover");
     }
 
     public void imprimirArquivos() {
@@ -161,6 +162,7 @@ public class Controlador {
             indice.imprimirArquivo();
             return null;
         };
+
         executaEMedeTempo(imprime, "imprimir os arquivos");
     }
 
@@ -169,11 +171,9 @@ public class Controlador {
         final int lastCpf = 1024 * 1024 * 1024 / tam_registro_arq_mestre;
         final int ultimo_cpf_usado = 1;
         final List<Integer> cpfs = IntStream.rangeClosed(ultimo_cpf_usado, lastCpf).boxed().collect(Collectors.toList());
-
         Collections.shuffle(cpfs);
 
         Supplier<Object> simulaInsere = () -> {
-            System.out.println("lastCpf: " + lastCpf);
             Prontuario prontuario;
             int numRegistro;
             long inicio, fim;
@@ -213,10 +213,10 @@ public class Controlador {
         executaEMedeTempo(simulaBusca, "simulação [busca]");
     }
 
-    private Object executaEMedeTempo(Supplier<Object> fn, String label) {
+    private <T> T executaEMedeTempo(Supplier<T> fn, String label) {
         long inicio = System.currentTimeMillis();
 
-        Object result = fn.get();
+        T result = fn.get();
 
         long fim = System.currentTimeMillis();
         long diferenca = fim - inicio; // diferenca em milisegundos

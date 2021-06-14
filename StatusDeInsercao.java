@@ -6,6 +6,7 @@ package trabalho_aed_prontuario.indice;
 // TUDO_OK quando a inserção puder ser feita,
 // REARRANJAR_CHAVES caso seja necessário criar novo bucket 
 // e rearranjar as chaves do novo bucket e do bucket atual
+
 public enum StatusDeInsercao {
     IOEXCEPTION_LANCADA,
     REGISTRO_INVALIDO,

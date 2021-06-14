@@ -20,7 +20,7 @@ public class Diretorio {
     // caso o arquivo NÃO exista é necessário criar os indices
     // e metadados no início do arquivo
     public Diretorio(String nome_do_arquivo, int profundidade) {
-        indices = new int[8192];
+        indices = new int[1000000];
         controlador = 0;
 
         try {
