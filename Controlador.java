@@ -5,6 +5,11 @@ import trabalho_aed_prontuario.indice.StatusDeInsercao;
 import trabalho_aed_prontuario.mestre.*;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Collections;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 import java.util.function.Supplier;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -160,16 +165,20 @@ public class Controlador {
     }
 
     public void simular() {
-        Supplier<Object> simula = () -> {
-            int tam_registro_arq_mestre = arquivo_mestre.getTamRegistroCompleto();
-            int lastCpf = 1024 * 1024 * 1024 / tam_registro_arq_mestre;
+        final int tam_registro_arq_mestre = arquivo_mestre.getTamRegistroCompleto();
+        final int lastCpf = 1024 * 1024 * 1024 / tam_registro_arq_mestre;
+        final int ultimo_cpf_usado = 1;
+        final List<Integer> cpfs = IntStream.rangeClosed(ultimo_cpf_usado, lastCpf).boxed().collect(Collectors.toList());
+
+        Collections.shuffle(cpfs);
+
+        Supplier<Object> simulaInsere = () -> {
             System.out.println("lastCpf: " + lastCpf);
             Prontuario prontuario;
             int numRegistro;
-            int ultimo_cpf_usado = 1;
             long inicio, fim;
 
-            for (int cpf = ultimo_cpf_usado; cpf <= lastCpf; cpf++) {
+            for (Integer cpf : cpfs) {
                 inicio = System.currentTimeMillis();
                 prontuario = new Prontuario(cpf, "Nome" + cpf, LocalDate.now(), 'm', "blablabla");
                 numRegistro = arquivo_mestre.inserirRegistro(prontuario);
@@ -184,8 +193,24 @@ public class Controlador {
 
             return null;
         };
+        executaEMedeTempo(simulaInsere, "simulação [inserção]");
 
-        executaEMedeTempo(simula, "simulação");
+        Supplier<Object> simulaBusca = () -> {
+            Prontuario prontuario;
+            int numRegistro;
+            long inicio, fim;
+
+            for (Integer cpf : cpfs) {
+                inicio = System.currentTimeMillis();
+                numRegistro = indice.getNumRegistro(cpf);
+                prontuario = arquivo_mestre.recuperarRegistro(numRegistro);
+                fim = System.currentTimeMillis();
+                System.out.println("Tempo pra procurar o registro " + cpf + ": " + (fim - inicio) + "ms");
+            }
+
+            return null;
+        };
+        executaEMedeTempo(simulaBusca, "simulação [busca]");
     }
 
     private Object executaEMedeTempo(Supplier<Object> fn, String label) {
