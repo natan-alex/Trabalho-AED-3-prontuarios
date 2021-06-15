@@ -23,6 +23,9 @@ public class Main {
         int opcao;
         Prontuario prontuario;
 
+        int profundidade = -1, tam_buckets = -1;
+        short tam_anotacoes = -1;
+
         do {
             System.out.println("   MENU");
             System.out.println("[0] - Sair");
@@ -41,8 +44,6 @@ public class Main {
                     System.out.println("Programa encerrado.");
                     break;
                 case 1:
-                    int profundidade = -1, tam_buckets = -1;
-                    short tam_anotacoes = -1;
                     System.out.print("Qual será a profundidade inicial do hash? ");
                     profundidade = Integer.parseInt(in.nextLine());
 
@@ -136,8 +137,20 @@ public class Main {
                     controlador.imprimirArquivos();
                     break;
                 case 6:
-                    // simulacao
-                    controlador.simular();
+                    System.out.print("Qual será o número de chaves? ");
+                    int numero_chaves = Integer.parseInt(in.nextLine());
+
+                    System.out.print("Qual será a profundidade inicial do hash? ");
+                    profundidade = Integer.parseInt(in.nextLine());
+
+                    System.out.print("Qual será o número de registros por bucket? ");
+                    tam_buckets = Integer.parseInt(in.nextLine());
+
+                    System.out.print("Qual será o tamanho de anotações por registro? ");
+                    tam_anotacoes = Short.parseShort(in.nextLine());
+
+                    controlador.criarArquivos(profundidade, tam_buckets, tam_anotacoes);
+                    controlador.simular(numero_chaves);
                     break;
                 default:
                     System.out.println("Opção inválida.");

@@ -166,11 +166,15 @@ public class Controlador {
         executaEMedeTempo(imprime, "imprimir os arquivos");
     }
 
-    public void simular() {
+    public void simular(int numero_chaves) {
         final int tam_registro_arq_mestre = arquivo_mestre.getTamRegistroCompleto();
-        final int lastCpf = 1024 * 1024 * 1024 / tam_registro_arq_mestre;
+
+        if (numero_chaves == 0) {
+            numero_chaves = 1024 * 1024 * 1024 / tam_registro_arq_mestre;
+        }
+
         final int ultimo_cpf_usado = 1;
-        final List<Integer> cpfs = IntStream.rangeClosed(ultimo_cpf_usado, lastCpf).boxed().collect(Collectors.toList());
+        final List<Integer> cpfs = IntStream.rangeClosed(ultimo_cpf_usado, numero_chaves).boxed().collect(Collectors.toList());
         Collections.shuffle(cpfs);
 
         Supplier<Object> simulaInsere = () -> {
