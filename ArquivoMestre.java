@@ -2,10 +2,6 @@ package trabalho_aed_prontuario.mestre;
 
 import java.io.ByteArrayOutputStream;
 import java.io.RandomAccessFile;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.ArrayList;
-import java.time.format.DateTimeFormatter;
 
 import java.io.IOException;
 
@@ -45,10 +41,10 @@ public class ArquivoMestre {
             // e atribuir à variável num_bytes_anotacoes. Caso o argumento seja negativo o
             // tamanho default é de 100 bytes
             if (raf.length() > 0) {
-                ler_metadados();
+                lerMetadados();
             } else {
                 this.num_bytes_anotacoes = num_bytes_anotacoes;
-                escrever_metadados();
+                escreverMetadados();
                 prox_id = 1;
                 ultimo_id_vazio = prox_id_vazio = -1;
                 num_registros_no_arquivo = 0;
@@ -76,7 +72,7 @@ public class ArquivoMestre {
     // metadados: número de registros presentes no arquivo,
     // o número de bytes total para as anotações e o último
     // id usado
-    private void ler_metadados() {
+    private void lerMetadados() {
         try {
             this.num_registros_no_arquivo = raf.readInt();
             this.num_bytes_anotacoes = raf.readShort();
@@ -89,7 +85,7 @@ public class ArquivoMestre {
     }
 
     // escrever metadados em caso de o arquivo NÃO existir
-    private void escrever_metadados() {
+    private void escreverMetadados() {
         try {
             raf.writeInt(0); // número de registros no arquivo inicialmente é 0
             raf.writeShort(num_bytes_anotacoes);
@@ -293,10 +289,8 @@ public class ArquivoMestre {
         }
     }
 
-    // com número do registro, recuperar o registro e
-    // printar as informações contidas atualmente
-    // e se não existir(ou for lápide) retorna false. Perguntar o
-    // que o usuário quer alterar, excluindo o cpf.
+    // sobrescreve um registro do arquivo mestre, cujo número é passado como
+    // argumento, por outro registro, que também é um argumento do método.
     public boolean sobrescreverRegistroNoArquivo(Prontuario novo_prontuario, int num_registro) {
         flushRegistrosMemoria();
 

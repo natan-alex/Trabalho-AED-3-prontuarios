@@ -28,6 +28,8 @@ public class Controlador {
     private static final String DIR_FILENAME = Paths.get(DB_FILES_DIR_NAME, "diretorio.db").toString();
     private static final String MASTER_FILENAME = Paths.get(DB_FILES_DIR_NAME, "arquivo_mestre.db").toString();
 
+    // se o diretório DB_FILES_DIR_NAME não existir,
+    // ele é criado.
     public Controlador() {
         criarDiretorioDB();
         // instancia o índice e o arquivo mestre com os valores
@@ -36,6 +38,8 @@ public class Controlador {
         arquivo_mestre = new ArquivoMestre(MASTER_FILENAME, DEFAULT_TAM_ANOTACOES);
     }
 
+    // cria novos arquivos com as informações passadas como argumento;
+    // deleta os arquivos existentes antes de criar novos arquivos.
     public boolean criarArquivos(int profundidade_global, int tam_bucket, int tam_anotacoes) {
         if (profundidade_global < 0) {
             System.out.println("Profundidade global " + profundidade_global + " inválida, assumindo valor " + DEFAULT_P_GLOBAL);
@@ -83,6 +87,11 @@ public class Controlador {
         return deu_certo;
     }
 
+    // faz as inserções de maneira geral: insere o novo
+    // registro no arquivo mestre e a chave e o número do
+    // registro no bucket correspondente. Retorna StatusDeInsercao
+    // indicando o status final da operação. O tempo da operação é exibido
+    // após sua conclusão.
     public StatusDeInsercao inserirRegistro(Prontuario prontuario) {
         Supplier<StatusDeInsercao> insere = () -> {
             if (prontuario == null)
@@ -94,10 +103,14 @@ public class Controlador {
         return executaEMedeTempo(insere, "inserir");
     }
 
-
+    // altera as informações de um registro no arquivo mestre
+    // dado o campo que deve ser alterado, o registro que será
+    // alterado e o novo valor do campo. Retorna StatusDeEdicao
+    // indicando o status final da operação. O tempo da operação é exibido
+    // após sua conclusão.
     public StatusDeEdicao editarRegistro(Prontuario registro, int opcao_de_campo, String valor) {
         Supplier<StatusDeEdicao> edita = () -> {
-            int num_registro = indice.getNumRegistro(registro.getCpf());
+            int num_registro = indice.obterNumeroDoRegistroAssociadoAChave(registro.getCpf());
             if (num_registro == -1)
                 return StatusDeEdicao.CPF_INVALIDO;
             if (opcao_de_campo < 1 || opcao_de_campo > 4)
@@ -131,9 +144,13 @@ public class Controlador {
         return executaEMedeTempo(edita, "editar");
     }
 
+    // pesquisa e retorna o registro do arquivo mestre que
+    // tem a chave igual a que é passada como argumento para o método.
+    // caso a chave não seja encontrada retorna null; O tempo da operação é exibido
+    // após sua conclusão.
     public Prontuario recuperarRegistro(int cpf) {
         Supplier<Prontuario> recupera = () -> {
-            int num_registro = indice.getNumRegistro(cpf);
+            int num_registro = indice.obterNumeroDoRegistroAssociadoAChave(cpf);
             if (num_registro == -1)
                 return null;
             return arquivo_mestre.recuperarRegistro(num_registro);
@@ -142,9 +159,14 @@ public class Controlador {
         return executaEMedeTempo(recupera, "recuperar");
     }
 
+    // remove logicamente um registro do arquivo mestre dada
+    // a sua chave. Remove também a chave e o número do registro
+    // no índice. Retorna StatusDeRemocao que indica o status final
+    // da operação. O tempo da operação é exibido
+    // após sua conclusão.
     public StatusDeRemocao removerRegistro(int cpf) {
         Supplier<StatusDeRemocao> remove = () -> {
-            int num_registro = indice.getNumRegistro(cpf);
+            int num_registro = indice.obterNumeroDoRegistroAssociadoAChave(cpf);
             if (num_registro == -1)
                 return StatusDeRemocao.CPF_INVALIDO;
 
@@ -155,7 +177,8 @@ public class Controlador {
 
         return executaEMedeTempo(remove, "remover");
     }
-
+    // imprime o conteúdo do arquivo mestre e do índice(buckets + diretório).
+    // O tempo da operação é exibido após sua conclusão.
     public void imprimirArquivos() {
         Supplier<Object> imprime = () -> {
             arquivo_mestre.imprimirArquivo();
@@ -166,6 +189,11 @@ public class Controlador {
         executaEMedeTempo(imprime, "imprimir os arquivos");
     }
 
+    // realiza a simulação de inserções e pesquisas com base numa coleção de
+    // chaves geradas aleatoriamente. O tamanho da coleção é passado como argumento.
+    // Caso o número de chaves seja 0 o número de chaves passa a ser o suficiente
+    // para que o arquivo mestre tenha 1G de tamanho.
+    // O tempo das operações(inserções e pesquisas) são exibidos após a conclusão.
     public void simular(int numero_chaves) {
         final int tam_registro_arq_mestre = arquivo_mestre.getTamRegistroCompleto();
 
@@ -206,7 +234,7 @@ public class Controlador {
 
             for (Integer cpf : cpfs) {
                 inicio = System.currentTimeMillis();
-                numRegistro = indice.getNumRegistro(cpf);
+                numRegistro = indice.obterNumeroDoRegistroAssociadoAChave(cpf);
                 prontuario = arquivo_mestre.recuperarRegistro(numRegistro);
                 fim = System.currentTimeMillis();
                 System.out.println("Tempo pra procurar o registro " + cpf + ": " + (fim - inicio) + "ms");
@@ -217,6 +245,11 @@ public class Controlador {
         executaEMedeTempo(simulaBusca, "simulação [busca]");
     }
 
+    // executa uma determinada função passada como argumento
+    // e contabiliza o tempo gasto para sua execução. O retorno
+    // é dado pelo retorno da função passada como argumento.
+    // label identifica o que será exibido na mensagem que
+    // mostra o tempo.
     private <T> T executaEMedeTempo(Supplier<T> fn, String label) {
         long inicio = System.currentTimeMillis();
 

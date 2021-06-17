@@ -6,12 +6,12 @@ import java.io.IOException;
 
 public class Indice {
     private static final byte SIZEOF_METADADOS_INDICE = 8;
-    private short sizeof_full_bucket;
+    private short sizeof_full_bucket; // tamanho de um bucket cheio
 
     private RandomAccessFile raf;
     private Diretorio diretorio;
 
-    private int tam_bucket;
+    private int tam_bucket; // tamanho máximo do bucket
     private int qtd_buckets; // quantidade de buckets presente no arquivo
 
     // caso o arquivo exista os metadados são lidos
@@ -24,12 +24,12 @@ public class Indice {
             // se possuir dados, significa que o arquivo já
             // contém a estrutura básica
             if (raf.length() > 0) {
-                ler_metadados();
+                lerMetadados();
             } else {
                 this.tam_bucket = tam_bucket;
                 this.qtd_buckets = 0;
 
-                escrever_metadados();
+                escreverMetadados();
 
                 // criar 2^p_global buckets iniciais
                 for (int i = 0; i < Math.pow(2, profundidade_global); i++) {
@@ -64,7 +64,7 @@ public class Indice {
     // escrever no inicio do arquivo a profundiade global,
     // o tamanho do bucket e a qtd_buckets total no arquivo;
     // os metadados serão escritos caso o arquivo não exista
-    private void escrever_metadados() {
+    private void escreverMetadados() {
         try {
             raf.writeInt(tam_bucket);
             raf.writeInt(qtd_buckets);
@@ -77,7 +77,7 @@ public class Indice {
     // qtd_buckets) inseridos ao criar o arquivo de indices;
     // metadados serão lidos uma única vez em caso de o arquivo
     // já existir ao instanciar a classe
-    private void ler_metadados() {
+    private void lerMetadados() {
         try {
             tam_bucket = raf.readInt();
             qtd_buckets = raf.readInt();
@@ -262,7 +262,7 @@ public class Indice {
     // obter o número do registro do arquivo mestre associado
     // ao cpf a partir do registro do bucket; retorna -1
     // caso não encontre o cpf
-    public int getNumRegistro(int cpf) {
+    public int obterNumeroDoRegistroAssociadoAChave(int cpf) {
         // obter número do bucket a partir do cpf
         int num_bucket = diretorio.getPaginaIndice(cpf);
         // carregar registros do bucket e procurar por cpf

@@ -1,4 +1,6 @@
 package trabalho_aed_prontuario.main;
+// enum para indicar os possíveis status de um método
+// que faça uma edição de um registro no arquivo mestre
 
 // CPF_INVALIDO autodescritivo, acontece quando o cpf
 // passado para o método de edição não for válido;

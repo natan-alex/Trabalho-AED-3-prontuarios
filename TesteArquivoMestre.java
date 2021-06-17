@@ -24,7 +24,7 @@ public class TesteArquivoMestre {
 
             // testar edição
             int cpf_editar = 8;
-            numRegistro = indice.getNumRegistro(cpf_editar);
+            numRegistro = indice.obterNumeroDoRegistroAssociadoAChave(cpf_editar);
             Prontuario atual = mestre.recuperarRegistro(numRegistro);
             Prontuario alterado = new Prontuario(cpf_editar, "shulambs", LocalDate.now().minusMonths(5), 'f', "anotacoes de um bom medico");
             // mestre.editarRegistro(numRegistro, alterado);

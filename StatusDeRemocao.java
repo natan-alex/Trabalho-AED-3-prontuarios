@@ -1,4 +1,6 @@
 package trabalho_aed_prontuario.main;
+// enum para indicar os possíveis status de um método
+// que faça uma remoção de um registro no arquivo mestre
 
 public enum StatusDeRemocao {
     // CPF_INVALIDO acontece quando

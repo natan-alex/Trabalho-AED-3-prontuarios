@@ -1,4 +1,6 @@
 package trabalho_aed_prontuario.indice;
+// enum para indicar os possíveis status de um método
+// que faça uma inserção no arquivo de índice
 
 // IOEXCEPTION_LANCADA em caso de IOException lançada,
 // REGISTRO_INVALIDO caso o registro a ser inserido seja inválido,

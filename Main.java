@@ -17,7 +17,7 @@ public class Main {
         final DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("dd/MM/yy");
 
         int cpf;
-        String nome, anotacoes, strData;
+        String nome, anotacoes, data_lida;
         char sexo;
         LocalDate data;
         int opcao;
@@ -67,12 +67,12 @@ public class Main {
                     nome = in.nextLine();
 
                     System.out.print("Qual será a data? (Digite no formato dia/mês/ano): ");
-                    strData = in.nextLine();
+                    data_lida = in.nextLine();
 
-                    if (strData.length() == 10)
-                        data = LocalDate.parse(strData, formatter);
+                    if (data_lida.length() == 10)
+                        data = LocalDate.parse(data_lida, formatter);
                     else
-                        data = LocalDate.parse(strData, formatter2);
+                        data = LocalDate.parse(data_lida, formatter2);
 
                     System.out.print("Qual será o sexo do paciente? ");
                     sexo = in.nextLine().charAt(0);
