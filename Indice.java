@@ -46,8 +46,8 @@ public class Indice {
         }
     }
 
-    // a classe é responsável por alterar a variável qtd_buckets
-    // portanto o setter é privado
+	// incrementa o atributo qtd_buckets e o metadado
+	// referente a ele
     private void aumentarQtdBucketsNoArquivo() {
         try {
             raf.seek(SIZEOF_METADADOS_INDICE - 4);
@@ -110,8 +110,8 @@ public class Indice {
         return qtd_buckets;
     }
 
-    // calcular a posição de início do bucket com
-    // dado o número do bucket
+    // calcular a posição de início do bucket, no arquivo,
+    // dado o seu número
     private long calcularPosBucket(int num_bucket) {
         // necessário pular os metadados do arquivo
         // e pular os buckets anteriores ao de número num_bucket;
