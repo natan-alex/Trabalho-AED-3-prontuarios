@@ -2,12 +2,10 @@ package trabalho_aed_prontuario.main;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Locale;
 import java.util.Scanner;
 
 import trabalho_aed_prontuario.indice.StatusDeInsercao;
 import trabalho_aed_prontuario.mestre.Prontuario;
-import trabalho_aed_prontuario.main.Controlador;
 
 public class Main {
     public static void main(String[] args) {
@@ -41,7 +39,7 @@ public class Main {
             switch (opcao) {
                 case 0:
                     in.close();
-                    controlador.fecharArquivos();
+                    controlador.fecharConexaoComArquivos();
                     System.out.println("Programa encerrado.");
                     break;
                 case 1:

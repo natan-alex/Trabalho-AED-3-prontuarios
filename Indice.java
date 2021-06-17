@@ -305,10 +305,10 @@ public class Indice {
 
     // fechar conexão com o arquivo de índice e
     // com o arquivo do diretório
-    public void fecharArquivos() {
+    public void fecharConexaoComArquivos() {
         try {
             raf.close();
-            diretorio.fecharArquivo();
+            diretorio.fecharConexaoComArquivo();
         } catch (IOException e) {
             e.printStackTrace();
         }

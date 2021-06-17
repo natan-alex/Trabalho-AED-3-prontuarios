@@ -247,9 +247,9 @@ public class Controlador {
 
     // fecha a conexão com os arquivos de índice,
     // do diretório e do arquivo mestre
-    public void fecharArquivos() {
-        indice.fecharArquivos();
-        arquivo_mestre.fecharArquivo();
+    public void fecharConexaoComArquivos() {
+        indice.fecharConexaoComArquivos();
+        arquivo_mestre.fecharConexaoComArquivo();
     }
 
     // executa uma determinada função passada como argumento

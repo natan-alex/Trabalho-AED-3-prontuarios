@@ -128,7 +128,7 @@ public class Diretorio {
     }
 
     // fechar conexão com o arquivo
-    public void fecharArquivo() {
+    public void fecharConexaoComArquivo() {
         try {
             raf.close();
         } catch (IOException e) {
