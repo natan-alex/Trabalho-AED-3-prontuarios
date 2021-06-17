@@ -127,6 +127,15 @@ public class Diretorio {
         }
     }
 
+    // fechar conexão com o arquivo
+    public void fecharArquivo() {
+        try {
+            raf.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void imprimirArquivo() {
         try {
             raf.seek(0);

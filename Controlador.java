@@ -245,6 +245,13 @@ public class Controlador {
         executaEMedeTempo(simulaBusca, "simulação [busca]");
     }
 
+    // fecha a conexão com os arquivos de índice,
+    // do diretório e do arquivo mestre
+    public void fecharArquivos() {
+        indice.fecharArquivos();
+        arquivo_mestre.fecharArquivo();
+    }
+
     // executa uma determinada função passada como argumento
     // e contabiliza o tempo gasto para sua execução. O retorno
     // é dado pelo retorno da função passada como argumento.

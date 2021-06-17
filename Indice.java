@@ -302,4 +302,15 @@ public class Indice {
             err.printStackTrace();
         }
     }
+
+    // fechar conexão com o arquivo de índice e
+    // com o arquivo do diretório
+    public void fecharArquivos() {
+        try {
+            raf.close();
+            diretorio.fecharArquivo();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -41,6 +41,7 @@ public class Main {
             switch (opcao) {
                 case 0:
                     in.close();
+                    controlador.fecharArquivos();
                     System.out.println("Programa encerrado.");
                     break;
                 case 1:

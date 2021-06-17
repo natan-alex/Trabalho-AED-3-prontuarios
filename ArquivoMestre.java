@@ -314,6 +314,15 @@ public class ArquivoMestre {
         return deu_certo;
     }
 
+    // fechar conexão com o arquivo
+    public void fecharArquivo() {
+        try {
+            raf.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     // imprime o cabeçalho e registros do arquivo mestre,
     // pulando de registro a registro
     public void imprimirArquivo() {
