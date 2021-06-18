@@ -4,7 +4,7 @@ Implementar um sistema de cadastro de prontuários para uma empresa de planos
 de saúde, com opções de inserção, alteração, exclusão e impressão.
 A organização do arquivo de dados deve ser indexado, com índice baseado em hashing dinâmico.
 O sistema deverá oferecer uma tela inicial com um menu de opções:
-1- Criar arquivo: Cria um novo sistema de arquivos constituído por um diretório, um índice e um
+1. Criar arquivo: Cria um novo sistema de arquivos constituído por um diretório, um índice e um
 arquivo-mestre.
 a) O diretório é um arquivo de inteiros de 4 bytes, cujos valores apontam para o número de uma
 página do arquivo de índices (começando por 0). O valor da profundidade global (p) deve ser
@@ -21,18 +21,18 @@ deve ser um parâmetro do programa.
 c) O arquivo-mestre é um arquivo de registros de tamanho fixo, contendo no mínimo os campos para
 nome, data de nascimento, sexo e uma área de m caracteres/bytes para anotações do médico. O
 valor de m é um parâmetro do programa.
-2- Inserir registro: Insere um novo registro, através da entrada dos valores dos campos, exceto o campo
+2. Inserir registro: Insere um novo registro, através da entrada dos valores dos campos, exceto o campo
 de anotações. Os arquivos são atualizados segundo a técnica de hash dinâmico. O tempo decorrido no
 processo (sem envolver a interação do usuário) deve ser medido e exibido na tela.
-3- Editar registro: Compreende uma busca ao registro a partir do CPF e a edição do campo de
+3. Editar registro: Compreende uma busca ao registro a partir do CPF e a edição do campo de
 anotações. O tempo decorrido no processo de pesquisa e recuperação do registro (sem envolver a
 interação do usuário) deve ser medido e exibido na tela.
-4- Remover registro: Remove o registro a partir do número do CPF. A remoção é sempre lógica,
+4. Remover registro: Remove o registro a partir do número do CPF. A remoção é sempre lógica,
 zerando-se o CPF no bucket correspondente. O espaço do registro do arquivo-mestre não deve ser
 excluído e pode ser reutilizado em uma próxima inclusão.
-5- Imprimir arquivos: Imprime na tela o conteúdo atual do diretório, do arquivo de índices e do
+5. Imprimir arquivos: Imprime na tela o conteúdo atual do diretório, do arquivo de índices e do
 arquivo-mestre.
-6- Simulação: Nesta opção deverá ser criado um conjunto aleatório de k chaves sem repetição que serão
+6. Simulação: Nesta opção deverá ser criado um conjunto aleatório de k chaves sem repetição que serão
 inseridos em um arquivo inicialmente vazio, com registros vazios. Em seguida, as chaves devem ser
 pesquisadas e os registros recuperados. Marcar o tempo de execução para a inserção e para a pesquisa
 do conjunto de dados. Repita o processo para diversos valores de k, p (profundidade global), n
