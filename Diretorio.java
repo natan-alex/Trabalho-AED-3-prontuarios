@@ -75,10 +75,17 @@ public class Diretorio {
         }
     }
 
-    // aplica a funcao hash na entrada (cpf) e busca o
-    // o endereco do bucket no diretorio
+    // aplica a funcao hash na entrada (cpf) com base na profundidade
+    // global e busca o número do bucket no diretorio
     public int getPaginaIndice(int entrada) {
         int posicao = (int) Math.round(entrada % Math.pow(2, profundidade));
+        return indices[posicao];
+    }
+
+    // aplica a funcao hash na entrada (cpf) com base na profundidade
+    // local do bucket e busca o número do bucket no diretorio
+    public int getPaginaIndice(int entrada, int profundidade_local_do_bucket) {
+        int posicao = (int) Math.round(entrada % Math.pow(2, profundidade_local_do_bucket));
         return indices[posicao];
     }
 

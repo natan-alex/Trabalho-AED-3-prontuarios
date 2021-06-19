@@ -21,14 +21,14 @@ public class TesteIndice {
             Prontuario prontuario;
             int numRegistro = 0;
 
-            int[] cpfs = {10,3,14,18,20,8,6,1,12,22,7,16,13,19};
+            int[] cpfs = {10,3,14,18,20,8,6,1,12,22,7,16,13,19,4};
             for (int cpf : cpfs) {
                 prontuario = new Prontuario(cpf, "Nome" + cpf, LocalDate.now(), 'm', "blablabla");
                 numRegistro = mestre.inserirRegistro(prontuario);
                 indice.inserirRegistro(cpf, numRegistro);
             }
 
-            mestre.imprimirArquivo();
+//            mestre.imprimirArquivo();
             indice.imprimirArquivo();
 //
 //            numRegistro = indice.getNumRegistro(3);

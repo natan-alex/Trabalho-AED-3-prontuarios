@@ -196,7 +196,7 @@ public class Indice {
         Bucket[] novos_buckets = distribuirRegistrosDoBucket(bucket, num_bucket);
 
         // inserir novo registro
-        if ( diretorio.getPaginaIndice(cpf) == num_bucket)
+        if ( diretorio.getPaginaIndice(cpf) == num_bucket )
             novos_buckets[0].inserirRegistro( new RegistroDoBucket(cpf, num_registro) );
         else
             novos_buckets[1].inserirRegistro( new RegistroDoBucket(cpf, num_registro) );
@@ -238,7 +238,7 @@ public class Indice {
         for (RegistroDoBucket registro : registros) {
             // calcular hash para identificar o novo número do bucket
             // onde inserir o registro
-            if (diretorio.getPaginaIndice(registro.getChave()) == num_bucket)
+            if (diretorio.getPaginaIndice(registro.getChave(), profundidade_novo_bucket) == num_bucket)
                 bucket.inserirRegistro(registro);
             else
                 novo_bucket.inserirRegistro(registro);
